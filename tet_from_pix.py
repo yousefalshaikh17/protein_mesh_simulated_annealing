@@ -1,17 +1,46 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jul 22 11:04:41 2021
+#
+#  This file is part of the FFEA simulation package
+#
+#  Copyright (c) by the Theory and Development FFEA teams,
+#  as they appear in the README.md file.
+#
+#  FFEA is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  FFEA is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  To help us fund FFEA development, we humbly ask that you cite
+#  the research papers on the package.
+#
 
-@author: mollygravett
 """
+        tet_from_pix.py
+        Authors: Molly Gravett, Joanna Leng, Jarvellis Rogers - University of Leeds
+        Emails: bsmgr@leeds.ac.uk, J.Leng@leeds.ac.uk, J.F.Rogers1@leeds.ac.uk
+"""
+
 #Generating tetrahedral meshes from pixel data
 
+#DEBUG - test command:
+# python tet_from_pix.py --input="data/newmap_15A_0p00878.mrc" --output="new_0p00878_mesh_15A" --threshold=0.00878
+
+from os import path
 import numpy as np
 import vtk
 import mrcfile
 import vtk.util.numpy_support
 import datetime
+import getopt
+import sys
 #import vtkwmtk from vmtk
 # from chimerax.map_data import mrc
 # ## #coarsen
@@ -22,9 +51,46 @@ import datetime
 #vol resample #1 spacing 15 - this coarsens to 15 Å voxels
 #save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
 
-mrcfilename = 'newmap_15A_0p00878.mrc'
-threshold = 0.00878
-chosen_filename = 'new_0p00878_mesh_15A'
+def pathCheck(fpath):
+    if not path.exists(fpath):
+        msg = "ERROR: Input file path does not exist. Please try again."
+        sys.exit(msg)
+
+try:
+    options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:", ["input=", "output=", "threshold="])
+except getopt.GetoptError as err:
+    print("ERROR: " + str(err) + "\n")
+    usage()
+
+for opt, arg in options:
+    if opt in ("-i", "--input"):
+        mrcfilename = arg
+        pathCheck(mrcfilename)
+    elif opt in ("-o", "--output"):
+        chosen_filename = arg
+    elif opt in ("-t", "--threshold"):
+        try:
+            threshold = float(arg)
+        except ValueError:
+            msg = "ERROR: Threshold value must be a number."
+            sys.exit(msg)
+
+# Checks to see if mandatory options have been called
+try:
+    mrcfilename
+except NameError:
+    msg = "ERROR: Input MRC file path not defined."
+    sys.exit(msg)
+try:
+    chosen_filename
+except NameError:
+    msg = "ERROR: Output destination file path not defined."
+    sys.exit(msg)
+try:
+    threshold
+except NameError:
+    msg = "ERROR: Threshold not defined."
+    sys.exit(msg)
 
 mrc = mrcfile.open(mrcfilename, mode='r+')
 
@@ -42,7 +108,7 @@ for z in range(0, nz):
         for x in range(0, nx):
             if a[z,y,x] >= threshold:
                 nvoxel=nvoxel+1
-                
+
 coords = np.zeros((nvoxel*8, 3))
 ncoord = 0
 res = float(mrc.header.cella['x'])/nx
@@ -53,7 +119,7 @@ alternate = np.zeros((nvoxel,))
 location = 0
 
 
-                
+
 #create hex points
 for z in range(0, nz):
     for y in range(0, ny):
@@ -100,9 +166,9 @@ for z in range(0, nz):
                         else:
                             alternate[location] = 1
                 location=location+1
-                
 
-    
+
+
 points_ = np.unique(coords, axis=0) #make unique list of points for index
 
 #create connectivity of cubes using index from point list
@@ -125,7 +191,7 @@ def a(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
     return tet_list
 
-#tet division for odd cubes    
+#tet division for odd cubes
 def b(cube):
     tet1 = np.array([cube[0], cube[1], cube[3], cube[4]])
     tet2 = np.array([cube[1], cube[4], cube[5], cube[6]])
@@ -213,7 +279,7 @@ for i in range(len(points_)):
     node_next=str(i+1)+' '+str(points_[i][0])+' '+str(points_[i][1])+' '+str(+points_[i][2])+'\n'
     node.write(node_next)
 node.write(comment)
-node.close()    
+node.close()
 
 #.face
 #First line: <# of faces> <boundary marker (0 or 1)>
@@ -228,4 +294,3 @@ for i in range(len(faces)):
     face.write(face_next)
 face.write(comment)
 face.close()
-
