@@ -60,7 +60,6 @@ try:
     options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:", ["input=", "output=", "threshold="])
 except getopt.GetoptError as err:
     print("ERROR: " + str(err) + "\n")
-    usage()
 
 for opt, arg in options:
     if opt in ("-i", "--input"):
@@ -125,21 +124,21 @@ for z in range(0, nz):
     for y in range(0, ny):
         for x in range(0, nx):
             if a[z,y,x] >= threshold:
-                coord1 = [(x*res)+x_trans, (y*res)+y_trans, (z*res)+z_trans]
+                coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                 coords[ncoord] = coord1
-                coord2 = [((x+1)*res)+x_trans, (y*res)+y_trans, (z*res)+z_trans]
+                coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                 coords[ncoord+1] = coord2
-                coord3 = [((x+1)*res)+x_trans, ((y+1)*res)+y_trans, (z*res)+z_trans]
+                coord3 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                 coords[ncoord+2] = coord3
-                coord4 = [(x*res)+x_trans, ((y+1)*res)+y_trans, (z*res)+z_trans]
+                coord4 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                 coords[ncoord+3] = coord4
-                coord5 = [(x*res)+x_trans, (y*res)+y_trans, ((z+1)*res)+z_trans]
+                coord5 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
                 coords[ncoord+4] = coord5
-                coord6 = [((x+1)*res)+x_trans, (y*res)+y_trans, ((z+1)*res)+z_trans]
+                coord6 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
                 coords[ncoord+5] = coord6
-                coord7 = [((x+1)*res)+x_trans, ((y+1)*res)+y_trans, ((z+1)*res)+z_trans]
+                coord7 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
                 coords[ncoord+6] = coord7
-                coord8 = [(x*res)+x_trans, ((y+1)*res)+y_trans, ((z+1)*res)+z_trans]
+                coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
                 coords[ncoord+7] = coord8
                 ncoord=ncoord+8
                 #logic for alternating tet division 0 (a) or 1 (b)
