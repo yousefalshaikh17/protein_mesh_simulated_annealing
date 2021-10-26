@@ -31,9 +31,10 @@
 #Generating tetrahedral meshes from pixel data
 
 #DEBUG - test command:
-# python tet_from_pix.py --input="data/newmap_15A_0p00878.mrc" --output="new_0p00878_mesh_15A" --threshold=0.00878
+# python tet_from_pix.py --input="data/newmap_15A_equilibrium_0p00202.mrc" --output="../testoutput/new_0p00202_mesh_15A" --threshold=0.00202 --resolution=20
 
 from os import path
+from scipy import ndimage
 import numpy as np
 import vtk
 import mrcfile
@@ -51,13 +52,15 @@ import sys
 #vol resample #1 spacing 15 - this coarsens to 15 Å voxels
 #save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
 
+rescale_check = False # checks if a resolution value has been input to trigger the rescaling code
+
 def pathCheck(fpath):
     if not path.exists(fpath):
         msg = "ERROR: Input file path does not exist. Please try again."
         sys.exit(msg)
 
 try:
-    options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:", ["input=", "output=", "threshold="])
+    options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:r:", ["input=", "output=", "threshold=", "resolution="])
 except getopt.GetoptError as err:
     print("ERROR: " + str(err) + "\n")
 
@@ -72,6 +75,13 @@ for opt, arg in options:
             threshold = float(arg)
         except ValueError:
             msg = "ERROR: Threshold value must be a number."
+            sys.exit(msg)
+    elif opt in ("-r", "--resolution"):
+        rescale_check = True
+        try:
+            resolution = float(arg)
+        except ValueError:
+            msg = "ERROR: Resolution must be a number."
             sys.exit(msg)
 
 # Checks to see if mandatory options have been called
@@ -92,8 +102,26 @@ except NameError:
     sys.exit(msg)
 
 mrc = mrcfile.open(mrcfilename, mode='r+')
-
 a = mrc.data
+
+# Creates new MRC file with rescaled voxels and uses it in the rest of the code
+if rescale_check:
+    scale_factor=(mrc.voxel_size.tolist()[0]) / resolution
+    b = ndimage.zoom(a, scale_factor, order=3)
+    mrcfilename_new = chosen_filename + ".mrc"
+
+    with mrcfile.new(mrcfilename_new, overwrite=True) as mrc_2:
+        mrc_2.set_data(b)
+        mrc_2.header.origin = mrc.header.origin
+        new_vox = mrc.voxel_size.tolist()
+        new_list = []
+        for i in new_vox:
+            new_list.append((1/scale_factor)*i)
+        mrc_2.voxel_size = tuple(new_list)
+
+    mrcfile.validate(mrcfilename_new)
+    mrc = mrcfile.open(mrcfilename_new, mode='r+')
+    a = mrc.data
 
 nx = mrc.header.nx
 ny = mrc.header.ny
