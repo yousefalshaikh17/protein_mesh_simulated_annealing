@@ -68,10 +68,26 @@ if __name__ == "__main__":
             msg = "ERROR: Input file path does not exist. Please try again."
             sys.exit(msg)
 
+    def usage():
+        helpMessage = """   Coding:   Molly Gravett (bsmgr@leeds.ac.uk), Joanna Leng (J.Leng@leeds.ac.uk), Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk)
+
+    mrc_zoom coarsens MRC files to a user-defined resolution and outputs them as a new .mrc file.
+
+    General Options:
+      -h [ --help ]             Print usage message.
+      -i [ --input ] arg        File path to input MRC file. (required)
+      -o [ --output ] arg       Name or /path/to/name of output MRC file. (required)
+      -r [ --resolution ] arg   Resolution to coarsen input MRC file by. (required)
+    """
+
+        print(helpMessage)
+        sys.exit()
+
     try:
-        options, remainder = getopt.getopt(sys.argv[1:], "i:o:r:", ["input=", "output=", "resolution="])
+        options, remainder = getopt.getopt(sys.argv[1:], "i:o:r:h", ["input=", "output=", "resolution=", "help"])
     except getopt.GetoptError as err:
         print("ERROR: " + str(err) + "\n")
+        usage()
 
     for opt, arg in options:
         if opt in ("-i", "--input"):
@@ -85,6 +101,8 @@ if __name__ == "__main__":
             except ValueError:
                 msg = "ERROR: Resolution must be a number."
                 sys.exit(msg)
+        elif opt in ("-h", "--help"):
+            usage()
 
     # Checks to see if mandatory options have been called
     try:

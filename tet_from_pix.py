@@ -49,7 +49,21 @@ import sys
 #vol resample #1 spacing 15 - this coarsens to 15 Å voxels
 #save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
 
-rescale_check = False # checks if a resolution value has been input to trigger the rescaling code
+def usage():
+    helpMessage = """   Coding:   Molly Gravett (bsmgr@leeds.ac.uk), Joanna Leng (J.Leng@leeds.ac.uk), Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk)
+
+tet_from_pix processes MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+
+General Options:
+  -h [ --help ]             Print usage message.
+  -i [ --input ] arg        File path to input MRC file. (required)
+  -o [ --output ] arg       Name or /path/to/name of output files. (required)
+  -t [ --threshold ] arg    Isolevel of input MRC file. (required)
+  -r [ --resolution ] arg   Resolution to optionally coarsen input MRC file by. Produces a new MRC file in the output directory.
+"""
+
+    print(helpMessage)
+    sys.exit()
 
 def pathCheck(fpath):
     if not path.exists(fpath):
@@ -57,9 +71,12 @@ def pathCheck(fpath):
         sys.exit(msg)
 
 try:
-    options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:r:", ["input=", "output=", "threshold=", "resolution="])
+    options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:r:h", ["input=", "output=", "threshold=", "resolution=", "help"])
 except getopt.GetoptError as err:
     print("ERROR: " + str(err) + "\n")
+    usage()
+
+rescale_check = False # checks if a resolution value has been input to trigger the rescaling code
 
 for opt, arg in options:
     if opt in ("-i", "--input"):
@@ -80,6 +97,8 @@ for opt, arg in options:
         except ValueError:
             msg = "ERROR: Resolution must be a number."
             sys.exit(msg)
+    elif opt in ("-h", "--help"):
+        usage()
 
 # Checks to see if mandatory options have been called
 try:
