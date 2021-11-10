@@ -126,9 +126,9 @@ To get started quickly, the usage message can be viewed with the following comma
 
 There are three unit tests, which are as follows:
 
-   1) Tests running tet_from_pix without coarsening the input MRC file.
-   2) Tests running mrc_zoom.
-   3) Tests running tet_from_pix with coarsening of the input MRC file.
+   1. Tests running tet_from_pix without coarsening the input MRC file.
+   2. Tests running mrc_zoom.
+   3. Tests running tet_from_pix with coarsening of the input MRC file.
 
 If unit_tests is called with no flags, all three tests will run. To run specific
  tests, use the `t` or `--test` flag with the number(s) of test(s). For example,
