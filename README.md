@@ -111,3 +111,29 @@ Running the required flags on an MRC would look something like the example
 In the output directory defined by `-o` or `--output`, a new .mrc file will be
  found after running mrc_zoom successfully of the coarsened MRC, named after the
  user-defined output name.
+
+
+Unit Tests {#unit}
+=============
+
+The directory `tests` contain unit tests for developers working on ffea-meshing.
+ Inside is a script called `unit_tests.py` which executes the tests, and the
+ required input and output files for these tests.
+
+To get started quickly, the usage message can be viewed with the following command:
+
+      python unit_tests.py -h
+
+There are three unit tests, which are as follows:
+
+   1) Tests running tet_from_pix without coarsening the input MRC file.
+   2) Tests running mrc_zoom.
+   3) Tests running tet_from_pix with coarsening of the input MRC file.
+
+If unit_tests is called with no flags, all three tests will run. To run specific
+ tests, use the `t` or `--test` flag with the number(s) of test(s). For example,
+ to run tests 1 and 3, run the following command:
+
+      python unit_tests.py -t 1,3
+
+The command line will print out each test ran and state if they passed or failed.
