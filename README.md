@@ -90,6 +90,10 @@ mrc_zoom inputs MRC files and allows a user to coarsen them to a defined
  MRC file, rather than go through the whole process of producing volumetric
  mesh files.
 
+To get started quickly, the usage message can be viewed with the following command:
+
+      python mrc_zoom.py -h
+
 In order to run tet_from_pix to produce volumetric mesh files, there are three
 required flags:
 
