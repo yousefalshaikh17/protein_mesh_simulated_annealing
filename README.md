@@ -1,8 +1,7 @@
 Overview {#overview}
 ============
 
-ffea-meshing are Python scripts for converting MRC files to tetgen volumetric
- meshes for use with [FFEA](https://bitbucket.org/FFEA/ffea/downloads/).
+ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) meshes.
 
 
 Scripts {#scripts}
@@ -16,12 +15,15 @@ Scripts {#scripts}
    * **mrc_zoom.py** - Coarsens MRC files to a user-defined resolution and
     outputs them as a new .mrc file. Can be called by tet_from_pix.
 
+   * **ffea_convert_to_vtk.py** - Converts FFEA systems into VTK files for
+    analysis in ParaView and other compatible software.
+
 
 Prerequisites {#prerequisites}
 =============
 
-   * [Python](https://www.python.org/).
-     Required for running the tool script.
+   * [Python (>= 3.8)](https://www.python.org/).
+     Required for running the tool scripts.
 
    * [NumPy](https://numpy.org/).
      Required Python library.
@@ -111,6 +113,39 @@ Running the required flags on an MRC would look something like the example
 In the output directory defined by `-o` or `--output`, a new .mrc file will be
  found after running mrc_zoom successfully of the coarsened MRC, named after the
  user-defined output name.
+
+<!-- Note: This README style is inconsistent because of format changes made in the branch interpolation which will be merged at a later date. I had to compromise. -->
+## ffea_convert_to_vtk {#ffea-vtk}
+
+ffea_convert_to_vtk inputs FFEA scripts to find their input mesh(s), apply any
+ transformations as dictated by the script, and then output them as points-only
+ VTK files for mesh analysis.
+
+**NOTE**: This tool is currently incomplete. This will not yet process transformations
+ dictated by coupling in FFEA scripts. This feature is to be added at a later date.
+
+In order to run ffea_convert_to_vtk there are two required flags:
+
+   * `-i` or `--input` - The filepath to the input FFEA file to be converted.
+   * `-o` or `--output` - The destination filepath of the output VTK file.
+
+Running the conversion tool would look something like the example command:
+
+     python fea_convert_to_vtk.py -i /path/to/input.ffea -o /path/to/output
+
+In the output directory defined by `-o` or `--output`, the file [outputname].vtk
+ will be found, where [outputname] is the name of the input FFEA script.
+
+The output VTK file can be viewed in ParaView for analysis. When the VTK file is
+ first loaded into ParaView, there will be nothing to see. A Glyphs filter needs
+ to be applied to it first. This is done by selecting the VTK in the Pipeline
+ Browser on the left, and then applying the Glyphs filter found in Filters >
+ Alphabetical/Common. When adding these glyphs, ensure that in their properties
+ that the Glyph Mode under Masking is set to All Points (see example in image
+ below) or there will be vertices missing. The size and shape of the glyphs can
+ also be adjusted in this properties panel.
+
+![VTK converted from FFEA script viewed in Paraview](docs/ffea-vtk.png)
 
 
 Unit Tests {#unit}
