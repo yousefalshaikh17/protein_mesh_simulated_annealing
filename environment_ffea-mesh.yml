@@ -1,0 +1,9 @@
+name: ffea-mesh
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - vtk
+  - numpy<1.23.0
+  - scipy
+  - mrcfile
