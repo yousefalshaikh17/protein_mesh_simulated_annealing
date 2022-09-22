@@ -1,0 +1,13 @@
+
+I have created the environment_ffea-mesh.yml so I could test it in a disposable conda environment called ffea-mesh.
+
+conda env list
+conda env create -f environment_ffea-mesh.yml
+conda activate ffea-mesh
+pip install --editable .
+conda list
+five_tets.py
+five_tets.py --help
+pip uninstall ffeamesh
+conda deactivate ffea-mesh
+
