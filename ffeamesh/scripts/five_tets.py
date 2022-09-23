@@ -24,13 +24,13 @@
 # Generating tetrahedral meshes from pixel data
 
 #from ffeamesh.mrc_zoom import mrc_zoom
-from os import path
 import numpy as np
 import vtk
 import mrcfile
 import vtk.util.numpy_support
 import datetime
-import getopt
+import argparse
+import pathlib
 import sys
 #import vtkwmtk from vmtk
 # from chimerax.map_data import mrc
@@ -42,25 +42,78 @@ import sys
 #vol resample #1 spacing 15 - this coarsens to 15 Å voxels
 #save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
 
-def usage():
-    helpMessage = """   Coding:   Molly Gravett (bsmgr@leeds.ac.uk), Joanna Leng (J.Leng@leeds.ac.uk), Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk)
+def get_args():
+    """
+    get the command line arguments
+    Returns:
+        (argparse.namespace)
+    """
 
-tet_from_pix processes MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+    parser = argparse.ArgumentParser("""process MRC files and produces a regular
+        tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
+        This is written out in the tetgen .ele, .face, and .node file format for
+        later use in FFEA, and .vtk for mesh analysis.
 
-General Options:
-  -h [ --help ]             Print usage message.
-  -i [ --input ] arg        File path to input MRC file. (required)
-  -o [ --output ] arg       Name or /path/to/name of output files. (required)
-  -t [ --threshold ] arg    Isolevel of input MRC file. (required)
-"""
+        Coding:   Molly Gravett (bsmgr@leeds.ac.uk),
+        Joanna Leng (J.Leng@leeds.ac.uk),
+        Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk)
+        Jonathan Pickering (J.H.Pickering@leeds.ac.uk)""")
 
-    print(helpMessage)
-    sys.exit()
+    parser.add_argument("-i",
+                        "--input",
+                        type=pathlib.Path,
+                        required=True,
+                        help="input file")
 
-def pathCheck(fpath):
-    if not path.exists(fpath):
-        msg = "ERROR: Input file path does not exist. Please try again."
-        sys.exit(msg)
+    parser.add_argument("-o",
+                        "--output",
+                        type=pathlib.Path,
+                        required=True,
+                        help="output file name root, (no suffix)")
+
+    parser.add_argument("-v",
+                        "--vtk",
+                        action="store_true",
+                        help="produce vtk output.")
+
+    parser.add_argument("-f",
+                        "--ffea",
+                        action="store_true",
+                        help="produce ffea output.")
+
+    parser.add_argument("-w",
+                        "--overwrite",
+                        action="store_true",
+                        help="overwrite")
+
+    return parser.parse_args()
+
+def validate_command_line(args):
+    """
+    validate the command line arguments#
+    Args:
+        args (argeparse.Namespace): the command line arguments
+    Returns
+        (str): error message if fail else None
+    """
+    # check the input file can be found
+    if not args.input.exists():
+        return f"Error: file {args.input} does not exist!"
+
+    # check for overwriteing files
+    if not args.overwrite:
+        if args.vtk:
+            file = args.output.with_suffix(".vtk")
+            if file.exists():
+                return f"Error: file {file} exists, use option -w to allow overwrite."
+
+        # TODO CHECK FOR FFEA FILES
+
+    # check that some output has been specified
+    if not args.vtk and not args.ffea:
+        return "Error: you must specify and output type (vtk, ffea)"
+
+    return None
 
 #tet division for even cubes
 def even_cube_tets(cube):
@@ -104,48 +157,22 @@ def odd_cube_tets(cube):
 
 ###################################################################################
 
-if __name__ == "__main__":
-    try:
-        options, remainder = getopt.getopt(sys.argv[1:], "i:o:t:r:h", ["input=", "output=", "threshold=", "resolution=", "help"])
-    except getopt.GetoptError as err:
-        print("ERROR: " + str(err) + "\n")
-        usage()
+def main():
+    """
+    run the script
+    """
+    args = get_args()
+    error_message = validate_command_line(args)
 
-    for opt, arg in options:
-        if opt in ("-i", "--input"):
-            mrcfilename = arg
-            pathCheck(mrcfilename)
-        elif opt in ("-o", "--output"):
-            chosen_filename = arg
-        elif opt in ("-t", "--threshold"):
-            try:
-                threshold = float(arg)
-            except ValueError:
-                msg = "ERROR: Threshold value must be a number."
-                sys.exit(msg)
-        elif opt in ("-h", "--help"):
-            usage()
+    if error_message is not None:
+        print(error_message, file=sys.stderr)
+        return
 
-    # Checks to see if mandatory options have been called
-    try:
-        mrcfilename
-    except NameError:
-        msg = "ERROR: Input MRC file path not defined."
-        sys.exit(msg)
+    threshold = 0.0
+    input_file = args.input
+    output_file = args.output
 
-    try:
-        chosen_filename
-    except NameError:
-        msg = "ERROR: Output destination file path not defined."
-        sys.exit(msg)
-
-    try:
-        threshold
-    except NameError:
-        msg = "ERROR: Threshold not defined."
-        sys.exit(msg)
-
-    mrc = mrcfile.mmap(mrcfilename, mode='r+')
+    mrc = mrcfile.mmap(input_file, mode='r+')
 
     nvoxel = 0
 
@@ -153,7 +180,7 @@ if __name__ == "__main__":
     for z in range(0, mrc.header.nz):
         for y in range(0, mrc.header.ny):
             for x in range(0, mrc.header.nx):
-                if mrc.data[z,y,x] >= threshold:
+                if mrc.data[z,y,x] > threshold:
                     nvoxel=nvoxel+1
 
     coords = np.zeros((nvoxel*8, 3))
@@ -165,13 +192,11 @@ if __name__ == "__main__":
     alternate = np.zeros((nvoxel,))
     location = 0
 
-
-
     #create hex points
     for z in range(0, mrc.header.nz):
         for y in range(0, mrc.header.ny):
             for x in range(0, mrc.header.nx):
-                if mrc.data[z,y,x] >= threshold:
+                if mrc.data[z,y,x] > threshold:
                     coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                     coords[ncoord] = coord1
                     coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
@@ -274,7 +299,7 @@ if __name__ == "__main__":
 
     #write to vtk
     writer = vtk.vtkUnstructuredGridWriter()
-    writer.SetFileName(chosen_filename+".vtk")
+    writer.SetFileName(str(output_file.with_suffix(".vtk")))
     writer.SetInputData(grid)
     writer.Update()
     writer.Write()
@@ -286,7 +311,7 @@ if __name__ == "__main__":
     #<tetrahedron #> <node> <node> <node> <node> ... [attributes]
     date = datetime.datetime.now().strftime("%x")
     comment = '# created by Molly Gravett ' + date
-    ele = open(chosen_filename+".1.ele", "w")
+    ele = open(output_file.with_suffix(".1.ele"), "w")
     ele_first = str(nvoxel*5)+' 4 0\n'
     ele.write(ele_first)
     for i in range(len(tet_array)):
@@ -299,7 +324,7 @@ if __name__ == "__main__":
     #First line: <# of points> <dimension (must be 3)> <# of attributes> <# of boundary markers (0 or 1)>
     #Remaining lines list # of points:
     #<point #> <x> <y> <z>
-    node = open(chosen_filename+".1.node", "w")
+    node = open(output_file.with_suffix(".1.node"), "w")
     node_first = str(len(points_))+' 3 0 0\n'
     node.write(node_first)
     for i in range(len(points_)):
@@ -313,7 +338,7 @@ if __name__ == "__main__":
     #Remaining lines list of # of faces:
     #<face #> <node> <node> <node> [boundary marker]
 
-    face = open(chosen_filename+".1.face", "w")
+    face = open(output_file.with_suffix(".1.face"), "w")
     face_first = str(len(faces))+' 1\n'
     face.write(face_first)
     for i in range(len(faces)):
@@ -321,3 +346,6 @@ if __name__ == "__main__":
         face.write(face_next)
     face.write(comment)
     face.close()
+
+if __name__ == "__main__":
+    main()
