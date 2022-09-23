@@ -1,37 +1,38 @@
 #!/usr/bin/env python
-#
-#  This file is part of the FFEA simulation package
-#
-#  Copyright (c) by the Theory and Development FFEA teams,
-#  as they appear in the README.md file.
-#
-#  FFEA is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  FFEA is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-#
-#  To help us fund FFEA development, we humbly ask that you cite
-#  the research papers on the package.
-#
-# Generating tetrahedral meshes from pixel data
+"""
+ This file is part of the FFEA simulation package
 
+ Copyright (c) by the Theory and Development FFEA teams,
+ as they appear in the README.md file.
+
+ FFEA is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ FFEA is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
+
+ To help us fund FFEA development, we humbly ask that you cite
+ the research papers on the package.
+
+Generating tetrahedral meshes from pixel data
+"""
 #from ffeamesh.mrc_zoom import mrc_zoom
-import numpy as np
-import vtk
-import mrcfile
-import vtk.util.numpy_support
+import sys
 import datetime
 import argparse
 import pathlib
-import sys
+import numpy as np
+#import vtk
+import mrcfile
+import vtk.util.numpy_support
+
 #import vtkwmtk from vmtk
 # from chimerax.map_data import mrc
 # ## #coarsen
@@ -115,7 +116,6 @@ def validate_command_line(args):
 
     return None
 
-#tet division for even cubes
 def even_cube_tets(cube):
     """
     convert a list of the eight vertices of a an even cube
@@ -135,7 +135,6 @@ def even_cube_tets(cube):
 
     return tet_list
 
-#tet division for odd cubes
 def odd_cube_tets(cube):
     """
     convert a list of the eight vertices of a an odd cube
@@ -154,8 +153,6 @@ def odd_cube_tets(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
-
-###################################################################################
 
 def main():
     """
@@ -250,8 +247,6 @@ def main():
 
     cells_con = vtk.vtkCellArray() #create vtk cell array
     tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
-
-
 
     #iterate over cubes and convert to tets
     for i in range(len(cells_)):
