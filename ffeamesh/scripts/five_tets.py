@@ -52,7 +52,6 @@ General Options:
   -i [ --input ] arg        File path to input MRC file. (required)
   -o [ --output ] arg       Name or /path/to/name of output files. (required)
   -t [ --threshold ] arg    Isolevel of input MRC file. (required)
-  -r [ --resolution ] arg   Resolution to optionally coarsen input MRC file by. Produces a new MRC file in the output directory.
 """
 
     print(helpMessage)
@@ -69,8 +68,6 @@ except getopt.GetoptError as err:
     print("ERROR: " + str(err) + "\n")
     usage()
 
-rescale_check = False # checks if a resolution value has been input to trigger the rescaling code
-
 for opt, arg in options:
     if opt in ("-i", "--input"):
         mrcfilename = arg
@@ -83,13 +80,6 @@ for opt, arg in options:
         except ValueError:
             msg = "ERROR: Threshold value must be a number."
             sys.exit(msg)
-    elif opt in ("-r", "--resolution"):
-        rescale_check = True
-        try:
-            resolution = float(arg)
-        except ValueError:
-            msg = "ERROR: Resolution must be a number."
-            sys.exit(msg)
     elif opt in ("-h", "--help"):
         usage()
 
@@ -99,35 +89,20 @@ try:
 except NameError:
     msg = "ERROR: Input MRC file path not defined."
     sys.exit(msg)
+
 try:
     chosen_filename
 except NameError:
     msg = "ERROR: Output destination file path not defined."
     sys.exit(msg)
+
 try:
     threshold
 except NameError:
     msg = "ERROR: Threshold not defined."
     sys.exit(msg)
 
-mrc = mrcfile.open(mrcfilename, mode='r+')
-#a = mrc.data
-#nx = mrc.header.nx
-#ny = mrc.header.ny
-#nz = mrc.header.nz
-
-# Creates new MRC file with rescaled voxels and uses it in the rest of the code
-if rescale_check:
-    print("Rescale is being removed")
-    sys.exit()
-    # mrcfilename_new = mrc_zoom(mrc, a, nx, ny, nz, resolution, chosen_filename)
-    # mrc = mrcfile.open(mrcfilename_new, mode='r+')
-    # a = mrc.data
-    # nx = mrc.header.nx
-    # ny = mrc.header.ny
-    # nz = mrc.header.nz
-else:
-    print("Warning: No resolution set. Your element lengths are",mrc.voxel_size)
+mrc = mrcfile.mmap(mrcfilename, mode='r+')
 
 nvoxel = 0
 
@@ -195,8 +170,6 @@ for z in range(0, mrc.header.nz):
                         else:
                             alternate[location] = 1
                 location=location+1
-
-
 
 points_ = np.unique(coords, axis=0) #make unique list of points for index
 
