@@ -23,7 +23,7 @@
 #
 # Generating tetrahedral meshes from pixel data
 
-from ffeamesh.mrc_zoom import mrc_zoom
+from ffeamesh.mrc_zoom_old import mrc_zoom
 from os import path
 import numpy as np
 import vtk
