@@ -321,9 +321,8 @@ def main():
     node = open(output_file.with_suffix(".1.node"), "w")
     node_first = str(len(points_))+' 3 0 0\n'
     node.write(node_first)
-    for i in range(len(points_)):
-        node_next=str(i+1)+' '+str(points_[i][0])+' '+str(points_[i][1])+' '+str(+points_[i][2])+'\n'
-        node.write(node_next)
+    for i, point in enumerate(points_):
+        node.write(f"{i+1} {point[0]} {point[1]} {point[2]}\n")
     node.write(comment)
     node.close()
 
@@ -332,14 +331,15 @@ def main():
     #Remaining lines list of # of faces:
     #<face #> <node> <node> <node> [boundary marker]
 
-    face = open(output_file.with_suffix(".1.face"), "w")
+    face_file = open(output_file.with_suffix(".1.face"), "w")
     face_first = str(len(faces))+' 1\n'
-    face.write(face_first)
-    for i in range(len(faces)):
-        face_next=str(i+1)+' '+str(original_ids[faces[i][1]]+1)+' '+str(original_ids[faces[i][2]]+1)+' '+str(original_ids[faces[i][3]]+1)+' -1\n'
-        face.write(face_next)
-    face.write(comment)
-    face.close()
+    face_file.write(face_first)
+    #for i in range(len(faces)):
+    for i, face in enumerate(faces):
+        face_file.write(
+            f"{i+1} {original_ids[face[1]]+1} {original_ids[face[2]]+1} {original_ids[face[3]]+1} -1\n")
+    face_file.write(comment)
+    face_file.close()
 
 if __name__ == "__main__":
     main()
