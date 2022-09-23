@@ -23,7 +23,7 @@
 #
 # Generating tetrahedral meshes from pixel data
 
-from ffeamesh.mrc_zoom_old import mrc_zoom
+#from ffeamesh.mrc_zoom import mrc_zoom
 from os import path
 import numpy as np
 import vtk
@@ -111,34 +111,36 @@ except NameError:
     sys.exit(msg)
 
 mrc = mrcfile.open(mrcfilename, mode='r+')
-a = mrc.data
-nx = mrc.header.nx
-ny = mrc.header.ny
-nz = mrc.header.nz
+#a = mrc.data
+#nx = mrc.header.nx
+#ny = mrc.header.ny
+#nz = mrc.header.nz
 
 # Creates new MRC file with rescaled voxels and uses it in the rest of the code
 if rescale_check:
-    mrcfilename_new = mrc_zoom(mrc, a, nx, ny, nz, resolution, chosen_filename)
-    mrc = mrcfile.open(mrcfilename_new, mode='r+')
-    a = mrc.data
-    nx = mrc.header.nx
-    ny = mrc.header.ny
-    nz = mrc.header.nz
+    print("Rescale is being removed")
+    sys.exit()
+    # mrcfilename_new = mrc_zoom(mrc, a, nx, ny, nz, resolution, chosen_filename)
+    # mrc = mrcfile.open(mrcfilename_new, mode='r+')
+    # a = mrc.data
+    # nx = mrc.header.nx
+    # ny = mrc.header.ny
+    # nz = mrc.header.nz
 else:
     print("Warning: No resolution set. Your element lengths are",mrc.voxel_size)
 
 nvoxel = 0
 
 #find each point
-for z in range(0, nz):
-    for y in range(0, ny):
-        for x in range(0, nx):
-            if a[z,y,x] >= threshold:
+for z in range(0, mrc.header.nz):
+    for y in range(0, mrc.header.ny):
+        for x in range(0, mrc.header.nx):
+            if mrc.data[z,y,x] >= threshold:
                 nvoxel=nvoxel+1
 
 coords = np.zeros((nvoxel*8, 3))
 ncoord = 0
-res = float(mrc.header.cella['x'])/nx
+res = float(mrc.header.cella['x'])/mrc.header.nx
 x_trans = float(mrc.header.origin['x'])
 y_trans = float(mrc.header.origin['y'])
 z_trans = float(mrc.header.origin['z'])
@@ -148,10 +150,10 @@ location = 0
 
 
 #create hex points
-for z in range(0, nz):
-    for y in range(0, ny):
-        for x in range(0, nx):
-            if a[z,y,x] >= threshold:
+for z in range(0, mrc.header.nz):
+    for y in range(0, mrc.header.ny):
+        for x in range(0, mrc.header.nx):
+            if mrc.data[z,y,x] >= threshold:
                 coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                 coords[ncoord] = coord1
                 coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
