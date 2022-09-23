@@ -309,9 +309,8 @@ def main():
     ele = open(output_file.with_suffix(".1.ele"), "w")
     ele_first = str(nvoxel*5)+' 4 0\n'
     ele.write(ele_first)
-    for i in range(len(tet_array)):
-        ele_next=str(i+1)+' '+str(tet_array[i][0]+1)+' '+str(tet_array[i][1]+1)+' '+str(+tet_array[i][2]+1)+' '+str(tet_array[i][3]+1)+'\n'
-        ele.write(ele_next)
+    for i, tet in enumerate(tet_array):
+        ele.write(f"{i+1} {tet[0]+1} {tet[1]+1} {tet[2]+1} {tet[3]+1}\n")
     ele.write(comment)
     ele.close()
 
