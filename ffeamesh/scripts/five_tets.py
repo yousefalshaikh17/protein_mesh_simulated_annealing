@@ -211,23 +211,43 @@ cells_con = vtk.vtkCellArray() #create vtk cell array
 tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
 
 #tet division for even cubes
-def a(cube):
+def even_cube_tets(cube):
+    """
+    convert a list of the eight vertices of a an even cube
+    into a list of lists representing tets
+    Args:
+        cube (list): the eight vertices of a cube
+    Returns
+        lits(list) : five lists of four vertices representing the tets
+    """
     tet1 = np.array([cube[0], cube[4], cube[5], cube[7]])
     tet2 = np.array([cube[0], cube[1], cube[2], cube[5]])
     tet3 = np.array([cube[2], cube[5], cube[6], cube[7]])
     tet4 = np.array([cube[0], cube[2], cube[3], cube[7]])
     tet5 = np.array([cube[0], cube[2], cube[5], cube[7]])
+
     tet_list = [tet1, tet2, tet3, tet4, tet5]
+
     return tet_list
 
 #tet division for odd cubes
-def b(cube):
+def odd_cube_tets(cube):
+    """
+    convert a list of the eight vertices of a an odd cube
+    into a list of lists representing tets
+    Args:
+        cube (list): the eight vertices of a cube
+    Returns
+        lits(list) : five lists of four vertices representing the tets
+    """
     tet1 = np.array([cube[0], cube[1], cube[3], cube[4]])
     tet2 = np.array([cube[1], cube[4], cube[5], cube[6]])
     tet3 = np.array([cube[1], cube[2], cube[3], cube[6]])
     tet4 = np.array([cube[3], cube[4], cube[6], cube[7]])
     tet5 = np.array([cube[1], cube[3], cube[4], cube[6]])
+
     tet_list = [tet1, tet2, tet3, tet4, tet5]
+
     return tet_list
 
 #iterate over cubes and convert to tets
@@ -235,9 +255,9 @@ for i in range(len(cells_)):
     hex=cells_[i]
     cube = hex[0:8]
     if alternate[i] == 0:
-        connectivity = a(cube)
+        connectivity = even_cube_tets(cube)
     elif alternate[i] == 1:
-        connectivity = b(cube)
+        connectivity = odd_cube_tets(cube)
     for tet in range(len(connectivity)):
         tet_array[(i*5)+tet] = connectivity[tet]
         tet_con = connectivity[tet]
