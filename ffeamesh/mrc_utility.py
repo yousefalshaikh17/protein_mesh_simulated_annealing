@@ -110,7 +110,8 @@ def threshold_mrc_image(image, threshold):
     than the threshold set to zero
 
     Args:
-        image
+        image (np.array): the input array
+        threshold (float): the limit: if value < thershold then value = 0.0
 
     Returns:
         (np.array): image with all voxels failing test set to zero

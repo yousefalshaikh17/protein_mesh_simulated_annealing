@@ -24,6 +24,12 @@
 import argparse
 import pathlib
 import sys
+import datetime
+import getpass
+import mrcfile
+from ffeamesh.mrc_utility import (threshold_mrc_image,
+                                  get_cell_props,
+                                  write_mrcfile)
 
 def get_args():
     """
@@ -82,7 +88,14 @@ def main():
     message = validate_args(args)
     if message is not None:
         print(message, file=sys.stderr, flush=True)
-        quit()
+        sys.exit()
+
+    with mrcfile.mmap(args.input, 'r') as mrc:
+        data = threshold_mrc_image(mrc.data, args.threshold)
+        date = datetime.datetime.now().strftime("%x")
+        label = f"made by {getpass.getuser()}, on {date}"
+        write_mrcfile(data, get_cell_props(mrc), args.output, label, args.overwrite)
+        print(f"thresholded output from {args.input} written to {args.output}")
 
 if __name__ == "__main__":
     main()
