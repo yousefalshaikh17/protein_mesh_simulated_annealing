@@ -21,6 +21,9 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 """
+# set up linting conditions
+# pylint: disable = import-error
+
 import argparse
 import pathlib
 import sys
@@ -38,7 +41,7 @@ def get_args():
             (argparse.namespace)
     """
     parser = argparse.ArgumentParser("""read a mrc file and set all voxels less than than the
-        or equal to a thershold to zero, then output""")
+        thershold to zero, then output to a new file""")
 
     parser.add_argument("-i",
                         "--input",
@@ -79,6 +82,8 @@ def validate_args(args):
 
     if not args.overwrite and args.output.exists():
         return f"file {args.output} already exists run with -w to overwrite"
+
+    return None
 
 def main():
     """

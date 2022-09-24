@@ -26,14 +26,19 @@ Created on Mon Oct 25 11:50:39 2021
 @author: mollygravett
 modified jonathan pickering 23Aug22
 """
+# set up linting conditions
+# pylint: disable = import-error
 import argparse
 import pathlib
+from enum import Enum
 import mrcfile
 from scipy import ndimage
 import numpy as np
-from enum import Enum
 
 class Algorithm(Enum):
+    """
+    enumeration of possible kernels
+    """
     ELLIPSOID = 'ellipsoid'
     GAUSSIAN = 'gaussian'
     UNIFORM = 'uniform'
@@ -113,6 +118,9 @@ def output_mrcfile(data, out_file, original_mrc):
         mrc.voxel_size = original_mrc.voxel_size
 
 def main():
+    """
+    run the script
+    """
     args = get_args()
     refine_volume_data_fft(args.input, args.output, args.parameter, args.algorithm)
     print(f"{args.input} filtered and written to {args.output}")

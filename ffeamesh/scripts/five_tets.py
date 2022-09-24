@@ -26,10 +26,10 @@ Generating tetrahedral meshes from pixel data
 #from ffeamesh.mrc_zoom import mrc_zoom
 import sys
 import datetime
+import getpass
 import argparse
 import pathlib
 import numpy as np
-#import vtk
 import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
@@ -113,7 +113,7 @@ def validate_command_line(args):
 
     # check that some output has been specified
     if not args.vtk and not args.ffea:
-        return "Error: you must specify and output type (vtk, ffea)"
+        return "Error: you must specify and output type (vtk and/or ffea)"
 
     return None
 
@@ -302,8 +302,14 @@ def main():
 
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
-    comment = '# created by Molly Gravett ' + date
-    write_ffea_output(output_file, nvoxel, tet_array, points_, faces, original_ids, comment)
+    comment = f'# created by {getpass.getuser()} on {date}'
+    write_ffea_output(output_file,
+                      nvoxel,
+                      tet_array,
+                      points_,
+                      faces,
+                      original_ids,
+                      comment)
 
 if __name__ == "__main__":
     main()
