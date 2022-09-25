@@ -166,10 +166,16 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    threshold = 0.0
-    input_file = args.input
-    output_file = args.output
+    convert_mrc_to_5tets(args.input, args.output)
 
+def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
+    """
+    convert the contents of an mrc file to a tetrohedron array
+    Args:
+        input_file (pathlib.Path)
+        output_file (pathlib.Path)
+        threshold (float)
+    """
     mrc = mrcfile.mmap(input_file, mode='r+')
 
     nvoxel = 0
