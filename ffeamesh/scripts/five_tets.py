@@ -155,19 +155,6 @@ def odd_cube_tets(cube):
 
     return tet_list
 
-def main():
-    """
-    run the script
-    """
-    args = get_args()
-    error_message = validate_command_line(args)
-
-    if error_message is not None:
-        print(error_message, file=sys.stderr)
-        return
-
-    convert_mrc_to_5tets(args.input, args.output)
-
 def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
     """
     convert the contents of an mrc file to a tetrohedron array
@@ -243,13 +230,13 @@ def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
                                 alternate[location] = 1
                     location=location+1
 
-    points_ = np.unique(coords, axis=0) #make unique list of points for index
+    points = np.unique(coords, axis=0) #make unique list of points for index
 
     #create connectivity of cubes using index from point list
     connectivity_ = np.zeros((nvoxel*8,), dtype='int16')
     for pos in range(len(coords)):
         point = coords[pos]
-        connectivity_[pos] = np.where((points_==point).all(axis=1))[0]
+        connectivity_[pos] = np.where((points==point).all(axis=1))[0]
     cells_ = np.resize(connectivity_, (nvoxel,8))
 
     cells_con = vtk.vtkCellArray() #create vtk cell array
@@ -275,7 +262,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
 
 
     vtkPts = vtk.vtkPoints()
-    vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_, deep=True))
+    vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
@@ -291,7 +278,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
     original_ids = np.zeros((len(surf_points),), dtype='int16')
     for pos in range(len(surf_points)):
         point = surf_points[pos]
-        original_ids[pos] = np.where((points_==point).all(axis=1))[0]
+        original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.
     assert(array.GetNumberOfValues()%nCells==0)
@@ -312,10 +299,23 @@ def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
     write_ffea_output(output_file,
                       nvoxel,
                       tet_array,
-                      points_,
+                      points,
                       faces,
                       original_ids,
                       comment)
+
+def main():
+    """
+    run the script
+    """
+    args = get_args()
+    error_message = validate_command_line(args)
+
+    if error_message is not None:
+        print(error_message, file=sys.stderr)
+        return
+
+    convert_mrc_to_5tets(args.input, args.output)
 
 if __name__ == "__main__":
     main()
