@@ -155,24 +155,16 @@ def odd_cube_tets(cube):
 
     return tet_list
 
-def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
+def convert_mrc_to_5tets(input_file, output_file):
     """
     convert the contents of an mrc file to a tetrohedron array
     Args:
         input_file (pathlib.Path)
         output_file (pathlib.Path)
-        threshold (float)
     """
     mrc = mrcfile.mmap(input_file, mode='r+')
 
-    nvoxel = 0
-
-    #find each point
-    for z in range(0, mrc.header.nz):
-        for y in range(0, mrc.header.ny):
-            for x in range(0, mrc.header.nx):
-                if mrc.data[z,y,x] > threshold:
-                    nvoxel=nvoxel+1
+    nvoxel = np.count_nonzero(mrc.data)
 
     coords = np.zeros((nvoxel*8, 3))
     ncoord = 0
@@ -187,7 +179,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold=0.0):
     for z in range(0, mrc.header.nz):
         for y in range(0, mrc.header.ny):
             for x in range(0, mrc.header.nx):
-                if mrc.data[z,y,x] > threshold:
+                if mrc.data[z,y,x] > 0.0:
                     coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                     coords[ncoord] = coord1
                     coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
