@@ -26,6 +26,12 @@ dist/
 # JetBrains IDE
 .idea/
 
+# notepad++ backup files
+nppBackup/
+
+# files generated with pip install
+ffeamesh.egg-info/
+
 # Unit test reports
 TEST*.xml
 
