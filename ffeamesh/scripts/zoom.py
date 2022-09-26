@@ -28,6 +28,7 @@
 """
 import argparse
 import pathlib
+import sys
 
 from ffeamesh.mrc_zoom import refine_volume_data
 
@@ -59,16 +60,32 @@ def get_args():
 
     return parser.parse_args()
 
+def validate_args(args):
+    """
+    ensure command line arguments are sane
+    Args:
+        args: (argparse.Namespace)
+    Returns
+        (str/None): if error a string describing problen else None
+    """
+    if not args.input.exists():
+        return f"file {args.input} does not exist!"
+
+    if args.resolution <= 0.0:
+        return f"resolution must be greater than zero!"
+
+    return None
+
 def main():
     args = get_args()
+    message = validate_args(args)
 
-    if not args.input.exists():
-        print(f"Input file {args.input} does not exist!")
+    if message is not None:
+        print(f"Error {message}", file=sys.stderr, flush=True)
         return
 
-    out_file = args.output
-    if not out_file.suffix == '.mrc':
-        out_file = out_file.with_suffix('.mrc')
+    # ensure output has correct suffix
+    out_file = args.output.with_suffix('.mrc')
 
     scale = refine_volume_data(args.input, out_file, args.resolution)
 
