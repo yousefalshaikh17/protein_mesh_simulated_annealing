@@ -47,4 +47,8 @@ setup(
         'vtk',
         'mrcfile'
     ],
-    scripts=['ffeamesh/scripts/five_tets.py', 'ffeamesh/scripts/zoom.py'])
+    scripts=['ffeamesh/scripts/five_tets.py',
+             'ffeamesh/scripts/zoom.py',
+             'ffeamesh/scripts/fft_smooth.py',
+             'ffeamesh/scripts/make_test_mrcfile.py',
+             'ffeamesh/scripts/mrc_threshold.py'])
