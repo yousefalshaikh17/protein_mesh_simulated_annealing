@@ -69,32 +69,49 @@ def validate_args(args):
         (str/None) error message if problem else None
     """
     if not args.input.exists():
-        return f"file {args.input} does not exist!"
+        return f"input file {args.input} does not exist!"
 
     if args.output is not None and args.output.exists():
         if not args.overwrite:
-            return f"file {args.output} already exists run with -w to overwrite"
+            return f"output file {args.output} already exists run with -w to overwrite"
 
     return None
 
-def print_image_stats(mrc, infile, outfile=None):
+def get_image_stats(mrc):
+    """
+    generate the stats of the image array
+    Args:
+        mrc (mrcfile): the image source
+    Returns:
+        (scipy.stats.DescribeResult)
+        (numpy.histogram)
+    """
+    descriptive_stats = stats.describe(mrc.data.flatten())
+    histogram = np.histogram(mrc.data.flatten(), bins=10)
+
+    return descriptive_stats, histogram
+
+def print_image_stats(descriptive_stats,  histogram, infile, outfile=None):
     """
     generate and print the stats of the image array
     Args:
+        descriptive_stats (scipy.stats.DescribeResult): mean etc
+        histogram (numpy.histogram): ten bin histogram
         mrc (mrcfile): the image source
         infile (str): file name of input
         outfile (pathlib.Path) the output file
     """
 
-    descriptive_stats = stats.describe(mrc.data.flatten())
-    histogram = np.histogram(mrc.data.flatten(), bins=10)
-    size = mrc.header.mx * mrc.header.my * mrc.header.mz
+    print(f"File, {infile}", file=outfile)
+    print(f"Number of voxels in image, {descriptive_stats.nobs}", file=outfile)
+    print(f"Minimum, {descriptive_stats.minmax[0]:.6}", file=outfile)
+    print(f"Maximum, {descriptive_stats.minmax[1]:.6}", file=outfile)
+    print(f"Mean, {descriptive_stats.mean:.6}", file=outfile)
+    print(f"Variance {descriptive_stats.variance:.6}", file=outfile)
 
-    print(f"statistics for file {infile}")
-    print(f"Number of voxels in image {size}")
-    print(descriptive_stats)
-    print(f"bins   {histogram[1]}")
-    print(f"counts {histogram[0]}")
+    print("\nbin, range, count", file=outfile)
+    for i, count in enumerate(histogram[0]):
+        print(f"{i}, ({histogram[1][i]:.6}, {histogram[1][i+1]:.6}), {count}", file=outfile)
 
 def main():
     """
@@ -103,11 +120,16 @@ def main():
     args = get_args()
     message = validate_args(args)
     if message is not None:
-        print(message, file=sys.stderr, flush=True)
+        print(f"Error: {message}", file=sys.stderr, flush=True)
         sys.exit()
 
     with mrcfile.mmap(args.input, 'r') as mrc:
-        print_image_stats(mrc, str(args.input), args.output)
+        descriptive_stats,  histogram = get_image_stats(mrc)
+        if args.output is not None:
+            with args.output.open("w") as outfile:
+                print_image_stats(descriptive_stats,  histogram, str(args.input), outfile)
+        else:
+            print_image_stats(descriptive_stats,  histogram, str(args.input))
 
 if __name__ == "__main__":
     main()
