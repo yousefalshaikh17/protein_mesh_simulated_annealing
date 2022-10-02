@@ -30,7 +30,7 @@
 
 # Generating tetrahedral meshes from pixel data
 
-from mrc_zoom import mrc_zoom
+from mrc_zoom_old import mrc_zoom
 from os import path
 import numpy as np
 import vtk
