@@ -109,9 +109,10 @@ def print_image_stats(descriptive_stats,  histogram, infile, outfile=None):
     print(f"Mean, {descriptive_stats.mean:.6}", file=outfile)
     print(f"Variance {descriptive_stats.variance:.6}", file=outfile)
 
-    print("\nbin, range, count", file=outfile)
+    print("\nbin, range, voxel count, fraction", file=outfile)
     for i, count in enumerate(histogram[0]):
-        print(f"{i}, ({histogram[1][i]:.6}, {histogram[1][i+1]:.6}), {count}", file=outfile)
+        fraction = count/descriptive_stats.nobs
+        print(f"{i}, ({histogram[1][i]:.6}, {histogram[1][i+1]:.6}), {count}, {fraction:.3}", file=outfile)
 
 def main():
     """

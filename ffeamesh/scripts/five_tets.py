@@ -83,6 +83,12 @@ def get_args():
                         action="store_true",
                         help="produce ffea output.")
 
+    parser.add_argument("-t",
+                        "--threshold",
+                        type=float,
+                        default=0.0,
+                        help="""lower filter for voxels, default zero""")
+
     parser.add_argument("-w",
                         "--overwrite",
                         action="store_true",
@@ -155,7 +161,7 @@ def odd_cube_tets(cube):
 
     return tet_list
 
-def convert_mrc_to_5tets(input_file, output_file):
+def convert_mrc_to_5tets(input_file, output_file, threshold):
     """
     convert the contents of an mrc file to a tetrohedron array
     Args:
@@ -179,7 +185,7 @@ def convert_mrc_to_5tets(input_file, output_file):
     for z in range(0, mrc.header.nz):
         for y in range(0, mrc.header.ny):
             for x in range(0, mrc.header.nx):
-                if mrc.data[z,y,x] > 0.0:
+                if mrc.data[z,y,x] > threshold:
                     coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
                     coords[ncoord] = coord1
                     coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
@@ -307,7 +313,7 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    convert_mrc_to_5tets(args.input, args.output)
+    convert_mrc_to_5tets(args.input, args.output, args.threshold)
 
 if __name__ == "__main__":
     main()
