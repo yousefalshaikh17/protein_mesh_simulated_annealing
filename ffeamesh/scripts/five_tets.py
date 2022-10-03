@@ -130,7 +130,11 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    convert_mrc_to_5tets(args.input, args.output, args.threshold)
+    convert_mrc_to_5tets(args.input,
+                         args.output,
+                         args.threshold,
+                         args.ffea,
+                         args.vtk)
 
 if __name__ == "__main__":
     main()

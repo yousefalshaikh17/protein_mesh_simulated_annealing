@@ -70,7 +70,7 @@ def odd_cube_tets(cube):
 
     return tet_list
 
-def convert_mrc_to_5tets(input_file, output_file, threshold):
+def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     convert the contents of an mrc file to a tetrohedron array
     Args:
@@ -161,7 +161,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
                                 alternate[location] = 1
                     location=location+1
 
-                    '''
+    bottom_half(coords, nvoxel, alternate, output_file)
+
+'''
                     move this here so you go through the data less times
                     hex=cells_[i]
                     cube = hex[0:8]
@@ -178,9 +180,19 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
                         tetra.GetPointIds().SetId(2, tet_con[2])
                         tetra.GetPointIds().SetId(3, tet_con[3])
                         cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
+'''
 
-                    '''
-
+def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=False):
+    """
+    second part of tet maker
+    Args:
+        coords (numpy.ndarray): coordinates of voxel corners
+        nvoxel (int): the number of voxels
+        alternate (int): array 0/1 values indicating if voxel is left or righ handed
+        output_file (pathlib.Path): the name stem (no suffix) of output files
+        ffea_out (bool): if true write ffea input files
+        vtk_out (bool): if true write a vtk file
+    """
     points = np.unique(coords, axis=0) #make unique list of points for index
 
     #create connectivity of cubes using index from point list
@@ -211,7 +223,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
             tetra.GetPointIds().SetId(3, tet_con[3])
             cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
 
-
     vtkPts = vtk.vtkPoints()
     vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
@@ -236,10 +247,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
     nCols = array.GetNumberOfValues()//nCells
     numpy_cells = np.array(array)
     faces = numpy_cells.reshape((-1,nCols))
-
-
-
-
 
     #write to vtk
     writer = vtk.vtkUnstructuredGridWriter()
