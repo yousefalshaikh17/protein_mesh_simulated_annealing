@@ -25,13 +25,8 @@ Generating tetrahedral meshes from pixel data
 """
 #from ffeamesh.mrc_zoom import mrc_zoom
 import sys
-import datetime
-import getpass
 import argparse
 import pathlib
-import numpy as np
-import mrcfile
-import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
 from ffeamesh.fivetets import convert_mrc_to_5tets
 
@@ -123,10 +118,6 @@ def validate_command_line(args):
         return "Error: you must specify and output type (vtk and/or ffea)"
 
     return None
-
-
-
-
 
 def main():
     """

@@ -1,35 +1,30 @@
-
-#
-#  This file is part of the FFEA simulation package
-#
-#  Copyright (c) by the Theory and Development FFEA teams,
-#  as they appear in the README.md file.
-#
-#  FFEA is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  FFEA is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-#
-#  To help us fund FFEA development, we humbly ask that you cite
-#  the research papers on the package.
-#
-
 """
-Authors: Joanna Leng, Jonathan Pickering - University of Leeds
-Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
+ This file is part of the FFEA simulation package
+
+ Copyright (c) by the Theory and Development FFEA teams,
+ as they appear in the README.md file.
+
+ FFEA is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ FFEA is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
+
+ To help us fund FFEA development, we humbly ask that you cite
+ the research papers on the package.
+
+    Authors: Joanna Leng, Jonathan Pickering - University of Leeds
+    Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
-import sys
 import datetime
 import getpass
-import pathlib
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
@@ -74,44 +69,6 @@ def odd_cube_tets(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
-    
-    
-'''  
-These funcrtions are not currently used - should be moved to mrcutility or stats.  
-def get_cell_props(mrc):
-    """
-    extract call size and angles to a CellProps object
-    Args:
-        mrc (mrcfile) input file
-    Returns
-        (CellProps) the cell size and angles of the input file
-    """
-    return CellProps(get_cell_sizes(mrc), get_cell_angles(mrc))
-
-def get_cell_sizes(mrc):
-    """
-    extract cell sizes from mrc file
-    Args:
-        mrc (mrcfile): the input file
-    Returns
-        (CellSize) the cell sizes from the input file
-    """
-    return CellSize(mrc.header.cella.x, mrc.header.cella.y, mrc.header.cella.z)
-
-def get_cell_angles(mrc):
-    """
-    extract cell angles from mrc file
-    Args:
-        mrc (mrcfile): the input file
-    Returns
-        (CellAngles) the cell angles from the input file
-    """
-    return CellAngles(mrc.header.cellb.alpha,
-                      mrc.header.cellb.beta,
-                      mrc.header.cellb.gamma)
-
-'''
-
 
 def convert_mrc_to_5tets(input_file, output_file, threshold):
     """
@@ -134,15 +91,15 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
             for x in range(0, mrc.header.nx):
                 # Threshold the voxels out of the mrc map data
 
-             
+
                 if mrc.data[z,y,x] > threshold:
                     nvox = nvox + 1
-                    
-                    
+
+
     ncoord = nvox * 8
     nconnect = nvox * 20
-    '''                              
-    
+    '''
+
     nvoxel = sum([np.count_nonzero(x>=threshold) for x in mrc.data.flatten()])
 
     coords = np.zeros((nvoxel*8, 3))
@@ -178,7 +135,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
                     coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
                     coords[ncoord+7] = coord8
                     ncoord=ncoord+8
-                    
+
                     # Logic for alternating tet division 0 (a) or 1 (b) - to identify the odd and even voxels
                     if z % 2 == 0:
                         if y % 2 == 0:
@@ -203,7 +160,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
                             else:
                                 alternate[location] = 1
                     location=location+1
-                    
+
                     '''
                     move this here so you go through the data less times
                     hex=cells_[i]
@@ -221,7 +178,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold):
                         tetra.GetPointIds().SetId(2, tet_con[2])
                         tetra.GetPointIds().SetId(3, tet_con[3])
                         cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
-                        
+
                     '''
 
     points = np.unique(coords, axis=0) #make unique list of points for index
