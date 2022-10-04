@@ -136,7 +136,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                     coords[ncoord+7] = coord8
                     ncoord=ncoord+8
 
-                    # Logic for alternating tet division 0 (a) or 1 (b) - to identify the odd and even voxels
+                    # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
                     if z % 2 == 0:
                         if y % 2 == 0:
                             if x % 2 == 0:
@@ -161,7 +161,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                                 alternate[location] = 1
                     location=location+1
 
-    bottom_half(coords, nvoxel, alternate, output_file)
+    bottom_half(coords, nvoxel, alternate, output_file, ffea_out, vtk_out)
 
 '''
                     move this here so you go through the data less times
@@ -249,19 +249,21 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
     faces = numpy_cells.reshape((-1,nCols))
 
     #write to vtk
-    writer = vtk.vtkUnstructuredGridWriter()
-    writer.SetFileName(str(output_file.with_suffix(".vtk")))
-    writer.SetInputData(grid)
-    writer.Update()
-    writer.Write()
+    if vtk_out:
+        writer = vtk.vtkUnstructuredGridWriter()
+        writer.SetFileName(str(output_file.with_suffix(".vtk")))
+        writer.SetInputData(grid)
+        writer.Update()
+        writer.Write()
 
     #write to tetgen .ele, .node, .face
-    date = datetime.datetime.now().strftime("%x")
-    comment = f'# created by {getpass.getuser()} on {date}'
-    write_ffea_output(output_file,
-                      nvoxel,
-                      tet_array,
-                      points,
-                      faces,
-                      original_ids,
-                      comment)
+    if ffea_out:
+        date = datetime.datetime.now().strftime("%x")
+        comment = f'# created by {getpass.getuser()} on {date}'
+        write_ffea_output(output_file,
+                        nvoxel,
+                        tet_array,
+                        points,
+                        faces,
+                        original_ids,
+                        comment)
