@@ -69,6 +69,82 @@ def odd_cube_tets(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
+    
+def is_odd(x, y, z):
+    '''
+    Logic to decide if a voxel is an odd or and even.
+    Args:
+        x (int) Index for x value in values array.
+        y (int) Index for y value in values array.
+        z (int) Index for z value in values array.
+    
+    Returns:
+        (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
+        
+    '''
+    # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
+    if z % 2 == 0:
+        if y % 2 == 0:
+            if x % 2 == 0:
+                return 0
+            else:
+                return 1
+        else:
+            if x % 2 == 0:
+                return 1
+            else:
+                return 0
+    else:
+        if y % 2 == 0:
+            if x % 2 == 0:
+                return 1
+            else:
+                return 0
+        else:
+            if x % 2 == 0:
+                return 0
+            else:
+                return 1
+                
+     
+    
+    
+def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
+    '''
+    Caluculates the next 8 coords for the next volxel that has been thresholded previously (logic in loop that calls this one).
+    Args:
+        x (int)           Indecies to the x coord in the coords array.
+        y (int)           Indecies to the y coord in the coords array.
+        z (int)           Indecies to the z coord in the coords array.
+        x_trans  (float)  Offset in x axis for the data.
+        y_trans  (float)  Offset in y axis for the data.
+        z_trans  (float)  Offset in z axis for the data.
+        res  (float)    Resolution of the data.
+        coords (float numpy array)  The coordinates of the thresholded voxels passed by reference to this function.
+        ncoord (int)    Index to the coords array which is a vertex of a voxel passed by reference to this function.
+    Returns:
+        None
+    '''
+
+    # Calculate the cordinates of each vertex of the voxel so it aligns with the isosurface
+    coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
+    coords[ncoord] = coord1
+    coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
+    coords[ncoord+1] = coord2
+    coord3 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
+    coords[ncoord+2] = coord3
+    coord4 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
+    coords[ncoord+3] = coord4
+    coord5 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
+    coords[ncoord+4] = coord5
+    coord6 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
+    coords[ncoord+5] = coord6
+    coord7 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
+    coords[ncoord+6] = coord7
+    coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
+    coords[ncoord+7] = coord8
+
+
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -76,8 +152,37 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     Args:
         input_file (pathlib.Path)
         output_file (pathlib.Path)
+        threshold (float)
+        ffea_out (bool)
+        vtk_out (bool)
+    Outputs:
+        None
     """
-    # Reads mrc file into a map which is the fastest way to work with the data.
+    
+    """
+    An explanation of the various data strucutres and what python packages need them.
+    
+    Coords (numpy array)    All the vertices of all the voxels in the mrc map and will form all the tets in the output.
+    ncoords (int)     Number or length of the coords array
+    Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
+    nvalues (int)     Number or length of the coords array
+    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the 
+                                  coords array that make it clear which coords are vertexies of each voxel
+    nconnectvoxs (int)     Number or length of the cnnectvoxs array
+    ConnetTets (int numpy array) Could be an array of arrays. An array that holds indexes to the
+                                 coords array that make it clear which coords are vertexies of each cell/tetrahedron
+    nconnecttets (int)     Number or length of the connecttets array
+    CellType (int)               Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
+    
+    
+    mrc (mrc utility)      A map which is the fastest way to work with the data and has
+                                 a header and data section in it.
+                                 
+    cube (int numpy array)    Numpy array of 3 values represnting the x, y, z indecies into the coords array. 
+    """
+    
+    # Reads mrc file into a map which is the fastest way to work with the data and has
+    # a header and data section in it.
     mrc = mrcfile.mmap(input_file, mode='r+')
 
 
@@ -98,6 +203,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
     ncoord = nvox * 8
     nconnect = nvox * 20
+    cubecoords (float numpy array) the x, y, z coordinate vlaues for each vertex of a voxel.
     '''
 
     nvoxel = sum([np.count_nonzero(x>=threshold) for x in mrc.data.flatten()])
@@ -117,48 +223,11 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
             for x in range(0, mrc.header.nx):
                 # Threshold the voxels out of the mrc map data
                 if mrc.data[z,y,x] > threshold:
-                    # Calculate the cordinates of each vertex of the voxel so it aligns with the isosurface
-                    coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-                    coords[ncoord] = coord1
-                    coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-                    coords[ncoord+1] = coord2
-                    coord3 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-                    coords[ncoord+2] = coord3
-                    coord4 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-                    coords[ncoord+3] = coord4
-                    coord5 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-                    coords[ncoord+4] = coord5
-                    coord6 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-                    coords[ncoord+5] = coord6
-                    coord7 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-                    coords[ncoord+6] = coord7
-                    coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-                    coords[ncoord+7] = coord8
-                    ncoord=ncoord+8
 
-                    # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
-                    if z % 2 == 0:
-                        if y % 2 == 0:
-                            if x % 2 == 0:
-                                alternate[location] = 0
-                            else:
-                                alternate[location] = 1
-                        else:
-                            if x % 2 == 0:
-                                alternate[location] = 1
-                            else:
-                                alternate[location] = 0
-                    else:
-                        if y % 2 == 0:
-                            if x % 2 == 0:
-                                alternate[location] = 1
-                            else:
-                                alternate[location] = 0
-                        else:
-                            if x % 2 == 0:
-                                alternate[location] = 0
-                            else:
-                                alternate[location] = 1
+                    create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord)
+                    ncoord=ncoord+8
+                   
+                    alternate[location]=is_odd(x, y, z)
                     location=location+1
 
     bottom_half(coords, nvoxel, alternate, output_file, ffea_out, vtk_out)
@@ -260,6 +329,7 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
     if ffea_out:
         date = datetime.datetime.now().strftime("%x")
         comment = f'# created by {getpass.getuser()} on {date}'
+        print(original_ids)
         write_ffea_output(output_file,
                         nvoxel,
                         tet_array,
