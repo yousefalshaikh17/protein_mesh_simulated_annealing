@@ -315,7 +315,7 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
 
     #write to vtk
     if vtk_out:
-        vtk_output(points, cells_con, output_file)
+        vtk_output(points, tet_array, len(cells), output_file)
 
     if ffea_out:
         # make the grid
@@ -327,10 +327,27 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
 
         ffea_output(grid, points, output_file, nvoxel, tet_array)
 
-def vtk_output(points, cells_con, output_file):
+def vtk_output(points, tet_array, cell_count, output_file):
     """
     setup and use vtk writer
+    Args:
+        points
+        tet_array
+        cell_count (int): the number of voxels
+        output_file (pathlib.Path)
     """
+    cells_con = vtk.vtkCellArray() #create vtk cell array
+
+    for i in range(cell_count):
+        for tet in range(5):
+            tet_con = tet_array[(i*5) + tet]
+            tetra = vtk.vtkTetra()
+            tetra.GetPointIds().SetId(0, tet_con[0])
+            tetra.GetPointIds().SetId(1, tet_con[1])
+            tetra.GetPointIds().SetId(2, tet_con[2])
+            tetra.GetPointIds().SetId(3, tet_con[3])
+            cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
+
     vtkPts = vtk.vtkPoints()
     vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
