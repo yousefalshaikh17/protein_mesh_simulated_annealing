@@ -23,13 +23,15 @@
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
+# set up linting
+# pylint: disable = import-error
+
 import datetime
 import getpass
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
-
 
 def even_cube_tets(cube):
     """
@@ -82,36 +84,37 @@ def is_odd(x, y, z):
         (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
 
     '''
+    flag = None
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z % 2 == 0:
         if y % 2 == 0:
             if x % 2 == 0:
-                return 0
+                flag = 0
             else:
-                return 1
+                flag = 1
         else:
             if x % 2 == 0:
-                return 1
+                flag = 1
             else:
-                return 0
+                flag = 0
     else:
         if y % 2 == 0:
             if x % 2 == 0:
-                return 1
+                flag = 1
             else:
-                return 0
+                flag = 0
         else:
             if x % 2 == 0:
-                return 0
+                flag = 0
             else:
-                return 1
+                flag = 1
 
-
-
+    return flag
 
 def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
     '''
-    Caluculates the next 8 coords for the next volxel that has been thresholded previously (logic in loop that calls this one).
+    Caluculates the next 8 coords for the next volxel that has been thresholded
+    previously (logic in loop that calls this one).
     Args:
         x (int)           Indecies to the x coord in the coords array.
         y (int)           Indecies to the y coord in the coords array.
@@ -143,8 +146,6 @@ def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
     coords[ncoord+6] = coord7
     coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
     coords[ncoord+7] = coord8
-
-
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """

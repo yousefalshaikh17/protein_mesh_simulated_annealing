@@ -23,22 +23,13 @@
 
 Generating tetrahedral meshes from pixel data
 """
-#from ffeamesh.mrc_zoom import mrc_zoom
+# set up linting
+# pylint: disable = import-error
+
 import sys
 import argparse
 import pathlib
-from ffeamesh.writers import write_ffea_output
 from ffeamesh.fivetets import convert_mrc_to_5tets
-
-#import vtkwmtk from vmtk
-# from chimerax.map_data import mrc
-# ## #coarsen
-# g = mrc.open('map_equilibrium_mystructrigor_15A_0p00202.mrc')[0]
-
-
-#to coarsen a mesh (to 15 Å for example) in chimerax use:
-#vol resample #1 spacing 15 - this coarsens to 15 Å voxels
-#save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
 
 def get_args():
     """
