@@ -285,7 +285,8 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
     Args:
         nvoxel (int): voxel count
         points (numpy.ndarray): coordinates of vertices (no duplicates)
-        cells ():
+        cells (numpy.ndarray): nvoxel by 8 array listing indices of
+                               vertices in points for each voxel
         alternate ():
         output_file (pothlib.Path): name stem for ouput files
         ffea_out (bool): if true write ffea input files
@@ -295,9 +296,7 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
     tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
 
     #iterate over cubes and convert to tets
-    for i in range(len(cells)):
-        hex=cells[i]
-        cube = hex[0:8]
+    for i, cube in enumerate(cells):
         if alternate[i] == 0:
             connectivity = even_cube_tets(cube)
         elif alternate[i] == 1:
@@ -318,26 +317,6 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
-    # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
-    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
-    surfFilt2.SetInputData(grid)
-    surfFilt2.Update()
-    surf = surfFilt2.GetOutput()
-    surf_points=np.array(surf.GetPoints().GetData())
-    cells = surf.GetPolys()
-    nCells = cells.GetNumberOfCells()
-    array = cells.GetData()
-    original_ids = np.zeros((len(surf_points),), dtype='int16')
-    for pos in range(len(surf_points)):
-        point = surf_points[pos]
-        original_ids[pos] = np.where((points==point).all(axis=1))[0]
-
-    # This holds true if all polys are of the same kind, e.g. triangles.
-    assert(array.GetNumberOfValues()%nCells==0)
-    nCols = array.GetNumberOfValues()//nCells
-    numpy_cells = np.array(array)
-    faces = numpy_cells.reshape((-1,nCols))
-
     #write to vtk
     if vtk_out:
         writer = vtk.vtkUnstructuredGridWriter()
@@ -346,8 +325,28 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
         writer.Update()
         writer.Write()
 
-    #write to tetgen .ele, .node, .face
     if ffea_out:
+        # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
+        surfFilt2 = vtk.vtkDataSetSurfaceFilter()
+        surfFilt2.SetInputData(grid)
+        surfFilt2.Update()
+        surf = surfFilt2.GetOutput()
+        surf_points=np.array(surf.GetPoints().GetData())
+        cells = surf.GetPolys()
+        nCells = cells.GetNumberOfCells()
+        array = cells.GetData()
+        original_ids = np.zeros((len(surf_points),), dtype='int16')
+        for pos in range(len(surf_points)):
+            point = surf_points[pos]
+            original_ids[pos] = np.where((points==point).all(axis=1))[0]
+
+        # This holds true if all polys are of the same kind, e.g. triangles.
+        assert(array.GetNumberOfValues()%nCells==0)
+        nCols = array.GetNumberOfValues()//nCells
+        numpy_cells = np.array(array)
+        faces = numpy_cells.reshape((-1,nCols))
+
+        #write to tetgen .ele, .node, .face
         date = datetime.datetime.now().strftime("%x")
         comment = f'# created by {getpass.getuser()} on {date}'
         write_ffea_output(output_file,
