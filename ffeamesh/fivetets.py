@@ -298,12 +298,14 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
     #iterate over cubes and convert to tets
     for i, cube in enumerate(cells):
         if alternate[i] == 0:
-            connectivity = even_cube_tets(cube)
+            connectivity_one_vox = even_cube_tets(cube)
         elif alternate[i] == 1:
-            connectivity = odd_cube_tets(cube)
-        for tet in range(len(connectivity)):
-            tet_array[(i*5)+tet] = connectivity[tet]
-            tet_con = connectivity[tet]
+            connectivity_one_vox = odd_cube_tets(cube)
+
+        for tet_index, con_one_tet in enumerate(connectivity_one_vox):
+            tet_array[(i*5)+tet_index] = con_one_tet
+            tet_con = con_one_tet
+
             tetra = vtk.vtkTetra()
             tetra.GetPointIds().SetId(0, tet_con[0])
             tetra.GetPointIds().SetId(1, tet_con[1])
