@@ -69,7 +69,7 @@ def odd_cube_tets(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
-    
+
 def is_odd(x, y, z):
     '''
     Logic to decide if a voxel is an odd or and even.
@@ -77,10 +77,10 @@ def is_odd(x, y, z):
         x (int) Index for x value in values array.
         y (int) Index for y value in values array.
         z (int) Index for z value in values array.
-    
+
     Returns:
         (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
-        
+
     '''
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z % 2 == 0:
@@ -105,10 +105,10 @@ def is_odd(x, y, z):
                 return 0
             else:
                 return 1
-                
-     
-    
-    
+
+
+
+
 def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
     '''
     Caluculates the next 8 coords for the next volxel that has been thresholded previously (logic in loop that calls this one).
@@ -158,29 +158,29 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     Outputs:
         None
     """
-    
+
     """
     An explanation of the various data strucutres and what python packages need them.
-    
+
     Coords (numpy array)    All the vertices of all the voxels in the mrc map and will form all the tets in the output.
     ncoords (int)     Number or length of the coords array
     Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
     nvalues (int)     Number or length of the coords array
-    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the 
+    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the
                                   coords array that make it clear which coords are vertexies of each voxel
     nconnectvoxs (int)     Number or length of the cnnectvoxs array
     ConnetTets (int numpy array) Could be an array of arrays. An array that holds indexes to the
                                  coords array that make it clear which coords are vertexies of each cell/tetrahedron
     nconnecttets (int)     Number or length of the connecttets array
     CellType (int)               Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
-    
-    
+
+
     mrc (mrc utility)      A map which is the fastest way to work with the data and has
                                  a header and data section in it.
-                                 
-    cube (int numpy array)    Numpy array of 3 values represnting the x, y, z indecies into the coords array. 
+
+    cube (int numpy array)    Numpy array of 3 values represnting the x, y, z indecies into the coords array.
     """
-    
+
     # Reads mrc file into a map which is the fastest way to work with the data and has
     # a header and data section in it.
     mrc = mrcfile.mmap(input_file, mode='r+')
@@ -226,7 +226,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
                     create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord)
                     ncoord=ncoord+8
-                   
+
                     alternate[location]=is_odd(x, y, z)
                     location=location+1
 
@@ -262,21 +262,44 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
         ffea_out (bool): if true write ffea input files
         vtk_out (bool): if true write a vtk file
     """
-    points = np.unique(coords, axis=0) #make unique list of points for index
 
-    #create connectivity of cubes using index from point list
-    connectivity_ = np.zeros((nvoxel*8,), dtype='int16')
-    for pos in range(len(coords)):
-        point = coords[pos]
-        connectivity_[pos] = np.where((points==point).all(axis=1))[0]
-    cells_ = np.resize(connectivity_, (nvoxel,8))
+    # make unique list of vertices for indexing purposes
+    points = np.unique(coords, axis=0)
 
+    #create connectivity of vertex indices into the points list
+    connectivity = np.zeros((nvoxel*8,), dtype='int16')
+
+    # for each vertex in the orginal array the connectivity of
+    # that index is assigned to the index of that vertex in the points
+    for vertex_index in range(len(coords)):
+        point = coords[vertex_index]
+        connectivity[vertex_index] = np.where((points==point).all(axis=1))[0]
+
+    # convert connectivity to array of length nvoxel in which each entry
+    # is an array of eight indices into the points array; the eight points
+    # represent the eight corners of the voxel
+    cells = np.resize(connectivity, (nvoxel,8))
+
+    do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out)
+
+def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out):
+    """
+    outupt the files
+    Args:
+        nvoxel (int): voxel count
+        points (numpy.ndarray): coordinates of vertices (no duplicates)
+        cells ():
+        alternate ():
+        output_file (pothlib.Path): name stem for ouput files
+        ffea_out (bool): if true write ffea input files
+        vtk_out (bool): if true write a vtk file
+    """
     cells_con = vtk.vtkCellArray() #create vtk cell array
     tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
 
     #iterate over cubes and convert to tets
-    for i in range(len(cells_)):
-        hex=cells_[i]
+    for i in range(len(cells)):
+        hex=cells[i]
         cube = hex[0:8]
         if alternate[i] == 0:
             connectivity = even_cube_tets(cube)
@@ -298,6 +321,7 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
+    # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
     surfFilt2 = vtk.vtkDataSetSurfaceFilter()
     surfFilt2.SetInputData(grid)
     surfFilt2.Update()
@@ -329,11 +353,10 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
     if ffea_out:
         date = datetime.datetime.now().strftime("%x")
         comment = f'# created by {getpass.getuser()} on {date}'
-        print(original_ids)
         write_ffea_output(output_file,
-                        nvoxel,
-                        tet_array,
-                        points,
-                        faces,
-                        original_ids,
-                        comment)
+                          nvoxel,
+                          tet_array,
+                          points,
+                          faces,
+                          original_ids,
+                          comment)
