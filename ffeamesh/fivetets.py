@@ -313,48 +313,67 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
             tetra.GetPointIds().SetId(3, tet_con[3])
             cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
 
+    #write to vtk
+    if vtk_out:
+        vtk_output(points, cells_con, output_file)
+
+    if ffea_out:
+        # make the grid
+        vtkPts = vtk.vtkPoints()
+        vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
+        grid = vtk.vtkUnstructuredGrid() #create unstructured grid
+        grid.SetPoints(vtkPts) #assign points to grid
+        grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+
+        ffea_output(grid, points, output_file, nvoxel, tet_array)
+
+def vtk_output(points, cells_con, output_file):
+    """
+    setup and use vtk writer
+    """
     vtkPts = vtk.vtkPoints()
     vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
-    #write to vtk
-    if vtk_out:
-        writer = vtk.vtkUnstructuredGridWriter()
-        writer.SetFileName(str(output_file.with_suffix(".vtk")))
-        writer.SetInputData(grid)
-        writer.Update()
-        writer.Write()
+    writer = vtk.vtkUnstructuredGridWriter()
+    writer.SetFileName(str(output_file.with_suffix(".vtk")))
+    writer.SetInputData(grid)
+    writer.Update()
+    writer.Write()
 
-    if ffea_out:
-        # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
-        surfFilt2 = vtk.vtkDataSetSurfaceFilter()
-        surfFilt2.SetInputData(grid)
-        surfFilt2.Update()
-        surf = surfFilt2.GetOutput()
-        surf_points=np.array(surf.GetPoints().GetData())
-        cells = surf.GetPolys()
-        nCells = cells.GetNumberOfCells()
-        array = cells.GetData()
-        original_ids = np.zeros((len(surf_points),), dtype='int16')
-        for pos in range(len(surf_points)):
-            point = surf_points[pos]
-            original_ids[pos] = np.where((points==point).all(axis=1))[0]
+def ffea_output(grid, points, output_file, nvoxel, tet_array):
+    """
+    construct the faces and output the ffea input files
+    """
+    # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
+    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
+    surfFilt2.SetInputData(grid)
+    surfFilt2.Update()
+    surf = surfFilt2.GetOutput()
+    surf_points=np.array(surf.GetPoints().GetData())
+    cells = surf.GetPolys()
+    nCells = cells.GetNumberOfCells()
+    array = cells.GetData()
+    original_ids = np.zeros((len(surf_points),), dtype='int16')
+    for pos in range(len(surf_points)):
+        point = surf_points[pos]
+        original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
-        # This holds true if all polys are of the same kind, e.g. triangles.
-        assert(array.GetNumberOfValues()%nCells==0)
-        nCols = array.GetNumberOfValues()//nCells
-        numpy_cells = np.array(array)
-        faces = numpy_cells.reshape((-1,nCols))
+    # This holds true if all polys are of the same kind, e.g. triangles.
+    assert(array.GetNumberOfValues()%nCells==0)
+    nCols = array.GetNumberOfValues()//nCells
+    numpy_cells = np.array(array)
+    faces = numpy_cells.reshape((-1,nCols))
 
-        #write to tetgen .ele, .node, .face
-        date = datetime.datetime.now().strftime("%x")
-        comment = f'# created by {getpass.getuser()} on {date}'
-        write_ffea_output(output_file,
-                          nvoxel,
-                          tet_array,
-                          points,
-                          faces,
-                          original_ids,
-                          comment)
+    #write to tetgen .ele, .node, .face
+    date = datetime.datetime.now().strftime("%x")
+    comment = f'# created by {getpass.getuser()} on {date}'
+    write_ffea_output(output_file,
+                        nvoxel,
+                        tet_array,
+                        points,
+                        faces,
+                        original_ids,
+                        comment)
