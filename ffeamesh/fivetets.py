@@ -232,37 +232,19 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
     bottom_half(coords, nvoxel, alternate, output_file, ffea_out, vtk_out)
 
-'''
-                    move this here so you go through the data less times
-                    hex=cells_[i]
-                    cube = hex[0:8]
-                    if alternate[i] == 0:
-                        connectivity = even_cube_tets(cube)
-                    elif alternate[i] == 1:
-                        connectivity = odd_cube_tets(cube)
-                    for tet in range(len(connectivity)):
-                        tet_array[(i*5)+tet] = connectivity[tet]
-                        tet_con = connectivity[tet]
-                        tetra = vtk.vtkTetra()
-                        tetra.GetPointIds().SetId(0, tet_con[0])
-                        tetra.GetPointIds().SetId(1, tet_con[1])
-                        tetra.GetPointIds().SetId(2, tet_con[2])
-                        tetra.GetPointIds().SetId(3, tet_con[3])
-                        cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
-'''
-
-def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=False):
+def make_connectivity(nvoxel, coords):
     """
-    second part of tet maker
+    construct a duplicate free list of vertices coordinates and a
+    connectivity list mapping voxles to lists of eight vertices
     Args:
-        coords (numpy.ndarray): coordinates of voxel corners
         nvoxel (int): the number of voxels
-        alternate (int): array 0/1 values indicating if voxel is left or righ handed
-        output_file (pathlib.Path): the name stem (no suffix) of output files
-        ffea_out (bool): if true write ffea input files
-        vtk_out (bool): if true write a vtk file
-    """
+        coords (numpy.ndarray): coordinates of voxel vertices, including duplicates
+    Returns:
+        points (numpy.ndarray): duplicate free list of voxel vertices
+        cells (numpy.ndarray): nvoxel by 8 array listing indices of
+                               vertices in points for each voxel
 
+    """
     # make unique list of vertices for indexing purposes
     points = np.unique(coords, axis=0)
 
@@ -279,6 +261,21 @@ def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=
     # is an array of eight indices into the points array; the eight points
     # represent the eight corners of the voxel
     cells = np.resize(connectivity, (nvoxel,8))
+
+    return points, cells
+
+def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=False):
+    """
+    second part of tet maker
+    Args:
+        coords (numpy.ndarray): coordinates of voxel corners
+        nvoxel (int): the number of voxels
+        alternate (int): array 0/1 values indicating if voxel is left or righ handed
+        output_file (pathlib.Path): the name stem (no suffix) of output files
+        ffea_out (bool): if true write ffea input files
+        vtk_out (bool): if true write a vtk file
+    """
+    points, cells = make_connectivity(nvoxel, coords)
 
     do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out)
 
