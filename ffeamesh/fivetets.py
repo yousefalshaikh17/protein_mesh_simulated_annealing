@@ -169,9 +169,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     An explanation of the various data strucutres and what python packages need them.
 
-    Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and 
-                            2nd it is all verticies of all the thresholded volxes which 
-                            includes duplicates. 
+    Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and
+                            2nd it is all verticies of all the thresholded volxes which
+                            includes duplicates.
     ncoords (int)           Probably not needed. Number or length of the coords array i.e. the number of voxels
                             in the coords array.
     Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
@@ -248,12 +248,12 @@ def make_connectivity(nvoxel, coords):
     connectivity list mapping voxles to lists of eight vertices
     Args:
         nvoxel (int):                  the number of voxels
-        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8 
-                                       (one element for each vertex of a voxel and is the index 
-                                        of a value in the coords array) and the length 
-                                        of the overall array is the number of voxels that have 
+        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8
+                                       (one element for each vertex of a voxel and is the index
+                                        of a value in the coords array) and the length
+                                        of the overall array is the number of voxels that have
                                         been thresholded.
-        
+
     Returns:
         points (float numpy.ndarray):  duplicate free list of voxel vertices
         cells (int numpy.ndarray):     nvoxel by 8 array listing indices of
@@ -364,9 +364,10 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
         tet_array
         cell_count (int): the number of voxels
     """
-    print(type(cell_count))
-    cells_con = vtk.vtkCellArray() #create vtk cell array
+    #create vtk array for holding cells
+    cells_con = vtk.vtkCellArray()
 
+    # add tetrahedron cells to array
     for i in range(cell_count):
         for tet in range(5):
             tet_con = tet_array[(i*5) + tet]
@@ -385,22 +386,34 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
     """
     construct the faces and output the ffea input files
     """
-    # REQUIRED TO CONSTRUCT FACES FOR FFEA OUTPUT
+    # make a surface filter to extract the geometric boundary
     surfFilt2 = vtk.vtkDataSetSurfaceFilter()
     surfFilt2.SetInputData(grid)
     surfFilt2.Update()
+
+    # get the geometric boundary (the suface of the volume)
     surf = surfFilt2.GetOutput()
+
+    # get the points in the surface geomatry
     surf_points=np.array(surf.GetPoints().GetData())
+
+    # get the surface polygons
     cells = surf.GetPolys()
     nCells = cells.GetNumberOfCells()
     array = cells.GetData()
+
+    # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
     for pos in range(len(surf_points)):
+        # surface point
         point = surf_points[pos]
+        # index of sourface point in the tet's points array
         original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.
     assert(array.GetNumberOfValues()%nCells==0)
+
+    # reshape the cells array to match tet gen output standard
     nCols = array.GetNumberOfValues()//nCells
     numpy_cells = np.array(array)
     faces = numpy_cells.reshape((-1,nCols))
