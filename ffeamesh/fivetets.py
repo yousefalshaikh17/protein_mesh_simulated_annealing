@@ -147,6 +147,12 @@ def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
     coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
     coords[ncoord+7] = coord8
 
+
+
+
+
+
+
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     convert the contents of an mrc file to a tetrohedron array
@@ -163,10 +169,13 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     An explanation of the various data strucutres and what python packages need them.
 
-    Coords (numpy array)    All the vertices of all the voxels in the mrc map and will form all the tets in the output.
-    ncoords (int)     Number or length of the coords array
+    Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and 
+                            2nd it is all verticies of all the thresholded volxes which 
+                            includes duplicates. 
+    ncoords (int)           Probably not needed. Number or length of the coords array i.e. the number of voxels
+                            in the coords array.
     Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
-    nvalues (int)     Number or length of the coords array
+    nvalues (int)             Probably not needed. Number or length of the coords array
     ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the
                                   coords array that make it clear which coords are vertexies of each voxel
     nconnectvoxs (int)     Number or length of the cnnectvoxs array
@@ -238,18 +247,23 @@ def make_connectivity(nvoxel, coords):
     construct a duplicate free list of vertices coordinates and a
     connectivity list mapping voxles to lists of eight vertices
     Args:
-        nvoxel (int): the number of voxels
-        coords (numpy.ndarray): coordinates of voxel vertices, including duplicates
+        nvoxel (int):                  the number of voxels
+        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8 
+                                       (one element for each vertex of a voxel and is the index 
+                                        of a value in the coords array) and the length 
+                                        of the overall array is the number of voxels that have 
+                                        been thresholded.
+        
     Returns:
-        points (numpy.ndarray): duplicate free list of voxel vertices
-        cells (numpy.ndarray): nvoxel by 8 array listing indices of
-                               vertices in points for each voxel
+        points (float numpy.ndarray):  duplicate free list of voxel vertices
+        cells (int numpy.ndarray):     nvoxel by 8 array listing indices of
+                                       vertices in points for each voxel
 
     """
     # make unique list of vertices for indexing purposes
     points = np.unique(coords, axis=0)
 
-    #create connectivity of vertex indices into the points list
+    # create empty connectivity array, of vertex indices into the points list
     connectivity = np.zeros((nvoxel*8,), dtype='int16')
 
     # for each vertex in the orginal array the connectivity of
