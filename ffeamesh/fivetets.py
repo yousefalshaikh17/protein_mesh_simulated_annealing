@@ -374,7 +374,7 @@ def make_voxel_connectivity(nvoxel, coords):
 
     # for each vertex in the orginal array the connectivity of
     # that index is assigned to the index of that vertex in the points
-    for vertex_index in range(len(coords)):
+    for vertex_index, _ in enumerate(coords):
         point = coords[vertex_index]
         connectivity[vertex_index] = np.where((points==point).all(axis=1))[0]
 
