@@ -240,12 +240,15 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                     alternate[location]=is_odd(x, y, z)
                     location=location+1
 
-    # make the connectivity data for output
-    points, cells = make_connectivity(nvoxel, coords)
+    # make the connectivity data for voxels
+    points, cells = make_voxel_connectivity(nvoxel, coords)
 
-    do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out)
+    # make the connectivity for tets
+    tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
-def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out):
+    do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+
+def do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
     """
     outupt the files
     Args:
@@ -258,57 +261,37 @@ def do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out,
         ffea_out (bool): if true write ffea input files
         vtk_out (bool): if true write a vtk file
     """
-    tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
+    # make the vtk tet connectivity
+    cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
 
-    #iterate over cubes and convert to tets
-    for i, cube in enumerate(cells):
-        if alternate[i] == 0:
-            connectivity_one_vox = even_cube_tets(cube)
-        elif alternate[i] == 1:
-            connectivity_one_vox = odd_cube_tets(cube)
-
-        for tet_index, con_one_tet in enumerate(connectivity_one_vox):
-            tet_array[(i*5)+tet_index] = con_one_tet
-
-    #write to vtk
-    if vtk_out:
-        vtk_output(points, tet_array, len(cells), output_file)
-
-    if ffea_out:
-        cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
-        # make the grid
-        vtkPts = vtk.vtkPoints()
-        vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
-        grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-        grid.SetPoints(vtkPts) #assign points to grid
-        grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
-
-        ffea_output(grid, points, output_file, nvoxel, tet_array)
-
-def vtk_output(points, tet_array, cell_count, output_file):
-    """
-    setup and use vtk writer
-    Args:
-        points
-        tet_array
-        cell_count (int): the number of voxels
-        output_file (pathlib.Path)
-    """
-    cells_con = make_vtk_cell_connectivity(tet_array, cell_count)
-
+    # make the gris (vtk scene)
     vtkPts = vtk.vtkPoints()
     vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
+    #write to vtk
+    if vtk_out:
+        vtk_output(grid, output_file)
+
+    if ffea_out:
+        ffea_output(grid, points, output_file, nvoxel, tet_array)
+
+def vtk_output(grid, output_file):
+    """
+    setup and use vtk writer
+    Args:
+        grid (vtk.vtkUnstructuredGrid): vtk scene
+        output_file (pathlib.Path)
+    """
     writer = vtk.vtkUnstructuredGridWriter()
     writer.SetFileName(str(output_file.with_suffix(".vtk")))
     writer.SetInputData(grid)
     writer.Update()
     writer.Write()
 
-def make_connectivity(nvoxel, coords):
+def make_voxel_connectivity(nvoxel, coords):
     """
     construct a duplicate free list of vertices coordinates and a
     connectivity list mapping voxles to lists of eight vertices
@@ -345,11 +328,39 @@ def make_connectivity(nvoxel, coords):
 
     return points, cells
 
+def make_tet_connectivity(nvoxel, cells, alternate):
+    """
+    convert voxel connectivity to tetrohedron connectivity
+    Args:
+        nvoxel (int): number of voxels
+        cells (int numpy.ndarray): nvoxel by 8 array listing indices of
+                                    vertices in points for each voxel
+        alternate (int numpy.ndarray): indexed by voxel number, zero if voxel is
+                                        odd else voxel is even
+    Returns:
+        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                    is a list of its four vertices in the points array
+    """
+    tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
+
+    #iterate over cubes and convert to tets
+    for i, cube in enumerate(cells):
+        if alternate[i] == 0:
+            connectivity_one_vox = even_cube_tets(cube)
+        elif alternate[i] == 1:
+            connectivity_one_vox = odd_cube_tets(cube)
+
+        for tet_index, con_one_tet in enumerate(connectivity_one_vox):
+            tet_array[(i*5)+tet_index] = con_one_tet
+
+    return tet_array
+
 def make_vtk_cell_connectivity(tet_array, cell_count):
     """
     setup and use vtk writer
     Args:
-        tet_array
+        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                    is a list of its four vertices in the points array
         cell_count (int): the number of voxels
     """
     #create vtk array for holding cells
@@ -373,6 +384,13 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
 def ffea_output(grid, points, output_file, nvoxel, tet_array):
     """
     construct the faces and output the ffea input files
+    Args:
+        grid (vtk.vtkUnstructuredGrid): vtk scene
+        points (float np.ndarray): duplicate free list of vertices
+        output_file (pathlib.Path): name stem of output files
+        nvoxel (int): the number of voxels
+        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                    is a list of its four vertices in the points array
     """
     # make a surface filter to extract the geometric boundary
     surfFilt2 = vtk.vtkDataSetSurfaceFilter()
