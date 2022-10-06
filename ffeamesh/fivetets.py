@@ -240,56 +240,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                     alternate[location]=is_odd(x, y, z)
                     location=location+1
 
-    bottom_half(coords, nvoxel, alternate, output_file, ffea_out, vtk_out)
-
-def make_connectivity(nvoxel, coords):
-    """
-    construct a duplicate free list of vertices coordinates and a
-    connectivity list mapping voxles to lists of eight vertices
-    Args:
-        nvoxel (int):                  the number of voxels
-        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8
-                                       (one element for each vertex of a voxel and is the index
-                                        of a value in the coords array) and the length
-                                        of the overall array is the number of voxels that have
-                                        been thresholded.
-
-    Returns:
-        points (float numpy.ndarray):  duplicate free list of voxel vertices
-        cells (int numpy.ndarray):     nvoxel by 8 array listing indices of
-                                       vertices in points for each voxel
-
-    """
-    # make unique list of vertices for indexing purposes
-    points = np.unique(coords, axis=0)
-
-    # create empty connectivity array, of vertex indices into the points list
-    connectivity = np.zeros((nvoxel*8,), dtype='int16')
-
-    # for each vertex in the orginal array the connectivity of
-    # that index is assigned to the index of that vertex in the points
-    for vertex_index in range(len(coords)):
-        point = coords[vertex_index]
-        connectivity[vertex_index] = np.where((points==point).all(axis=1))[0]
-
-    # convert connectivity to array of length nvoxel in which each entry
-    # is an array of eight indices into the points array; the eight points
-    # represent the eight corners of the voxel
-    cells = np.resize(connectivity, (nvoxel,8))
-
-    return points, cells
-
-def bottom_half(coords, nvoxel, alternate, output_file, ffea_out=False, vtk_out=False):
-    """
-    second part of tet maker
-    Args:
-        coords (numpy.ndarray): coordinates of voxel corners
-        nvoxel (int): the number of voxels
-        alternate (int): array 0/1 values indicating if voxel is left or righ handed
-        output_file (pathlib.Path): the name stem (no suffix) of output files
-        ffea_out (bool): if true write ffea input files
-        vtk_out (bool): if true write a vtk file
-    """
+    # make the connectivity data for output
     points, cells = make_connectivity(nvoxel, coords)
 
     do_the_output_stuff(nvoxel, points, cells, alternate, output_file, ffea_out, vtk_out)
@@ -356,6 +307,43 @@ def vtk_output(points, tet_array, cell_count, output_file):
     writer.SetInputData(grid)
     writer.Update()
     writer.Write()
+
+def make_connectivity(nvoxel, coords):
+    """
+    construct a duplicate free list of vertices coordinates and a
+    connectivity list mapping voxles to lists of eight vertices
+    Args:
+        nvoxel (int):                  the number of voxels
+        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8
+                                       (one element for each vertex of a voxel and is the index
+                                        of a value in the coords array) and the length
+                                        of the overall array is the number of voxels that have
+                                        been thresholded.
+
+    Returns:
+        points (float numpy.ndarray):  duplicate free list of voxel vertices
+        cells (int numpy.ndarray):     nvoxel by 8 array listing indices of
+                                       vertices in points for each voxel
+
+    """
+    # make unique list of vertices for indexing purposes
+    points = np.unique(coords, axis=0)
+
+    # create empty connectivity array, of vertex indices into the points list
+    connectivity = np.zeros((nvoxel*8,), dtype='int16')
+
+    # for each vertex in the orginal array the connectivity of
+    # that index is assigned to the index of that vertex in the points
+    for vertex_index in range(len(coords)):
+        point = coords[vertex_index]
+        connectivity[vertex_index] = np.where((points==point).all(axis=1))[0]
+
+    # convert connectivity to array of length nvoxel in which each entry
+    # is an array of eight indices into the points array; the eight points
+    # represent the eight corners of the voxel
+    cells = np.resize(connectivity, (nvoxel,8))
+
+    return points, cells
 
 def make_vtk_cell_connectivity(tet_array, cell_count):
     """
