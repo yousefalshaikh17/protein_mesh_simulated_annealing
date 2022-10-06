@@ -52,7 +52,6 @@ def even_cube_tets(cube):
 
     return tet_list
 
-
 def odd_cube_tets(cube):
     """
     convert a list of the eight vertices of a an odd cube
@@ -79,10 +78,8 @@ def is_odd(x, y, z):
         x (int) Index for x value in values array.
         y (int) Index for y value in values array.
         z (int) Index for z value in values array.
-
     Returns:
         (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
-
     '''
     flag = None
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
@@ -162,7 +159,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
         threshold (float)
         ffea_out (bool)
         vtk_out (bool)
-    Outputs:
+    Returns:
         None
     """
 
@@ -246,9 +243,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     # make the connectivity for tets
     tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
-    do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+    write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
 
-def do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
+def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
     """
     outupt the files
     Args:
@@ -256,10 +253,13 @@ def do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out,
         points (numpy.ndarray): coordinates of vertices (no duplicates)
         cells (numpy.ndarray): nvoxel by 8 array listing indices of
                                vertices in points for each voxel
-        alternate ():
+        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                    is a list of its four vertices in the points array
         output_file (pothlib.Path): name stem for ouput files
         ffea_out (bool): if true write ffea input files
         vtk_out (bool): if true write a vtk file
+    Returns:
+        None
     """
     # make the vtk tet connectivity
     cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
@@ -271,10 +271,11 @@ def do_the_output_stuff(nvoxel, points, cells, tet_array, output_file, ffea_out,
     grid.SetPoints(vtkPts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
-    #write to vtk
+    #write vtk file
     if vtk_out:
         vtk_output(grid, output_file)
 
+    # write tetgen file for ffea input
     if ffea_out:
         ffea_output(grid, points, output_file, nvoxel, tet_array)
 
@@ -290,6 +291,62 @@ def vtk_output(grid, output_file):
     writer.SetInputData(grid)
     writer.Update()
     writer.Write()
+
+def ffea_output(grid, points, output_file, nvoxel, tet_array):
+    """
+    construct the faces and output the ffea input files
+    Args:
+        grid (vtk.vtkUnstructuredGrid): vtk scene
+        points (float np.ndarray): duplicate free list of vertices
+        output_file (pathlib.Path): name stem of output files
+        nvoxel (int): the number of voxels
+        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                    is a list of its four vertices in the points array
+    Returns:
+        None
+    """
+    # make a surface filter to extract the geometric boundary
+    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
+    surfFilt2.SetInputData(grid)
+    surfFilt2.Update()
+
+    # get the geometric boundary (the suface of the volume)
+    surf = surfFilt2.GetOutput()
+
+    # get the points in the surface geomatry
+    surf_points=np.array(surf.GetPoints().GetData())
+
+    # get the surface polygons
+    cells = surf.GetPolys()
+    nCells = cells.GetNumberOfCells()
+    array = cells.GetData()
+
+    # make a connectivity into the tets points
+    original_ids = np.zeros((len(surf_points),), dtype='int16')
+    for pos in range(len(surf_points)):
+        # surface point
+        point = surf_points[pos]
+        # index of sourface point in the tet's points array
+        original_ids[pos] = np.where((points==point).all(axis=1))[0]
+
+    # This holds true if all polys are of the same kind, e.g. triangles.
+    assert(array.GetNumberOfValues()%nCells==0)
+
+    # reshape the cells array to match tet gen output standard
+    nCols = array.GetNumberOfValues()//nCells
+    numpy_cells = np.array(array)
+    faces = numpy_cells.reshape((-1,nCols))
+
+    #write to tetgen .ele, .node, .face
+    date = datetime.datetime.now().strftime("%x")
+    comment = f'# created by {getpass.getuser()} on {date}'
+    write_ffea_output(output_file,
+                      nvoxel,
+                      tet_array,
+                      points,
+                      faces,
+                      original_ids,
+                      comment)
 
 def make_voxel_connectivity(nvoxel, coords):
     """
@@ -362,6 +419,8 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
         tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
                                     is a list of its four vertices in the points array
         cell_count (int): the number of voxels
+    Returns:
+        (vtk.vtkCellArray): array holding the tet's connectivity as vtk data
     """
     #create vtk array for holding cells
     cells_con = vtk.vtkCellArray()
@@ -380,57 +439,3 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
             cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
 
     return cells_con
-
-def ffea_output(grid, points, output_file, nvoxel, tet_array):
-    """
-    construct the faces and output the ffea input files
-    Args:
-        grid (vtk.vtkUnstructuredGrid): vtk scene
-        points (float np.ndarray): duplicate free list of vertices
-        output_file (pathlib.Path): name stem of output files
-        nvoxel (int): the number of voxels
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-    """
-    # make a surface filter to extract the geometric boundary
-    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
-    surfFilt2.SetInputData(grid)
-    surfFilt2.Update()
-
-    # get the geometric boundary (the suface of the volume)
-    surf = surfFilt2.GetOutput()
-
-    # get the points in the surface geomatry
-    surf_points=np.array(surf.GetPoints().GetData())
-
-    # get the surface polygons
-    cells = surf.GetPolys()
-    nCells = cells.GetNumberOfCells()
-    array = cells.GetData()
-
-    # make a connectivity into the tets points
-    original_ids = np.zeros((len(surf_points),), dtype='int16')
-    for pos in range(len(surf_points)):
-        # surface point
-        point = surf_points[pos]
-        # index of sourface point in the tet's points array
-        original_ids[pos] = np.where((points==point).all(axis=1))[0]
-
-    # This holds true if all polys are of the same kind, e.g. triangles.
-    assert(array.GetNumberOfValues()%nCells==0)
-
-    # reshape the cells array to match tet gen output standard
-    nCols = array.GetNumberOfValues()//nCells
-    numpy_cells = np.array(array)
-    faces = numpy_cells.reshape((-1,nCols))
-
-    #write to tetgen .ele, .node, .face
-    date = datetime.datetime.now().strftime("%x")
-    comment = f'# created by {getpass.getuser()} on {date}'
-    write_ffea_output(output_file,
-                      nvoxel,
-                      tet_array,
-                      points,
-                      faces,
-                      original_ids,
-                      comment)
