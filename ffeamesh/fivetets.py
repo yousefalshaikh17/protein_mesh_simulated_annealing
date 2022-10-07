@@ -79,32 +79,32 @@ def is_odd(x, y, z):
         y (int) Index for y value in values array.
         z (int) Index for z value in values array.
     Returns:
-        (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
+        (bool)  True if voxel in an odd position, else odd
     '''
     flag = None
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z % 2 == 0:
         if y % 2 == 0:
             if x % 2 == 0:
-                flag = 0
+                flag = False
             else:
-                flag = 1
+                flag = True
         else:
             if x % 2 == 0:
-                flag = 1
+                flag = True
             else:
-                flag = 0
+                flag = False
     else:
         if y % 2 == 0:
             if x % 2 == 0:
-                flag = 1
+                flag = True
             else:
-                flag = 0
+                flag = False
         else:
             if x % 2 == 0:
-                flag = 0
+                flag = False
             else:
-                flag = 1
+                flag = True
 
     return flag
 
@@ -213,7 +213,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     cubecoords (float numpy array) the x, y, z coordinate vlaues for each vertex of a voxel.
     '''
 
-    nvoxel = sum([np.count_nonzero(x>=threshold) for x in mrc.data.flatten()])
+    nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
 
     coords = np.zeros((nvoxel*8, 3))
     ncoord = 0
@@ -221,8 +221,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     x_trans = float(mrc.header.origin['x'])
     y_trans = float(mrc.header.origin['y'])
     z_trans = float(mrc.header.origin['z'])
-    alternate = np.zeros((nvoxel,))
-    location = 0
+    alternate = []
+    #location = 0
 
     # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
     for z in range(0, mrc.header.nz):
@@ -234,8 +234,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                     create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord)
                     ncoord=ncoord+8
 
-                    alternate[location]=is_odd(x, y, z)
-                    location=location+1
+                    alternate.append(is_odd(x, y, z))
+                    #location=location+1
 
     # make the connectivity data for voxels
     points, cells = make_voxel_connectivity(nvoxel, coords)
@@ -265,10 +265,10 @@ def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out,
     cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
 
     # make the gris (vtk scene)
-    vtkPts = vtk.vtkPoints()
-    vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
+    vtk_pts = vtk.vtkPoints()
+    vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    grid.SetPoints(vtkPts) #assign points to grid
+    grid.SetPoints(vtk_pts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
     #write vtk file
@@ -292,6 +292,34 @@ def vtk_output(grid, output_file):
     writer.Update()
     writer.Write()
 
+def get_vtk_surface(grid):
+    """
+    get the surface polygons from a vtk scene.
+    Args:
+        grid (vtk.vtkUnstructuredGrid): vtk scene
+    Return
+        (float np.array): the vertices on the surface
+        (vtkmodules.vtkCommonCore.vtkIdTypeArray) connectivity of surface polygons
+        (int) numer of cells in surface
+    """
+    # make a surface filter to extract the geometric boundary
+    surf_filt = vtk.vtkDataSetSurfaceFilter()
+    surf_filt.SetInputData(grid)
+    surf_filt.Update()
+
+    # get the geometric boundary (the suface of the volume)
+    surf = surf_filt.GetOutput()
+
+    # get the points in the surface geomatry
+    surf_points=np.array(surf.GetPoints().GetData())
+
+    # get the surface polygons
+    cells = surf.GetPolys()
+    cell_count = cells.GetNumberOfCells()
+    cell_data = cells.GetData()
+
+    return surf_points, cell_data, cell_count
+
 def ffea_output(grid, points, output_file, nvoxel, tet_array):
     """
     construct the faces and output the ffea input files
@@ -305,48 +333,31 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
     Returns:
         None
     """
-    # make a surface filter to extract the geometric boundary
-    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
-    surfFilt2.SetInputData(grid)
-    surfFilt2.Update()
-
-    # get the geometric boundary (the suface of the volume)
-    surf = surfFilt2.GetOutput()
-
-    # get the points in the surface geomatry
-    surf_points=np.array(surf.GetPoints().GetData())
-
-    # get the surface polygons
-    cells = surf.GetPolys()
-    nCells = cells.GetNumberOfCells()
-    array = cells.GetData()
+    surf_points, cell_data, cell_count = get_vtk_surface(grid)
 
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
-    for pos in range(len(surf_points)):
-        # surface point
-        point = surf_points[pos]
+    for pos, point in enumerate(surf_points):
         # index of sourface point in the tet's points array
         original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.
-    assert(array.GetNumberOfValues()%nCells==0)
+    assert cell_data.GetNumberOfValues()%cell_count==0
 
     # reshape the cells array to match tet gen output standard
-    nCols = array.GetNumberOfValues()//nCells
-    numpy_cells = np.array(array)
-    faces = numpy_cells.reshape((-1,nCols))
+    col_count = cell_data.GetNumberOfValues()//cell_count
+    numpy_cells = np.array(cell_data)
+    faces = numpy_cells.reshape((-1, col_count))
 
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
-    comment = f'# created by {getpass.getuser()} on {date}'
     write_ffea_output(output_file,
                       nvoxel,
                       tet_array,
                       points,
                       faces,
                       original_ids,
-                      comment)
+                      f'# created by {getpass.getuser()} on {date}')
 
 def make_voxel_connectivity(nvoxel, coords):
     """
@@ -402,10 +413,10 @@ def make_tet_connectivity(nvoxel, cells, alternate):
 
     #iterate over cubes and convert to tets
     for i, cube in enumerate(cells):
-        if alternate[i] == 0:
-            connectivity_one_vox = even_cube_tets(cube)
-        elif alternate[i] == 1:
+        if alternate[i]:
             connectivity_one_vox = odd_cube_tets(cube)
+        else:
+            connectivity_one_vox = even_cube_tets(cube)
 
         for tet_index, con_one_tet in enumerate(connectivity_one_vox):
             tet_array[(i*5)+tet_index] = con_one_tet
