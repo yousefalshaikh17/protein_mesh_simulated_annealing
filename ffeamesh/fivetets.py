@@ -26,6 +26,7 @@
 # set up linting
 # pylint: disable = import-error
 
+import sys
 import datetime
 import getpass
 import numpy as np
@@ -238,6 +239,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     '''
 
     nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
+    if nvoxel <= 0:
+        print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+        sys.exit()
 
     coords = np.zeros((nvoxel*8, 3))
     coord_count = count(0, 8)
