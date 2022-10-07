@@ -32,6 +32,7 @@ import numpy as np
 import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
+from itertools import count
 
 def even_cube_tets(cube):
     """
@@ -108,7 +109,48 @@ def is_odd(x, y, z):
 
     return flag
 
-def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
+def make_fractional_to_cartesian_conversion_function(mrc):
+    """
+    make_fractional_to_cartesian_conversion_function(mrc)
+    make a functor that will convert a point defined by fractional
+    coordinates in the unit cell to cartesian coordinates
+    TODO imp for angles not 90 degrees
+    Args:
+        mrc (mrcfile): the mrc file
+    Returns
+        function: fractional (i, j, k) (flaot) => cartesian (x, y, z) (float)
+    """
+    # get cell sizes
+    x_res = mrc.header.cella.x/np.float32(mrc.header.mx)
+    y_res = mrc.header.cella.y/np.float32(mrc.header.my)
+    z_res = mrc.header.cella.z/np.float32(mrc.header.mz)
+
+    # get coordinate origine
+    x_trans = np.float32(mrc.header.origin['x'])
+    y_trans = np.float32(mrc.header.origin['y'])
+    z_trans = np.float32(mrc.header.origin['z'])
+
+    def fractional_to_cartesian_coordinates(x_frac, y_frac, z_frac):
+        """
+        convert integer indices to 3D coordinates.
+        Args:
+            x_frac (float): the fractional x coordinate
+            y_frac (float): the fractional y coordinate
+            z_frac (float): the fractional z coordinate
+        Returns:
+            x_cart (float): the cartesian x coordinate
+            y_cart (float): the cartesian y coordinate
+            z_cart (float): the cartesian z coordinate
+        """
+        x_cart = (x_frac * x_res) + x_trans
+        y_cart = (y_frac * y_res) + y_trans
+        z_cart = (z_frac * z_res) + z_trans
+
+        return x_cart, y_cart, z_cart
+
+    return fractional_to_cartesian_coordinates
+
+def create_cube_coords(x, y, z, frac_to_cart, coords, ncoord):
     '''
     Caluculates the next 8 coords for the next volxel that has been thresholded
     previously (logic in loop that calls this one).
@@ -116,39 +158,21 @@ def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
         x (int)           Indecies to the x coord in the coords array.
         y (int)           Indecies to the y coord in the coords array.
         z (int)           Indecies to the z coord in the coords array.
-        x_trans  (float)  Offset in x axis for the data.
-        y_trans  (float)  Offset in y axis for the data.
-        z_trans  (float)  Offset in z axis for the data.
-        res  (float)    Resolution of the data.
+        frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
         coords (float numpy array)  The coordinates of the thresholded voxels passed by reference to this function.
         ncoord (int)    Index to the coords array which is a vertex of a voxel passed by reference to this function.
     Returns:
         None
     '''
-
-    # Calculate the cordinates of each vertex of the voxel so it aligns with the isosurface
-    coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord] = coord1
-    coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+1] = coord2
-    coord3 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+2] = coord3
-    coord4 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+3] = coord4
-    coord5 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+4] = coord5
-    coord6 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+5] = coord6
-    coord7 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+6] = coord7
-    coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+7] = coord8
-
-
-
-
-
-
+    # Calculate the cordinates of each vertex of the voxel
+    coords[ncoord]   = frac_to_cart((x-0.5), (y-0.5), (z-0.5))
+    coords[ncoord+1] = frac_to_cart((x+0.5), (y-0.5), (z-0.5))
+    coords[ncoord+2] = frac_to_cart((x+0.5), (y+0.5), (z-0.5))
+    coords[ncoord+3] = frac_to_cart((x-0.5), (y+0.5), (z-0.5))
+    coords[ncoord+4] = frac_to_cart((x-0.5), (y-0.5), (z+0.5))
+    coords[ncoord+5] = frac_to_cart((x+0.5), (y-0.5), (z+0.5))
+    coords[ncoord+6] = frac_to_cart((x+0.5), (y+0.5), (z+0.5))
+    coords[ncoord+7] = frac_to_cart((x-0.5), (y+0.5), (z+0.5))
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -216,13 +240,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
 
     coords = np.zeros((nvoxel*8, 3))
-    ncoord = 0
-    res = float(mrc.header.cella['x'])/mrc.header.nx
-    x_trans = float(mrc.header.origin['x'])
-    y_trans = float(mrc.header.origin['y'])
-    z_trans = float(mrc.header.origin['z'])
+    coord_count = count(0, 8)
     alternate = []
-    #location = 0
+    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
     # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
     for z in range(0, mrc.header.nz):
@@ -230,12 +250,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
             for x in range(0, mrc.header.nx):
                 # Threshold the voxels out of the mrc map data
                 if mrc.data[z,y,x] > threshold:
-
-                    create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord)
-                    ncoord=ncoord+8
-
+                    create_cube_coords(x, y, z, frac_to_cart, coords, next(coord_count))
                     alternate.append(is_odd(x, y, z))
-                    #location=location+1
 
     # make the connectivity data for voxels
     points, cells = make_voxel_connectivity(nvoxel, coords)
