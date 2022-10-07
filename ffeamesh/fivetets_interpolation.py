@@ -26,8 +26,10 @@
 # set up linting
 # pylint: disable = import-error
 
+import sys
 import datetime
 import getpass
+from itertools import count
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
@@ -79,36 +81,77 @@ def is_odd(x, y, z):
         y (int) Index for y value in values array.
         z (int) Index for z value in values array.
     Returns:
-        (int)   0 represnt voxel in an even position and 1 represents a voxel in an odd position
+        (bool)  True if voxel in an odd position, else odd
     '''
     flag = None
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z % 2 == 0:
         if y % 2 == 0:
             if x % 2 == 0:
-                flag = 0
+                flag = False
             else:
-                flag = 1
+                flag = True
         else:
             if x % 2 == 0:
-                flag = 1
+                flag = True
             else:
-                flag = 0
+                flag = False
     else:
         if y % 2 == 0:
             if x % 2 == 0:
-                flag = 1
+                flag = True
             else:
-                flag = 0
+                flag = False
         else:
             if x % 2 == 0:
-                flag = 0
+                flag = False
             else:
-                flag = 1
+                flag = True
 
     return flag
 
-def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
+def make_fractional_to_cartesian_conversion_function(mrc):
+    """
+    make_fractional_to_cartesian_conversion_function(mrc)
+    make a functor that will convert a point defined by fractional
+    coordinates in the unit cell to cartesian coordinates
+    TODO imp for angles not 90 degrees
+    Args:
+        mrc (mrcfile): the mrc file
+    Returns
+        function: fractional (i, j, k) (flaot) => cartesian (x, y, z) (float)
+    """
+    # get cell sizes
+    x_res = mrc.header.cella.x/np.float32(mrc.header.mx)
+    y_res = mrc.header.cella.y/np.float32(mrc.header.my)
+    z_res = mrc.header.cella.z/np.float32(mrc.header.mz)
+
+    # get coordinate origine
+    x_trans = np.float32(mrc.header.origin['x'])
+    y_trans = np.float32(mrc.header.origin['y'])
+    z_trans = np.float32(mrc.header.origin['z'])
+
+    def fractional_to_cartesian_coordinates(x_frac, y_frac, z_frac):
+        """
+        convert integer indices to 3D coordinates.
+        Args:
+            x_frac (float): the fractional x coordinate
+            y_frac (float): the fractional y coordinate
+            z_frac (float): the fractional z coordinate
+        Returns:
+            x_cart (float): the cartesian x coordinate
+            y_cart (float): the cartesian y coordinate
+            z_cart (float): the cartesian z coordinate
+        """
+        x_cart = (x_frac * x_res) + x_trans
+        y_cart = (y_frac * y_res) + y_trans
+        z_cart = (z_frac * z_res) + z_trans
+
+        return x_cart, y_cart, z_cart
+
+    return fractional_to_cartesian_coordinates
+
+def create_cube_coords(x, y, z, frac_to_cart, coords, ncoord):
     '''
     Caluculates the next 8 coords for the next volxel that has been thresholded
     previously (logic in loop that calls this one).
@@ -116,66 +159,21 @@ def create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord):
         x (int)           Indecies to the x coord in the coords array.
         y (int)           Indecies to the y coord in the coords array.
         z (int)           Indecies to the z coord in the coords array.
-        x_trans  (float)  Offset in x axis for the data.
-        y_trans  (float)  Offset in y axis for the data.
-        z_trans  (float)  Offset in z axis for the data.
-        res  (float)    Resolution of the data.
+        frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
         coords (float numpy array)  The coordinates of the thresholded voxels passed by reference to this function.
         ncoord (int)    Index to the coords array which is a vertex of a voxel passed by reference to this function.
     Returns:
         None
     '''
-
-    # Calculate the cordinates of each vertex of the voxel so it aligns with the isosurface
-    coord1 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord] = coord1
-    coord2 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+1] = coord2
-    coord3 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+2] = coord3
-    coord4 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z-0.5)*res)+z_trans]
-    coords[ncoord+3] = coord4
-    coord5 = [((x-0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+4] = coord5
-    coord6 = [((x+0.5)*res)+x_trans, ((y-0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+5] = coord6
-    coord7 = [((x+0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+6] = coord7
-    coord8 = [((x-0.5)*res)+x_trans, ((y+0.5)*res)+y_trans, ((z+0.5)*res)+z_trans]
-    coords[ncoord+7] = coord8
-
-
-
-
-def theshold_tets(x, y, z, mrc, theshold, is_tet):
-
-    value_a = mrc.data[x-1, y-1, z-1]
-    value_b = mrc.data[x, y-1, z-1]
-    value_c = mrc.data[x-1, y, z-1]
-    value_d = mrc.data[x, y, z-1]
-    value_e = mrc.data[x-1, y-1, z]
-    value_b = mrc.data[x, y-1, z]
-    value_c = mrc.data[x-1, y, z]
-    value_d = mrc.data[x, y, z]    
-
-    odd_test=is_odd(x, y, z)
-    
-    if odd_test:
-        odd_connet=odd_cube_tets(cube)
-        for tet in odd_tets:
-            value_interp = 
-            if threshold >
-   
-    if not odd_test:
-
-    test = True
-    
-    test = False
-
-    return test
-
-
-
+    # Calculate the cordinates of each vertex of the voxel
+    coords[ncoord]   = frac_to_cart((x-0.5), (y-0.5), (z-0.5))
+    coords[ncoord+1] = frac_to_cart((x+0.5), (y-0.5), (z-0.5))
+    coords[ncoord+2] = frac_to_cart((x+0.5), (y+0.5), (z-0.5))
+    coords[ncoord+3] = frac_to_cart((x-0.5), (y+0.5), (z-0.5))
+    coords[ncoord+4] = frac_to_cart((x-0.5), (y-0.5), (z+0.5))
+    coords[ncoord+5] = frac_to_cart((x+0.5), (y-0.5), (z+0.5))
+    coords[ncoord+6] = frac_to_cart((x+0.5), (y+0.5), (z+0.5))
+    coords[ncoord+7] = frac_to_cart((x-0.5), (y+0.5), (z+0.5))
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -196,8 +194,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and
                             2nd it is all verticies of all the thresholded volxes which
                             includes duplicates.
-    ncoords (int)           Probably not needed. Number or length of the coords array i.e. the number of voxels
-                            in the coords array.
     Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
     nvalues (int)             Probably not needed. Number or length of the coords array
     ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the
@@ -207,8 +203,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                                  coords array that make it clear which coords are vertexies of each cell/tetrahedron
     nconnecttets (int)     Number or length of the connecttets array
     CellType (int)               Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
-
-
     mrc (mrc utility)      A map which is the fastest way to work with the data and has
                                  a header and data section in it.
 
@@ -240,22 +234,20 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     cubecoords (float numpy array) the x, y, z coordinate vlaues for each vertex of a voxel.
     '''
 
-    nvoxel = sum([np.count_nonzero(x>=threshold) for x in mrc.data.flatten()])
+    nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
+    if nvoxel <= 0:
+        print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+        sys.exit()
 
     coords = np.zeros((nvoxel*8, 3))
-    ncoord = 0
-    res = float(mrc.header.cella['x'])/mrc.header.nx
-    x_trans = float(mrc.header.origin['x'])
-    y_trans = float(mrc.header.origin['y'])
-    z_trans = float(mrc.header.origin['z'])
-    alternate = np.zeros((nvoxel,))
-    location = 0
-    is_tet = []
+    coord_count = count(0, 8)
+    alternate = []
+    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
     # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-    for z in range(1, mrc.header.nz-1):
-        for y in range(1, mrc.header.ny-1):
-            for x in range(1, mrc.header.nx-1):
+    for voxel_z in range(0, mrc.header.nz-1):
+        for voxel_y in range(0, mrc.header.ny-1):
+            for voxel_x in range(0, mrc.header.nx-1):
                 # Threshold the voxels out of the mrc map data
                 if theshold_tets(x, y, z, mrc, theshold, is_tet, alternate):
 
@@ -272,9 +264,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
     write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
-
-
-
 
 def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
     """
@@ -296,10 +285,10 @@ def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out,
     cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
 
     # make the gris (vtk scene)
-    vtkPts = vtk.vtkPoints()
-    vtkPts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
+    vtk_pts = vtk.vtkPoints()
+    vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    grid.SetPoints(vtkPts) #assign points to grid
+    grid.SetPoints(vtk_pts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
     #write vtk file
@@ -309,9 +298,6 @@ def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out,
     # write tetgen file for ffea input
     if ffea_out:
         ffea_output(grid, points, output_file, nvoxel, tet_array)
-
-
-
 
 def vtk_output(grid, output_file):
     """
@@ -326,6 +312,34 @@ def vtk_output(grid, output_file):
     writer.Update()
     writer.Write()
 
+def get_vtk_surface(grid):
+    """
+    get the surface polygons from a vtk scene.
+    Args:
+        grid (vtk.vtkUnstructuredGrid): vtk scene
+    Return
+        (float np.array): the vertices on the surface
+        (vtkmodules.vtkCommonCore.vtkIdTypeArray) connectivity of surface polygons
+        (int) numer of cells in surface
+    """
+    # make a surface filter to extract the geometric boundary
+    surf_filt = vtk.vtkDataSetSurfaceFilter()
+    surf_filt.SetInputData(grid)
+    surf_filt.Update()
+
+    # get the geometric boundary (the suface of the volume)
+    surf = surf_filt.GetOutput()
+
+    # get the points in the surface geomatry
+    surf_points=np.array(surf.GetPoints().GetData())
+
+    # get the surface polygons
+    cells = surf.GetPolys()
+    cell_count = cells.GetNumberOfCells()
+    cell_data = cells.GetData()
+
+    return surf_points, cell_data, cell_count
+
 def ffea_output(grid, points, output_file, nvoxel, tet_array):
     """
     construct the faces and output the ffea input files
@@ -339,48 +353,31 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
     Returns:
         None
     """
-    # make a surface filter to extract the geometric boundary
-    surfFilt2 = vtk.vtkDataSetSurfaceFilter()
-    surfFilt2.SetInputData(grid)
-    surfFilt2.Update()
-
-    # get the geometric boundary (the suface of the volume)
-    surf = surfFilt2.GetOutput()
-
-    # get the points in the surface geomatry
-    surf_points=np.array(surf.GetPoints().GetData())
-
-    # get the surface polygons
-    cells = surf.GetPolys()
-    nCells = cells.GetNumberOfCells()
-    array = cells.GetData()
+    surf_points, cell_data, cell_count = get_vtk_surface(grid)
 
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
-    for pos in range(len(surf_points)):
-        # surface point
-        point = surf_points[pos]
+    for pos, point in enumerate(surf_points):
         # index of sourface point in the tet's points array
         original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.
-    assert(array.GetNumberOfValues()%nCells==0)
+    assert cell_data.GetNumberOfValues()%cell_count==0
 
     # reshape the cells array to match tet gen output standard
-    nCols = array.GetNumberOfValues()//nCells
-    numpy_cells = np.array(array)
-    faces = numpy_cells.reshape((-1,nCols))
+    col_count = cell_data.GetNumberOfValues()//cell_count
+    numpy_cells = np.array(cell_data)
+    faces = numpy_cells.reshape((-1, col_count))
 
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
-    comment = f'# created by {getpass.getuser()} on {date}'
     write_ffea_output(output_file,
                       nvoxel,
                       tet_array,
                       points,
                       faces,
                       original_ids,
-                      comment)
+                      f'# created by {getpass.getuser()} on {date}')
 
 def make_voxel_connectivity(nvoxel, coords):
     """
@@ -436,10 +433,10 @@ def make_tet_connectivity(nvoxel, cells, alternate):
 
     #iterate over cubes and convert to tets
     for i, cube in enumerate(cells):
-        if alternate[i] == 0:
-            connectivity_one_vox = even_cube_tets(cube)
-        elif alternate[i] == 1:
+        if alternate[i]:
             connectivity_one_vox = odd_cube_tets(cube)
+        else:
+            connectivity_one_vox = even_cube_tets(cube)
 
         for tet_index, con_one_tet in enumerate(connectivity_one_vox):
             tet_array[(i*5)+tet_index] = con_one_tet
@@ -452,7 +449,7 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
     Args:
         tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
                                     is a list of its four vertices in the points array
-        cell_count (int):           the number of voxels
+        cell_count (int): the number of voxels
     Returns:
         (vtk.vtkCellArray): array holding the tet's connectivity as vtk data
     """

@@ -29,11 +29,11 @@
 import sys
 import datetime
 import getpass
+from itertools import count
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
-from itertools import count
 
 def even_cube_tets(cube):
     """
@@ -194,8 +194,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and
                             2nd it is all verticies of all the thresholded volxes which
                             includes duplicates.
-    ncoords (int)           Probably not needed. Number or length of the coords array i.e. the number of voxels
-                            in the coords array.
     Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
     nvalues (int)             Probably not needed. Number or length of the coords array
     ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the
@@ -205,8 +203,6 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                                  coords array that make it clear which coords are vertexies of each cell/tetrahedron
     nconnecttets (int)     Number or length of the connecttets array
     CellType (int)               Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
-
-
     mrc (mrc utility)      A map which is the fastest way to work with the data and has
                                  a header and data section in it.
 
@@ -249,13 +245,13 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
     # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-    for z in range(0, mrc.header.nz):
-        for y in range(0, mrc.header.ny):
-            for x in range(0, mrc.header.nx):
+    for voxel_z in range(0, mrc.header.nz):
+        for voxel_y in range(0, mrc.header.ny):
+            for voxel_x in range(0, mrc.header.nx):
                 # Threshold the voxels out of the mrc map data
-                if mrc.data[z,y,x] > threshold:
-                    create_cube_coords(x, y, z, frac_to_cart, coords, next(coord_count))
-                    alternate.append(is_odd(x, y, z))
+                if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
+                    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords, next(coord_count))
+                    alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
 
     # make the connectivity data for voxels
     points, cells = make_voxel_connectivity(nvoxel, coords)
