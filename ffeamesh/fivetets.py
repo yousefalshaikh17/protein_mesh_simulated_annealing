@@ -73,37 +73,37 @@ def odd_cube_tets(cube):
 
     return tet_list
 
-def is_odd(x, y, z):
+def is_odd(x_index, y_index, z_index):
     '''
     Logic to decide if a voxel is an odd or and even.
     Args:
-        x (int) Index for x value in values array.
-        y (int) Index for y value in values array.
-        z (int) Index for z value in values array.
+        x_index (int) Index for x value in values array.
+        y_index (int) Index for y value in values array.
+        z_index (int) Index for z value in values array.
     Returns:
         (bool)  True if voxel in an odd position, else odd
     '''
     flag = None
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
-    if z % 2 == 0:
-        if y % 2 == 0:
-            if x % 2 == 0:
+    if z_index % 2 == 0:
+        if y_index % 2 == 0:
+            if x_index % 2 == 0:
                 flag = False
             else:
                 flag = True
         else:
-            if x % 2 == 0:
+            if x_index % 2 == 0:
                 flag = True
             else:
                 flag = False
     else:
-        if y % 2 == 0:
-            if x % 2 == 0:
+        if y_index % 2 == 0:
+            if x_index % 2 == 0:
                 flag = True
             else:
                 flag = False
         else:
-            if x % 2 == 0:
+            if x_index % 2 == 0:
                 flag = False
             else:
                 flag = True
@@ -151,14 +151,14 @@ def make_fractional_to_cartesian_conversion_function(mrc):
 
     return fractional_to_cartesian_coordinates
 
-def create_cube_coords(x, y, z, frac_to_cart, coords, ncoord):
+def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords, ncoord):
     '''
     Caluculates the next 8 coords for the next volxel that has been thresholded
     previously (logic in loop that calls this one).
     Args:
-        x (int)           Indecies to the x coord in the coords array.
-        y (int)           Indecies to the y coord in the coords array.
-        z (int)           Indecies to the z coord in the coords array.
+        x_index (int)           Indecies to the x coord in the coords array.
+        y_index (int)           Indecies to the y coord in the coords array.
+        z_index (int)           Indecies to the z coord in the coords array.
         frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
         coords (float numpy array)  The coordinates of the thresholded voxels passed by reference to this function.
         ncoord (int)    Index to the coords array which is a vertex of a voxel passed by reference to this function.
@@ -166,14 +166,14 @@ def create_cube_coords(x, y, z, frac_to_cart, coords, ncoord):
         None
     '''
     # Calculate the cordinates of each vertex of the voxel
-    coords[ncoord]   = frac_to_cart((x-0.5), (y-0.5), (z-0.5))
-    coords[ncoord+1] = frac_to_cart((x+0.5), (y-0.5), (z-0.5))
-    coords[ncoord+2] = frac_to_cart((x+0.5), (y+0.5), (z-0.5))
-    coords[ncoord+3] = frac_to_cart((x-0.5), (y+0.5), (z-0.5))
-    coords[ncoord+4] = frac_to_cart((x-0.5), (y-0.5), (z+0.5))
-    coords[ncoord+5] = frac_to_cart((x+0.5), (y-0.5), (z+0.5))
-    coords[ncoord+6] = frac_to_cart((x+0.5), (y+0.5), (z+0.5))
-    coords[ncoord+7] = frac_to_cart((x-0.5), (y+0.5), (z+0.5))
+    coords[ncoord]   = frac_to_cart((x_index-0.5), (y_index-0.5), (z_index-0.5))
+    coords[ncoord+1] = frac_to_cart((x_index+0.5), (y_index-0.5), (z_index-0.5))
+    coords[ncoord+2] = frac_to_cart((x_index+0.5), (y_index+0.5), (z_index-0.5))
+    coords[ncoord+3] = frac_to_cart((x_index-0.5), (y_index+0.5), (z_index-0.5))
+    coords[ncoord+4] = frac_to_cart((x_index-0.5), (y_index-0.5), (z_index+0.5))
+    coords[ncoord+5] = frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5))
+    coords[ncoord+6] = frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5))
+    coords[ncoord+7] = frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5))
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -211,55 +211,34 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
     # Reads mrc file into a map which is the fastest way to work with the data and has
     # a header and data section in it.
-    mrc = mrcfile.mmap(input_file, mode='r+')
+    with mrcfile.mmap(input_file, mode='r+') as mrc:
 
+        nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
+        if nvoxel <= 0:
+            print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+            sys.exit()
 
-    '''
-    move this here so you go through the data less times
-    # Calulate the size of the numpy arrays needed by vtk writer.
-    #nvoxel = np.count_nonzero(mrc.data)
-    # Calulate size of all arrays that will be needed by the vtk writer array
-    for z in range(0, mrc.header.nz):
-        for y in range(0, mrc.header.ny):
-            for x in range(0, mrc.header.nx):
-                # Threshold the voxels out of the mrc map data
+        coords = np.zeros((nvoxel*8, 3))
+        coord_count = count(0, 8)
+        alternate = []
+        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
+        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
+        for voxel_z in range(0, mrc.header.nz):
+            for voxel_y in range(0, mrc.header.ny):
+                for voxel_x in range(0, mrc.header.nx):
+                    # Threshold the voxels out of the mrc map data
+                    if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
+                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords, next(coord_count))
+                        alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
 
-                if mrc.data[z,y,x] > threshold:
-                    nvox = nvox + 1
+        # make the connectivity data for voxels
+        points, cells = make_voxel_connectivity(nvoxel, coords)
 
+        # make the connectivity for tets
+        tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
-    ncoord = nvox * 8
-    nconnect = nvox * 20
-    cubecoords (float numpy array) the x, y, z coordinate vlaues for each vertex of a voxel.
-    '''
-
-    nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
-    if nvoxel <= 0:
-        print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
-        sys.exit()
-
-    coords = np.zeros((nvoxel*8, 3))
-    coord_count = count(0, 8)
-    alternate = []
-    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-
-    # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-    for voxel_z in range(0, mrc.header.nz):
-        for voxel_y in range(0, mrc.header.ny):
-            for voxel_x in range(0, mrc.header.nx):
-                # Threshold the voxels out of the mrc map data
-                if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
-                    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords, next(coord_count))
-                    alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
-
-    # make the connectivity data for voxels
-    points, cells = make_voxel_connectivity(nvoxel, coords)
-
-    # make the connectivity for tets
-    tet_array = make_tet_connectivity(nvoxel, cells, alternate)
-
-    write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+        write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
 
 def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
     """
