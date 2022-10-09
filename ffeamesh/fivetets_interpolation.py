@@ -30,10 +30,14 @@ import sys
 import datetime
 import getpass
 from itertools import count
+from collections import namedtuple
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
+
+## data structure for a vertex with interpolated value
+VertexValue = namedtuple("VertexValue", "x, y, z, value")
 
 def even_cube_tets(cube):
     """
@@ -151,7 +155,7 @@ def make_fractional_to_cartesian_conversion_function(mrc):
 
     return fractional_to_cartesian_coordinates
 
-def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords, ncoord):
+def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
     '''
     Caluculates the next 8 coords for the next volxel that has been thresholded
     previously (logic in loop that calls this one).
@@ -160,20 +164,46 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords, ncoord):
         y_index (int)           Indecies to the y coord in the coords array.
         z_index (int)           Indecies to the z coord in the coords array.
         frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
-        coords (float numpy array)  The coordinates of the thresholded voxels passed by reference to this function.
-        ncoord (int)    Index to the coords array which is a vertex of a voxel passed by reference to this function.
+        coords (float list)  The coordinates of the thresholded voxels passed by reference to this function.
+
     Returns:
         None
     '''
     # Calculate the cordinates of each vertex of the voxel
-    coords[ncoord]   = frac_to_cart((x_index-0.5), (y_index-0.5), (z_index-0.5))
-    coords[ncoord+1] = frac_to_cart((x_index+0.5), (y_index-0.5), (z_index-0.5))
-    coords[ncoord+2] = frac_to_cart((x_index+0.5), (y_index+0.5), (z_index-0.5))
-    coords[ncoord+3] = frac_to_cart((x_index-0.5), (y_index+0.5), (z_index-0.5))
-    coords[ncoord+4] = frac_to_cart((x_index-0.5), (y_index-0.5), (z_index+0.5))
-    coords[ncoord+5] = frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5))
-    coords[ncoord+6] = frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5))
-    coords[ncoord+7] = frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5))
+    coords.append(frac_to_cart((x_index-0.5), (y_index-0.5), (z_index-0.5)))
+    coords.append(frac_to_cart((x_index+0.5), (y_index-0.5), (z_index-0.5)))
+    coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index-0.5)))
+    coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index-0.5)))
+    coords.append(frac_to_cart((x_index-0.5), (y_index-0.5), (z_index+0.5)))
+    coords.append(frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5)))
+    coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5)))
+    coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5)))
+
+def make_vertex_values(x_index, y_index, z_index, mrc):
+    """
+    make an arry of eight values by averaging at the vertices
+    Args:
+        x_index (int)       Indecies to the x coord in the coords array.
+        y_index (int)       Indecies to the y coord in the coords array.
+        z_index (int)       Indecies to the z coord in the coords array.
+        mrc (mrcfile.mmap)  image source file
+    Returns:
+        (float list): eight values
+    """
+    ctr_value = mrc.data[z_index, y_index, x_index]
+    values = []
+
+    # compute the eight averages
+    values.append((ctr_value + mrc.data[z_index-1, y_index-1, x_index-1])/2.0)
+    values.append((ctr_value + mrc.data[z_index-1, y_index-1, x_index+1])/2.0)
+    values.append((ctr_value + mrc.data[z_index-1, y_index+1, x_index+1])/2.0)
+    values.append((ctr_value + mrc.data[z_index-1, y_index+1, x_index-1])/2.0)
+    values.append((ctr_value + mrc.data[z_index+1, y_index-1, x_index-1])/2.0)
+    values.append((ctr_value + mrc.data[z_index+1, y_index-1, x_index+1])/2.0)
+    values.append((ctr_value + mrc.data[z_index+1, y_index+1, x_index+1])/2.0)
+    values.append((ctr_value + mrc.data[z_index+1, y_index+1, x_index+1])/2.0)
+
+    return values
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -212,37 +242,47 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     # Reads mrc file into a map which is the fastest way to work with the data and has
     # a header and data section in it.
     with mrcfile.mmap(input_file, mode='r+') as mrc:
+        coords = []
+        vertex_values = []
+        coord_count = count(0, 8)
+        voxel_count = count(0)
+        alternate = []
+        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
+        # ignore bounday
 
-    nvoxel = sum([np.count_nonzero(x>threshold) for x in mrc.data.flatten()])
-    if nvoxel <= 0:
-        print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
-        sys.exit()
+        for voxel_z in range(1, mrc.header.nz-1):
+            for voxel_y in range(1, mrc.header.ny-1):
+                for voxel_x in range(1, mrc.header.nx-1):
+                    # find the interpolated values at the vertices
+                    cube_vertex_values = make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
 
-    coords = np.zeros((nvoxel*8, 3))
-    coord_count = count(0, 8)
-    alternate = []
-    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+                    # test is at least one is over the the threshold
+                    if sum([np.count_nonzero(x>threshold) for x in cube_vertex_values]) > 0:
+                        # assign the values to the values array
+                        vertex_values += cube_vertex_values
+                        next(voxel_count)
 
-    # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-    for voxel_z in range(0, mrc.header.nz-1):
-        for voxel_y in range(0, mrc.header.ny-1):
-            for voxel_x in range(0, mrc.header.nx-1):
-                # Threshold the voxels out of the mrc map data
-                if theshold_tets(x, y, z, mrc, theshold, is_tet, alternate):
+                        # make the matching coordinates
+                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+                        # determine if odd or even
+                        alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
 
-                    create_cube_coords(x, y, z, x_trans, y_trans, z_trans, res, coords, ncoord)
-                    ncoord=ncoord+8
+        nvoxel = next(voxel_count)
+        if nvoxel <= 0:
+            print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+            sys.exit()
 
-                    #alternate[location]=is_odd(x, y, z)
-                    location=location+1
+        print(f"number of voxels over thershold {nvoxel}")
 
-    # make the connectivity data for voxels
-    points, cells = make_voxel_connectivity(nvoxel, coords)
+        sys.exit(0)
+        # make the connectivity data for voxels
+        points, cells = make_voxel_connectivity(nvoxel, coords)
 
-    # make the connectivity for tets
-    tet_array = make_tet_connectivity(nvoxel, cells, alternate)
+        # make the connectivity for tets
+        tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
-    write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+        write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
 
 def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
     """
@@ -369,7 +409,6 @@ def make_voxel_connectivity(nvoxel, coords):
                                         of a value in the coords array) and the length
                                         of the overall array is the number of voxels that have
                                         been thresholded.
-
     Returns:
         points (float numpy.ndarray):  duplicate free list of voxel vertices
         cells (int numpy.ndarray):     nvoxel by 8 array listing indices of

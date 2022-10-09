@@ -29,7 +29,8 @@ Generating tetrahedral meshes from pixel data
 import sys
 import argparse
 import pathlib
-from ffeamesh.fivetets import convert_mrc_to_5tets
+# from ffeamesh.fivetets import convert_mrc_to_5tets
+from ffeamesh.fivetets_interpolation import convert_mrc_to_5tets
 
 def get_args():
     """
