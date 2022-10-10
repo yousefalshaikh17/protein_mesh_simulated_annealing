@@ -74,77 +74,9 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
     Returns:
         None
     """
-
-    """
-    An explanation of the various data strucutres and what python packages need them.
-
-    Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and
-                            2nd it is all verticies of all the thresholded volxes which
-                            includes duplicates.
-    Values/Densitys (float python array) It is used for the threshold and is not needed by
-                                        ffea but can be used by vtk
-    nvalues (int)             Probably not needed. Number or length of the coords array
-    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes
-                                  to the coords array that make it clear which coords are
-                                  vertexies of each voxel
-    nconnectvoxs (int)     Number or length of the cnnectvoxs array
-    ConnetTets (int numpy array) Could be an array of arrays. An array that holds indexes
-                                 to the coords array that make it clear which coords are
-                                 vertexies of each cell/tetrahedron
-    nconnecttets (int)     Number or length of the connecttets array
-    CellType (int)         Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
-    mrc (mrc utility)      A map which is the fastest way to work with the data and has
-                                 a header and data section in it.
-
-    cube (int numpy array) Numpy array of 3 values represnting the x, y, z indecies into
-                           the coords array.
-    """
-
-    # Reads mrc file into a map which is the fastest way to work with the data and has
-    # a header and data section in it.
-    coords_final = []
-    connectivities_final = []
-
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        voxel_count = count(0)
-        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+        nvoxel, coords_final, connectivities_final, = voxels_to_5_tets_thershold(mrc, threshold)
 
-        for voxel_z in range(1, mrc.header.nz-1):
-            for voxel_y in range(1, mrc.header.ny-1):
-                for voxel_x in range(1, mrc.header.nx-1):
-                    # find the interpolated values at the vertices
-                    cube_vertex_values = make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
-
-                    # test is at least one is over the the threshold
-                    if sum([np.count_nonzero(x>threshold) for x in cube_vertex_values]) > 0:
-                        # count the number of voxels
-                        next(voxel_count)
-
-                        # make the matching coordinates
-                        coords = []
-                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
-
-                        coord_end_index = len(coords_final)
-                        coords_final += (coords)
-
-                        # connectivity of 5 tets in single voxel
-                        indices = None
-                        if is_odd(voxel_x, voxel_y, voxel_z):
-                            indices = odd_cube_tet_indecies()
-                        else:
-                            indices = even_cube_tet_indices()
-
-                        # test the tets and append those that pass
-                        for tet in indices:
-                            average = 0.0
-                            for index in tet:
-                                average += cube_vertex_values[index]
-                            average /= 4
-                            if average > threshold:
-                                connectivities_final.append(
-                                    [connect + coord_end_index for connect in tet])
-
-        nvoxel = next(voxel_count)
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
             sys.exit()
@@ -170,6 +102,52 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         #tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
         #write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+
+def voxels_to_5_tets_thershold(mrc, threshold):
+    """
+    """
+    voxel_count = count(0)
+    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+
+    coords_final = []
+    connectivities_final = []
+
+    for voxel_z in range(1, mrc.header.nz-1):
+        for voxel_y in range(1, mrc.header.ny-1):
+            for voxel_x in range(1, mrc.header.nx-1):
+                # find the interpolated values at the vertices
+                cube_vertex_values = make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
+
+                # test is at least one is over the the threshold
+                if sum([np.count_nonzero(x>threshold) for x in cube_vertex_values]) > 0:
+                    # count the number of voxels
+                    next(voxel_count)
+
+                    # make the matching coordinates
+                    coords = []
+                    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+
+                    coord_end_index = len(coords_final)
+                    coords_final += (coords)
+
+                    # connectivity of 5 tets in single voxel
+                    indices = None
+                    if is_odd(voxel_x, voxel_y, voxel_z):
+                        indices = odd_cube_tet_indecies()
+                    else:
+                        indices = even_cube_tet_indices()
+
+                    # test the tets and append those that pass
+                    for tet in indices:
+                        average = 0.0
+                        for index in tet:
+                            average += cube_vertex_values[index]
+                        average /= 4
+                        if average > threshold:
+                            connectivities_final.append(
+                                [connect + coord_end_index for connect in tet])
+
+    return next(voxel_count), coords_final, connectivities_final
 
 def even_cube_tet_indices():
     """
