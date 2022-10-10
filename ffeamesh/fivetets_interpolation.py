@@ -36,8 +36,31 @@ import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
 
-## data structure for a vertex with interpolated value
-VertexValue = namedtuple("VertexValue", "x, y, z, value")
+## data structure for a 3D coordinate
+Coordinate = namedtuple("Coordinate", "x, y, z")
+
+class PointValue():
+    """
+    data struct for a spatial point and associated image value
+    """
+
+    def __init__(self, frac_coord=None, cart_coord=None, value=None):
+        """
+        initialize the class
+        Args:
+            frac_coord (Coordinate float): point's fractional coordinated
+            cart_coord (Coordinate float): point's cartesian coordinated
+            value (float): image value at the point
+        """
+        ## the fractional coordinate
+        self.fractional = frac_coord
+
+        ## the cartesian coordinate
+        self.cartesian = cart_coord
+
+        ## the interpolated image value at the point
+        self.image_value = value
+
 
 def even_cube_tets(cube):
     """
@@ -242,14 +265,11 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     # Reads mrc file into a map which is the fastest way to work with the data and has
     # a header and data section in it.
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        coords = []
-        vertex_values = []
-        coord_count = count(0, 8)
         voxel_count = count(0)
         alternate = []
         frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-        # ignore bounday
+        # Create an array of array of 8 point (co-ordinates) for each
+        # hexahedron (voxel) ignore bounday
 
         for voxel_z in range(1, mrc.header.nz-1):
             for voxel_y in range(1, mrc.header.ny-1):
@@ -259,12 +279,13 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
                     # test is at least one is over the the threshold
                     if sum([np.count_nonzero(x>threshold) for x in cube_vertex_values]) > 0:
-                        # assign the values to the values array
-                        vertex_values += cube_vertex_values
+                        # count the number of voxels
                         next(voxel_count)
 
                         # make the matching coordinates
+                        coords = []
                         create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+
                         # determine if odd or even
                         alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
 
