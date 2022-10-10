@@ -287,6 +287,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                         create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
 
                         # determine if odd or even
+                        # this should be used locally no need for array alternate
                         alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
 
         nvoxel = next(voxel_count)
