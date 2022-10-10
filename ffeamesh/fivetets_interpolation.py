@@ -40,7 +40,7 @@ from ffeamesh.writers import write_ffea_output
 Coordinate = namedtuple("Coordinate", "x, y, z")
 
 
-def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
+def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     Converts the contents of an mrc file to a tetrohedron array.
     Is called from the five_tets.py script and controls the whole conversion.
@@ -79,7 +79,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     # a header and data section in it.
     coords_final = []
     connectivities_final = []
-    
+
     with mrcfile.mmap(input_file, mode='r+') as mrc:
         voxel_count = count(0)
         alternate = []
@@ -105,7 +105,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                         # determine if odd or even
                         # this should be used locally no need for array alternate
                         #alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
-                        
+
                         coord_end_index = len(coords_final)
                         coords_final += (coords)
                         for tet in odd_cube_tet_indecies():
@@ -116,8 +116,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
                             if average > threshold:
                                 connectivities_final.append([connect+coord_end_index for connect in tet])
                         #connect_local = odd_cube_tet_indecies()
-                        
-                        
+
+
 
         nvoxel = next(voxel_count)
         if nvoxel <= 0:
@@ -127,8 +127,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
         print(f"number of voxels over thershold {nvoxel}")
         #for tet_connect in connectivities_final:
         #    print(tet_connect)
-            
-            
+
+
         cells_con = make_vtk_tet_connectivity(connectivities_final, coords_final)
 
         # make the gris (vtk scene)
@@ -140,9 +140,9 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
 
         #write vtk file
         vtk_output(grid, output_file)
-        
-        
-        
+
+
+
         sys.exit(0)
         # make the connectivity data for voxels
         # points, cells = make_voxel_connectivity(nvoxel, coords)
@@ -196,7 +196,7 @@ def even_cube_tets(cube):
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
-    
+
 def odd_cube_tet_indecies():
     """
     convert a list of the eight vertices of a an odd cube
@@ -215,7 +215,7 @@ def odd_cube_tet_indecies():
     tet_list = [tet1, tet2, tet3, tet4, tet5]
 
     return tet_list
-    
+
 
 def odd_cube_tets(cube):
     """
@@ -337,8 +337,8 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
     coords.append(frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5)))
     coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5)))
     coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5)))
-    
-    
+
+
 
 def make_vertex_values(x_index, y_index, z_index, mrc):
     """
@@ -365,7 +365,7 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
     values.append((ctr_value + mrc.data[z_index+1, y_index+1, x_index+1])/2.0)
 
     return values
-    
+
 
 
 
@@ -483,7 +483,7 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
                       faces,
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
-                      
+
 
 
 def make_voxel_connectivity(nvoxel, coords):
@@ -548,7 +548,7 @@ def make_tet_connectivity(nvoxel, cells, alternate):
             tet_array[(i*5)+tet_index] = con_one_tet
 
     return tet_array
-    
+
 def make_vtk_tet_connectivity(connectivities, coords):
 #tet_array, cell_count):
     """

@@ -29,8 +29,20 @@ Generating tetrahedral meshes from pixel data
 import sys
 import argparse
 import pathlib
-# from ffeamesh.fivetets import convert_mrc_to_5tets
-from ffeamesh.fivetets_interpolation import convert_mrc_to_5tets
+from enum import Enum
+from ffeamesh.fivetets import convert_mrc_to_5tets
+from ffeamesh.fivetets_interpolation import convert_mrc_to_5tets_interp
+
+class Method(Enum):
+    """
+    enumeration of possible methods of converting
+    """
+    ## simple decomp into 5 tets
+    PLAIN = 'plain'
+
+    ## interpolated decomp into 5 tets
+    INTERP = 'interp'
+
 
 def get_args():
     """
@@ -82,6 +94,14 @@ def get_args():
                         action="store_true",
                         help="overwrite")
 
+    parser.add_argument("-m",
+                        "--method",
+                        type=Method,
+                        default=Method.PLAIN,
+                        help="choice of method used to make tetrohedrons",
+                        choices=list(Method))
+
+
     return parser.parse_args()
 
 def validate_command_line(args):
@@ -122,11 +142,18 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    convert_mrc_to_5tets(args.input,
-                         args.output,
-                         args.threshold,
-                         args.ffea,
-                         args.vtk)
+    if args.method == Method.PLAIN:
+        convert_mrc_to_5tets(args.input,
+                             args.output,
+                             args.threshold,
+                             args.ffea,
+                             args.vtk)
+    elif args.method == Method.INTERP:
+        convert_mrc_to_5tets_interp(args.input,
+                                    args.output,
+                                    args.threshold,
+                                    args.ffea,
+                                    args.vtk)
 
 if __name__ == "__main__":
     main()
