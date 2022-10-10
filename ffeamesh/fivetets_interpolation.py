@@ -39,6 +39,27 @@ from ffeamesh.writers import write_ffea_output
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
 
+class PointValue():
+    """
+    data struct for a spatial point and associated image value
+    """
+
+    def __init__(self, frac_coord=None, cart_coord=None, value=None):
+        """
+        initialize the class
+        Args:
+            frac_coord (Coordinate float): point's fractional coordinated
+            cart_coord (Coordinate float): point's cartesian coordinated
+            value (float): image value at the point
+        """
+        ## the fractional coordinate
+        self.fractional = frac_coord
+
+        ## the cartesian coordinate
+        self.cartesian = cart_coord
+
+        ## the interpolated image value at the point
+        self.image_value = value
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out):
     """
@@ -82,10 +103,7 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
     with mrcfile.mmap(input_file, mode='r+') as mrc:
         voxel_count = count(0)
-        alternate = []
         frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-        # Create an array of array of 8 point (co-ordinates) for each
-        # hexahedron (voxel) ignore bounday
 
         for voxel_z in range(1, mrc.header.nz-1):
             for voxel_y in range(1, mrc.header.ny-1):
@@ -103,21 +121,24 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
                         create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
 
                         # determine if odd or even
-                        # this should be used locally no need for array alternate
-                        #alternate.append(is_odd(voxel_x, voxel_y, voxel_z))
+                        # is_odd(voxel_x, voxel_y, voxel_z))
 
                         coord_end_index = len(coords_final)
                         coords_final += (coords)
-                        for tet in odd_cube_tet_indecies():
+
+                        indices = None
+                        if is_odd(voxel_x, voxel_y, voxel_z):
+                            indices = odd_cube_tet_indecies()
+                        else:
+                            indices = even_cube_tet_indices()
+
+                        for tet in indices:
                             average = 0.0
                             for index in tet:
                                 average += cube_vertex_values[index]
                             average /= 4
                             if average > threshold:
                                 connectivities_final.append([connect+coord_end_index for connect in tet])
-                        #connect_local = odd_cube_tet_indecies()
-
-
 
         nvoxel = next(voxel_count)
         if nvoxel <= 0:
@@ -125,11 +146,8 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
             sys.exit()
 
         print(f"number of voxels over thershold {nvoxel}")
-        #for tet_connect in connectivities_final:
-        #    print(tet_connect)
 
-
-        cells_con = make_vtk_tet_connectivity(connectivities_final, coords_final)
+        cells_con = make_vtk_tet_connectivity(connectivities_final)
 
         # make the gris (vtk scene)
         vtk_pts = vtk.vtkPoints()
@@ -141,42 +159,30 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         #write vtk file
         vtk_output(grid, output_file)
 
-
-
-        sys.exit(0)
         # make the connectivity data for voxels
         # points, cells = make_voxel_connectivity(nvoxel, coords)
 
         # make the connectivity for tets
         #tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
-        write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+        #write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
 
-
-
-
-class PointValue():
+def even_cube_tet_indices():
     """
-    data struct for a spatial point and associated image value
+    return a list of lists for the constuctio of 5 tets from the 8 vertices of an even cube
+    Args:
+        None
+    Returns
+        lits(list) : five lists of four vertex indices representing the tets
     """
+    tet_list = []
+    tet_list.append([0, 4, 5, 7])
+    tet_list.append([0, 1, 2, 5])
+    tet_list.append([2, 5, 6, 7])
+    tet_list.append([0, 2, 3, 7])
+    tet_list.append([0, 2, 5, 7])
 
-    def __init__(self, frac_coord=None, cart_coord=None, value=None):
-        """
-        initialize the class
-        Args:
-            frac_coord (Coordinate float): point's fractional coordinated
-            cart_coord (Coordinate float): point's cartesian coordinated
-            value (float): image value at the point
-        """
-        ## the fractional coordinate
-        self.fractional = frac_coord
-
-        ## the cartesian coordinate
-        self.cartesian = cart_coord
-
-        ## the interpolated image value at the point
-        self.image_value = value
-
+    return tet_list
 
 def even_cube_tets(cube):
     """
@@ -199,20 +205,18 @@ def even_cube_tets(cube):
 
 def odd_cube_tet_indecies():
     """
-    convert a list of the eight vertices of a an odd cube
-    into a list of lists representing tets
+    return a list of lists for the constuctio of 5 tets from the 8 vertices of an odd cube
     Args:
-        cube (list): the eight vertices of a cube
+        None
     Returns
-        lits(list) : five lists of four vertices representing the tets
+        lits(list) : five lists of four vertex indices representing the tets
     """
-    tet1 = [0, 1, 3, 4]
-    tet2 = [1, 4, 5, 6]
-    tet3 = [1, 2, 3, 6]
-    tet4 = [3, 4, 6, 7]
-    tet5 = [1, 3, 4, 6]
-
-    tet_list = [tet1, tet2, tet3, tet4, tet5]
+    tet_list = []
+    tet_list.append([0, 1, 3, 4])
+    tet_list.append([1, 4, 5, 6])
+    tet_list.append([1, 2, 3, 6])
+    tet_list.append([3, 4, 6, 7])
+    tet_list.append([1, 3, 4, 6])
 
     return tet_list
 
@@ -549,14 +553,12 @@ def make_tet_connectivity(nvoxel, cells, alternate):
 
     return tet_array
 
-def make_vtk_tet_connectivity(connectivities, coords):
-#tet_array, cell_count):
+def make_vtk_tet_connectivity(connectivities):
     """
     setup and use vtk writer
     Args:
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-        cell_count (int): the number of voxels
+        connectivities (int np.ndarray): 2D number of tets by four, the entry for each tet
+                                         is a list of its four vertices in the points array
     Returns:
         (vtk.vtkCellArray): array holding the tet's connectivity as vtk data
     """
@@ -564,22 +566,15 @@ def make_vtk_tet_connectivity(connectivities, coords):
     cells_con = vtk.vtkCellArray()
 
     # add tetrahedron cells to array
-    #for i in range(cell_count):
     for tet in connectivities:
         tetra = vtk.vtkTetra()
         for i, coord in enumerate(tet):
-            #tet_con = tet
-
-            #tetra = vtk.vtkTetra()
             tetra.GetPointIds().SetId(i, coord)
-            #tetra.GetPointIds().SetId(1, tet_con[1])
-            #tetra.GetPointIds().SetId(2, tet_con[2])
-            #tetra.GetPointIds().SetId(3, tet_con[3])
 
-        cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
+        #add tet data to vtk cell array
+        cells_con.InsertNextCell(tetra)
 
     return cells_con
-
 
 def make_vtk_cell_connectivity(tet_array, cell_count):
     """
