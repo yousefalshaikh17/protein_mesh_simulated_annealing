@@ -81,19 +81,23 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
     Coords (numpy array)    A 2d array for the 1st axis it is (x, y, z) float values and
                             2nd it is all verticies of all the thresholded volxes which
                             includes duplicates.
-    Values/Densitys (float python array) It is used for the threshold and is not needed by ffea but can be used by vtk
+    Values/Densitys (float python array) It is used for the threshold and is not needed by
+                                        ffea but can be used by vtk
     nvalues (int)             Probably not needed. Number or length of the coords array
-    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes to the
-                                  coords array that make it clear which coords are vertexies of each voxel
+    ConnectVoxs (int numpy array) Could be an array of arrays. An array that holds indexes
+                                  to the coords array that make it clear which coords are
+                                  vertexies of each voxel
     nconnectvoxs (int)     Number or length of the cnnectvoxs array
-    ConnetTets (int numpy array) Could be an array of arrays. An array that holds indexes to the
-                                 coords array that make it clear which coords are vertexies of each cell/tetrahedron
+    ConnetTets (int numpy array) Could be an array of arrays. An array that holds indexes
+                                 to the coords array that make it clear which coords are
+                                 vertexies of each cell/tetrahedron
     nconnecttets (int)     Number or length of the connecttets array
-    CellType (int)               Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
+    CellType (int)         Lets vtk know what type of cell it is. A value of 10 is a tetrahedron.
     mrc (mrc utility)      A map which is the fastest way to work with the data and has
                                  a header and data section in it.
 
-    cube (int numpy array)    Numpy array of 3 values represnting the x, y, z indecies into the coords array.
+    cube (int numpy array) Numpy array of 3 values represnting the x, y, z indecies into
+                           the coords array.
     """
 
     # Reads mrc file into a map which is the fastest way to work with the data and has
@@ -120,25 +124,25 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
                         coords = []
                         create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
 
-                        # determine if odd or even
-                        # is_odd(voxel_x, voxel_y, voxel_z))
-
                         coord_end_index = len(coords_final)
                         coords_final += (coords)
 
+                        # connectivity of 5 tets in single voxel
                         indices = None
                         if is_odd(voxel_x, voxel_y, voxel_z):
                             indices = odd_cube_tet_indecies()
                         else:
                             indices = even_cube_tet_indices()
 
+                        # test the tets and append those that pass
                         for tet in indices:
                             average = 0.0
                             for index in tet:
                                 average += cube_vertex_values[index]
                             average /= 4
                             if average > threshold:
-                                connectivities_final.append([connect+coord_end_index for connect in tet])
+                                connectivities_final.append(
+                                    [connect + coord_end_index for connect in tet])
 
         nvoxel = next(voxel_count)
         if nvoxel <= 0:
@@ -149,7 +153,7 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         cells_con = make_vtk_tet_connectivity(connectivities_final)
 
-        # make the gris (vtk scene)
+        # make the grid (vtk scene)
         vtk_pts = vtk.vtkPoints()
         vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(coords_final, deep=True))
         grid = vtk.vtkUnstructuredGrid() #create unstructured grid
@@ -175,14 +179,11 @@ def even_cube_tet_indices():
     Returns
         lits(list) : five lists of four vertex indices representing the tets
     """
-    tet_list = []
-    tet_list.append([0, 4, 5, 7])
-    tet_list.append([0, 1, 2, 5])
-    tet_list.append([2, 5, 6, 7])
-    tet_list.append([0, 2, 3, 7])
-    tet_list.append([0, 2, 5, 7])
-
-    return tet_list
+    return [[0, 4, 5, 7],
+            [0, 1, 2, 5],
+            [2, 5, 6, 7],
+            [0, 2, 3, 7],
+            [0, 2, 5, 7]]
 
 def even_cube_tets(cube):
     """
@@ -211,15 +212,11 @@ def odd_cube_tet_indecies():
     Returns
         lits(list) : five lists of four vertex indices representing the tets
     """
-    tet_list = []
-    tet_list.append([0, 1, 3, 4])
-    tet_list.append([1, 4, 5, 6])
-    tet_list.append([1, 2, 3, 6])
-    tet_list.append([3, 4, 6, 7])
-    tet_list.append([1, 3, 4, 6])
-
-    return tet_list
-
+    return [[0, 1, 3, 4],
+            [1, 4, 5, 6],
+            [1, 2, 3, 6],
+            [3, 4, 6, 7],
+            [1, 3, 4, 6]]
 
 def odd_cube_tets(cube):
     """
@@ -327,7 +324,8 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
         y_index (int)           Indecies to the y coord in the coords array.
         z_index (int)           Indecies to the z coord in the coords array.
         frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
-        coords (float list)  The coordinates of the thresholded voxels passed by reference to this function.
+        coords (float list): The coordinates of the thresholded voxels passed by
+                             reference to this function.
 
     Returns:
         None
