@@ -30,7 +30,7 @@ import sys
 import datetime
 import getpass
 from itertools import count
-from collections import namedtuple
+from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
@@ -39,27 +39,100 @@ from ffeamesh.writers import write_ffea_output
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
 
-class PointValue():
+class CoordTransform(object):
     """
-    data struct for a spatial point and associated image value
+    store for the fractional and cartesian coordinates of a 3D lattice point
     """
-
-    def __init__(self, frac_coord=None, cart_coord=None, value=None):
+    def __init__(self, frac, cart):
         """
-        initialize the class
+        initalize the object
         Args:
-            frac_coord (Coordinate float): point's fractional coordinated
-            cart_coord (Coordinate float): point's cartesian coordinated
-            value (float): image value at the point
+            frac (Coordinate): fractional coordinate
+            cart (Coordinate): cartesian coordinate
         """
-        ## the fractional coordinate
-        self.fractional = frac_coord
+        ## storage for the fractional coordinate
+        self.frac = frac
 
-        ## the cartesian coordinate
-        self.cartesian = cart_coord
+        ## storage for the cartesian coordinate
+        self.cart = cart
 
-        ## the interpolated image value at the point
-        self.image_value = value
+    def __eq__(self, lhs):
+        """
+        equality is based on fractional coordinate only
+        Args:
+            lhs (CoordTransform): the object for comparison
+        Returns:
+            (bool) True if fractional coordinates are equal else False
+        """
+        if self.frac.x != lhs.frac.x:
+            return False
+
+        if self.frac.y != lhs.frac.y:
+            return False
+
+        if self.frac.z != self.frac.z:
+            return False
+
+        return True
+
+    def __hash__(self):
+        """
+        hash value is based on the fractional coordinate only
+        Returns:
+            (int) the hash value of the fractional coordinate
+        """
+        return hash((self.frac.x, self.frac.y, self.frac.z))
+
+    def __repr__(self):
+        """
+        string representation of the object
+        """
+        sf = f"({self.frac.x}, {self.frac.y})"
+        sc = f"({self.cart.x}, {self.cart.y})"
+        return f"<CoordTransform: {sf} => {sc}>"
+
+class UniqueTransformStore(object):
+    """
+    store for CoordTransform which only holds unique objects,
+    based on fractional coordinate
+    """
+    def __init__(self):
+        """
+        initalize the object
+        """
+        ## current size of the array
+        self.current_size = 0
+
+        ## dictionary holding the data, will work python < 3.7
+        self.data = OrderedDict()
+
+    def add(self, coord):
+        """
+        add a new CoordTransform
+        Args:
+            coord (CoordTransform): the object to be added
+        Returns
+            (int): the index of the object in the list of unique objects
+        """
+        if coord in self.data.keys():
+            return self.data[coord]
+
+        self.data[coord] = self.current_size
+        tmp = self.current_size
+        self.current_size += 1
+
+        return tmp
+
+    def to_list(self):
+        """
+        convert the keys to a list in entry order
+        Returns:
+            (CoordTransform list)
+        """
+        return [coord for coord in self.data.keys()]
+
+    def __str__(self):
+        return f"<UniqueArray: {self.current_size} items>"
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out):
     """
