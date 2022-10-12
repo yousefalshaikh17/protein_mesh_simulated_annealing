@@ -132,7 +132,16 @@ class UniqueTransformStore(object):
         return [coord for coord in self.data.keys()]
 
     def __str__(self):
+        """
+        provide string representation
+        """
         return f"<UniqueArray: {self.current_size} items>"
+
+    def __hash__(self):
+        """
+        hash function is the hash of the data
+        """
+        return hash(self.data)
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out):
     """
