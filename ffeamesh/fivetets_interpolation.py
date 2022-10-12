@@ -39,7 +39,7 @@ from ffeamesh.writers import write_ffea_output_interp
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
 
-class CoordTransform(object):
+class CoordTransform():
     """
     store for the fractional and cartesian coordinates of a 3D lattice point
     """
@@ -91,7 +91,7 @@ class CoordTransform(object):
         sc = f"({self.cart.x}, {self.cart.y})"
         return f"<CoordTransform: {sf} => {sc}>"
 
-class UniqueTransformStore(object):
+class UniqueTransformStore():
     """
     store for CoordTransform which only holds unique objects,
     based on fractional coordinate
@@ -515,7 +515,7 @@ def ffea_output(grid, points, tets_connectivity, output_file):
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
     for pos, point in enumerate(surf_points):
-        # index of sourface point in the tet's points array
+        # index of surface point in the tet's points array
         original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.
@@ -529,11 +529,11 @@ def ffea_output(grid, points, tets_connectivity, output_file):
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
     write_ffea_output_interp(output_file,
-                      tets_connectivity,
-                      points,
-                      faces,
-                      original_ids,
-                      f'# created by {getpass.getuser()} on {date}')
+                             tets_connectivity,
+                             points,
+                             faces,
+                             original_ids,
+                             f'# created by {getpass.getuser()} on {date}')
 
 def make_vtk_tet_connectivity(connectivities):
     """

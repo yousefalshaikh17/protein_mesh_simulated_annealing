@@ -29,18 +29,18 @@ def write_ffea_output_interp(output_file, tet_array, points, faces, original_ids
     """
     write the ffea input files
     Args:
-        nvoxel (int): number of voxels
-        tet_array ():
-        points ():
-        faces
-        original_ids
+        output_file (pathlib.Path): name stem of tetgen files
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+        points (float np.ndarray): duplicate free list of vertices
+        faces (vtk): the surface polygons
+        original_ids (int list): index of surface point in the tet's points array
         comment (str): any user comment
     """
     write_ffea_elements(output_file, tet_array, comment)
     write_ffea_nodes(output_file, points, comment)
     write_ffea_faces(output_file, faces, original_ids, comment)
 
-def write_ffea_output(output_file, nvoxel, tet_array, points, faces, original_ids, comment=""):
+def write_ffea_output(output_file, tet_array, points, faces, original_ids, comment=""):
     """
     write the ffea input files
     Args:

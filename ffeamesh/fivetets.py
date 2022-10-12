@@ -35,8 +35,6 @@ import mrcfile
 import vtk.util.numpy_support
 from ffeamesh.writers import write_ffea_output
 
-
-
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
     """
     Converts the contents of an mrc file to a tetrohedron array.
@@ -102,8 +100,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
         tet_array = make_tet_connectivity(nvoxel, cells, alternate)
 
         write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
-        
-        
+
+
 
 
 
@@ -226,9 +224,9 @@ def make_fractional_to_cartesian_conversion_function(mrc):
         return x_cart, y_cart, z_cart
 
     return fractional_to_cartesian_coordinates
-    
-    
-    
+
+
+
 
 def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords, ncoord):
     '''
@@ -253,12 +251,12 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords, ncoord):
     coords[ncoord+5] = frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5))
     coords[ncoord+6] = frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5))
     coords[ncoord+7] = frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5))
-    
-    
-    
 
 
-        
+
+
+
+
 
 
 def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
@@ -336,14 +334,13 @@ def get_vtk_surface(grid):
 
     return surf_points, cell_data, cell_count
 
-def ffea_output(grid, points, output_file, nvoxel, tet_array):
+def ffea_output(grid, points, output_file, tet_array):
     """
     construct the faces and output the ffea input files
     Args:
         grid (vtk.vtkUnstructuredGrid): vtk scene
         points (float np.ndarray): duplicate free list of vertices
         output_file (pathlib.Path): name stem of output files
-        nvoxel (int): the number of voxels
         tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
                                     is a list of its four vertices in the points array
     Returns:
@@ -368,7 +365,6 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
     write_ffea_output(output_file,
-                      nvoxel,
                       tet_array,
                       points,
                       faces,
