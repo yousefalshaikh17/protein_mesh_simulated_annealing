@@ -34,7 +34,7 @@ from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
-from ffeamesh.writers import write_ffea_output
+from ffeamesh.writers import write_ffea_output_interp
 
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
@@ -455,8 +455,8 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
         vtk_output(grid, output_file)
 
     # write tetgen file for ffea input
-    #if ffea_out:
-    #    ffea_output(grid, points, output_file, nvoxel, tet_array)
+    if ffea_out:
+        ffea_output(grid, points_np, tets_connectivity, output_file)
 
 def vtk_output(grid, output_file):
     """
@@ -499,16 +499,14 @@ def get_vtk_surface(grid):
 
     return surf_points, cell_data, cell_count
 
-def ffea_output(grid, points, output_file, nvoxel, tet_array):
+def ffea_output(grid, points, tets_connectivity, output_file):
     """
     construct the faces and output the ffea input files
     Args:
         grid (vtk.vtkUnstructuredGrid): vtk scene
         points (float np.ndarray): duplicate free list of vertices
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         output_file (pathlib.Path): name stem of output files
-        nvoxel (int): the number of voxels
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
     Returns:
         None
     """
@@ -530,9 +528,8 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
 
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
-    write_ffea_output(output_file,
-                      nvoxel,
-                      tet_array,
+    write_ffea_output_interp(output_file,
+                      tets_connectivity,
                       points,
                       faces,
                       original_ids,

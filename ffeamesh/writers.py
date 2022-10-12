@@ -25,6 +25,21 @@
 Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers  - University of Leeds
 """
 
+def write_ffea_output_interp(output_file, tet_array, points, faces, original_ids, comment=""):
+    """
+    write the ffea input files
+    Args:
+        nvoxel (int): number of voxels
+        tet_array ():
+        points ():
+        faces
+        original_ids
+        comment (str): any user comment
+    """
+    write_ffea_elements(output_file, tet_array, comment)
+    write_ffea_nodes(output_file, points, comment)
+    write_ffea_faces(output_file, faces, original_ids, comment)
+
 def write_ffea_output(output_file, nvoxel, tet_array, points, faces, original_ids, comment=""):
     """
     write the ffea input files
@@ -36,11 +51,11 @@ def write_ffea_output(output_file, nvoxel, tet_array, points, faces, original_id
         original_ids
         comment (str): any user comment
     """
-    write_ffea_elements(output_file, nvoxel, tet_array, comment)
+    write_ffea_elements(output_file, tet_array, comment)
     write_ffea_nodes(output_file, points, comment)
     write_ffea_faces(output_file, faces, original_ids, comment)
 
-def write_ffea_elements(output_file, nvoxel, tet_array, comment=""):
+def write_ffea_elements(output_file, tet_array, comment=""):
     """
     write ffea elements file .ele
     First line: <# of tetrahedra> <nodes per tetrahedron> <# of attributes>
@@ -53,7 +68,7 @@ def write_ffea_elements(output_file, nvoxel, tet_array, comment=""):
         comment (str): any user comment
     """
     with open(output_file.with_suffix(".1.ele"), "w") as ele:
-        ele.write(f"{nvoxel*5} 4 0\n")
+        ele.write(f"{len(tet_array)} 4 0\n")
         for i, tet in enumerate(tet_array):
             ele.write(f"{i+1} {tet[0]+1} {tet[1]+1} {tet[2]+1} {tet[3]+1}\n")
         ele.write(comment)
