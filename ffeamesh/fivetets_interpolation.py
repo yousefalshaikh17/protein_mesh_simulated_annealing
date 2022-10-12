@@ -305,29 +305,18 @@ def is_odd(x_index, y_index, z_index):
     flag = None
     y_parity = (y_index % 2 == 0)
     x_parity = (x_index % 2 == 0)
+
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z_index % 2 == 0:
         if y_parity:
-            if x_parity:
-                flag = False
-            else:
-                flag = True
+            flag = not x_parity
         else:
-            if x_parity:
-                flag = True
-            else:
-                flag = False
+            flag = x_parity
     else:
         if y_parity:
-            if x_parity:
-                flag = True
-            else:
-                flag = False
+            flag = x_parity
         else:
-            if x_parity:
-                flag = False
-            else:
-                flag = True
+            flag = not x_parity
 
     return flag
 
