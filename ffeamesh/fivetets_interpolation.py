@@ -87,9 +87,9 @@ class CoordTransform():
         """
         string representation of the object
         """
-        sf = f"({self.frac.x}, {self.frac.y})"
-        sc = f"({self.cart.x}, {self.cart.y})"
-        return f"<CoordTransform: {sf} => {sc}>"
+        str_frac = f"({self.frac.x}, {self.frac.y}, {self.frac.z})"
+        str_cart = f"({self.cart.x}, {self.cart.y}, {self.cart.z})"
+        return f"<CoordTransform: {str_frac} => {str_cart}>"
 
 class UniqueTransformStore():
     """
@@ -228,7 +228,7 @@ def voxels_to_5_tets_thershold(mrc, threshold):
 
 def even_cube_tet_indices():
     """
-    return a list of lists for the constuctio of 5 tets from the 8 vertices of an even cube
+    return a list of lists for the constuction of 5 tets from the 8 vertices of an even cube
     Args:
         None
     Returns
@@ -261,7 +261,7 @@ def even_cube_tets(cube):
 
 def odd_cube_tet_indecies():
     """
-    return a list of lists for the constuctio of 5 tets from the 8 vertices of an odd cube
+    return a list of lists for the constuction of 5 tets from the 8 vertices of an odd cube
     Args:
         None
     Returns
@@ -303,26 +303,28 @@ def is_odd(x_index, y_index, z_index):
         (bool)  True if voxel in an odd position, else odd
     '''
     flag = None
+    y_parity = (y_index % 2 == 0)
+    x_parity = (x_index % 2 == 0)
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z_index % 2 == 0:
-        if y_index % 2 == 0:
-            if x_index % 2 == 0:
+        if y_parity:
+            if x_parity:
                 flag = False
             else:
                 flag = True
         else:
-            if x_index % 2 == 0:
+            if x_parity:
                 flag = True
             else:
                 flag = False
     else:
-        if y_index % 2 == 0:
-            if x_index % 2 == 0:
+        if y_parity:
+            if x_parity:
                 flag = True
             else:
                 flag = False
         else:
-            if x_index % 2 == 0:
+            if x_parity:
                 flag = False
             else:
                 flag = True
@@ -430,7 +432,7 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     """
     outupt the files
     Args:
-        points_list (float*3 list): the 3d coordinates of the points froming the vertices of the tets
+        points_list (float*3 list): 3d coordinates of the points forming the tets
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         output_file (pathlib.Path): name stem for ouput files
         ffea_out (bool): if true write ffea input files
