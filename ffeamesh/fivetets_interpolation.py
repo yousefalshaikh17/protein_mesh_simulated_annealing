@@ -114,9 +114,11 @@ class UniqueTransformStore(object):
         Returns
             (int): the index of the object in the list of unique objects
         """
+        # if already stored return the equivalent array index
         if coord in self.data.keys():
             return self.data[coord]
 
+        # if new point store and return the equivalent array index
         self.data[coord] = self.current_size
         tmp = self.current_size
         self.current_size += 1
@@ -129,7 +131,7 @@ class UniqueTransformStore(object):
         Returns:
             (CoordTransform list)
         """
-        return [coord for coord in self.data.keys()]
+        return self.data.keys()
 
     def __str__(self):
         """
@@ -157,7 +159,7 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, coords_final, connectivities_final, = voxels_to_5_tets_thershold(mrc, threshold)
+        nvoxel, points, tet_connectivities, = voxels_to_5_tets_thershold(mrc, threshold)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
@@ -165,33 +167,23 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         print(f"number of voxels over thershold {nvoxel}")
 
-        cells_con = make_vtk_tet_connectivity(connectivities_final)
-
-        # make the grid (vtk scene)
-        vtk_pts = vtk.vtkPoints()
-        vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(coords_final, deep=True))
-        grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-        grid.SetPoints(vtk_pts) #assign points to grid
-        grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
-
-        #write vtk file
-        vtk_output(grid, output_file)
-
-        # make the connectivity data for voxels
-        # points, cells = make_voxel_connectivity(nvoxel, coords)
-
-        # make the connectivity for tets
-        #tet_array = make_tet_connectivity(nvoxel, cells, alternate)
-
-        #write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out)
+        write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
 def voxels_to_5_tets_thershold(mrc, threshold):
     """
+    converts voxels to tetrohedrons and returns those with average values above a thershold
+    Args:
+        mrc (mrcfile.mmap): the input file
+        threshold (float): the acceptance limit
+    Returns:
+        (int): the number of voxels transformed
+        ([float, float, float] list): the coordinates of the vertices
+        ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
     """
     voxel_count = count(0)
     frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
-    coords_final = []
+    coord_store = UniqueTransformStore()
     connectivities_final = []
 
     for voxel_z in range(1, mrc.header.nz-1):
@@ -209,8 +201,8 @@ def voxels_to_5_tets_thershold(mrc, threshold):
                     coords = []
                     create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
 
-                    coord_end_index = len(coords_final)
-                    coords_final += (coords)
+                    #coord_end_index = len(coords_final)
+                    #coords_final += (coords)
 
                     # connectivity of 5 tets in single voxel
                     indices = None
@@ -226,10 +218,13 @@ def voxels_to_5_tets_thershold(mrc, threshold):
                             average += cube_vertex_values[index]
                         average /= 4
                         if average > threshold:
-                            connectivities_final.append(
-                                [connect + coord_end_index for connect in tet])
+                            tet_indices = []
+                            for index in tet:
+                                tet_indices.append(coord_store.add(coords[index]))
+                            connectivities_final.append(tet_indices)
 
-    return next(voxel_count), coords_final, connectivities_final
+    tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
+    return next(voxel_count), tmp, connectivities_final
 
 def even_cube_tet_indices():
     """
@@ -363,15 +358,14 @@ def make_fractional_to_cartesian_conversion_function(mrc):
             y_frac (float): the fractional y coordinate
             z_frac (float): the fractional z coordinate
         Returns:
-            x_cart (float): the cartesian x coordinate
-            y_cart (float): the cartesian y coordinate
-            z_cart (float): the cartesian z coordinate
+            (CoordTransform): container for fractional and cartesian coordinates
         """
         x_cart = (x_frac * x_res) + x_trans
         y_cart = (y_frac * y_res) + y_trans
         z_cart = (z_frac * z_res) + z_trans
 
-        return x_cart, y_cart, z_cart
+        return CoordTransform(Coordinate(x_frac, y_frac, z_frac),
+                              Coordinate(x_cart, y_cart, z_cart))
 
     return fractional_to_cartesian_coordinates
 
@@ -380,12 +374,12 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
     Caluculates the next 8 coords for the next volxel that has been thresholded
     previously (logic in loop that calls this one).
     Args:
-        x_index (int)           Indecies to the x coord in the coords array.
+        x_index (int):          Indecies to the x coord in the coords array.
         y_index (int)           Indecies to the y coord in the coords array.
         z_index (int)           Indecies to the z coord in the coords array.
-        frac_to_cart (float*3=>float*3): fractional to cartesian conversin function
-        coords (float list): The coordinates of the thresholded voxels passed by
-                             reference to this function.
+        frac_to_cart (float*3=>CoordTransform): fractional to cartesian conversin function
+        coords (CoordTransform list): The coordinates of the thresholded voxels passed by
+                                      reference to this function.
 
     Returns:
         None
@@ -432,28 +426,26 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
 
 
 
-def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out, vtk_out):
+def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
     """
     outupt the files
     Args:
-        nvoxel (int): voxel count
-        points (numpy.ndarray): coordinates of vertices (no duplicates)
-        cells (numpy.ndarray): nvoxel by 8 array listing indices of
-                               vertices in points for each voxel
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-        output_file (pothlib.Path): name stem for ouput files
+        points_list (float*3 list): the 3d coordinates of the points froming the vertices of the tets
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+        output_file (pathlib.Path): name stem for ouput files
         ffea_out (bool): if true write ffea input files
         vtk_out (bool): if true write a vtk file
     Returns:
         None
     """
-    # make the vtk tet connectivity
-    cells_con = make_vtk_cell_connectivity(tet_array, len(cells))
+    # convert coords to np.array
+    points_np = np.array(points_list)
 
-    # make the gris (vtk scene)
+    cells_con = make_vtk_tet_connectivity(tets_connectivity)
+
+    # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()
-    vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points, deep=True))
+    vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtk_pts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
@@ -463,8 +455,8 @@ def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out,
         vtk_output(grid, output_file)
 
     # write tetgen file for ffea input
-    if ffea_out:
-        ffea_output(grid, points, output_file, nvoxel, tet_array)
+    #if ffea_out:
+    #    ffea_output(grid, points, output_file, nvoxel, tet_array)
 
 def vtk_output(grid, output_file):
     """
@@ -545,71 +537,6 @@ def ffea_output(grid, points, output_file, nvoxel, tet_array):
                       faces,
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
-
-
-
-def make_voxel_connectivity(nvoxel, coords):
-    """
-    construct a duplicate free list of vertices coordinates and a
-    connectivity list mapping voxles to lists of eight vertices
-    Args:
-        nvoxel (int):                  the number of voxels
-        coords (float numpy.ndarray):  an 2d array with each element being an array of length 8
-                                       (one element for each vertex of a voxel and is the index
-                                        of a value in the coords array) and the length
-                                        of the overall array is the number of voxels that have
-                                        been thresholded.
-    Returns:
-        points (float numpy.ndarray):  duplicate free list of voxel vertices
-        cells (int numpy.ndarray):     nvoxel by 8 array listing indices of
-                                       vertices in points for each voxel
-
-    """
-    # make unique list of vertices for indexing purposes
-    points = np.unique(coords, axis=0)
-
-    # create empty connectivity array, of vertex indices into the points list
-    connectivity = np.zeros((nvoxel*8,), dtype='int16')
-
-    # for each vertex in the orginal array the connectivity of
-    # that index is assigned to the index of that vertex in the points
-    for vertex_index, _ in enumerate(coords):
-        point = coords[vertex_index]
-        connectivity[vertex_index] = np.where((points==point).all(axis=1))[0]
-
-    # convert connectivity to array of length nvoxel in which each entry
-    # is an array of eight indices into the points array; the eight points
-    # represent the eight corners of the voxel
-    cells = np.resize(connectivity, (nvoxel,8))
-
-    return points, cells
-
-def make_tet_connectivity(nvoxel, cells, alternate):
-    """
-    convert voxel connectivity to tetrohedron connectivity
-    Args:
-        nvoxel (int): number of voxels
-        cells (int numpy.ndarray): nvoxel by 8 array listing indices of
-                                    vertices in points for each voxel
-        alternate (int numpy.ndarray): indexed by voxel number, zero if voxel is
-                                        odd else voxel is even
-    Returns:
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-    """
-    tet_array = np.zeros((nvoxel*5,4), dtype='int16') #tet array for .ele
-
-    #iterate over cubes and convert to tets
-    for i, cube in enumerate(cells):
-        if alternate[i]:
-            connectivity_one_vox = odd_cube_tets(cube)
-        else:
-            connectivity_one_vox = even_cube_tets(cube)
-
-        for tet_index, con_one_tet in enumerate(connectivity_one_vox):
-            tet_array[(i*5)+tet_index] = con_one_tet
-
-    return tet_array
 
 def make_vtk_tet_connectivity(connectivities):
     """
