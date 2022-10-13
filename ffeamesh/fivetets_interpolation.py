@@ -70,7 +70,7 @@ class CoordTransform():
         if self.frac.y != lhs.frac.y:
             return False
 
-        if self.frac.z != self.frac.z:
+        if self.frac.z != lhs.frac.z:
             return False
 
         return True
@@ -159,19 +159,19 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities, = voxels_to_5_tets_thershold(mrc, threshold)
+        nvoxel, points, tet_connectivities, = voxels_to_5_tets_threshold(mrc, threshold)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
             sys.exit()
 
-        print(f"number of voxels over thershold {nvoxel}")
+        print(f"number of voxels over threshold {nvoxel}")
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
-def voxels_to_5_tets_thershold(mrc, threshold):
+def voxels_to_5_tets_threshold(mrc, threshold):
     """
-    converts voxels to tetrohedrons and returns those with average values above a thershold
+    converts voxels to tetrohedrons and returns those with average values above a threshold
     Args:
         mrc (mrcfile.mmap): the input file
         threshold (float): the acceptance limit
