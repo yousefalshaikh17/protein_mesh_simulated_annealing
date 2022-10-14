@@ -14,3 +14,30 @@ conda deactivate ffea-mesh
 The original five_tets will cease to write output for large mrc files,
 3616864 bytes workes 8554624 fails
 
+Coordinates store
+=================
+
+When coordinate added
+    compute hash
+    search if in store using hash (NlogN)
+    if in:
+        return index
+    else:
+        add and return new index
+
+Visited Voxels Store
+====================
+dict(visited_voxel => dict(hash(coord) => coordinates_array index))
+
+When coordinate added
+    check if any of 7 surrounding voxels in store
+    Repeate up to 7 times
+        make array indices of neighbouring voxel
+        make hash of array indices
+        search (NlogN)
+        if match found
+            make hash of coordinate
+            find matching coord in local dict of coordinates_array indices
+            return index
+    else:
+        add to coordinates array and return new index
