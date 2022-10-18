@@ -75,12 +75,36 @@ def get_args():
                         default=100,
                         help="end of x section")
 
+    parser.add_argument("-y",
+                        "--ystart",
+                        type=int,
+                        default=0,
+                        help="start of x section")
+
+    parser.add_argument("-Y",
+                        "--yend",
+                        type=int,
+                        default=100,
+                        help="end of x section")
+
+    parser.add_argument("-z",
+                        "--zstart",
+                        type=int,
+                        default=0,
+                        help="start of x section")
+
+    parser.add_argument("-Z",
+                        "--zend",
+                        type=int,
+                        default=100,
+                        help="end of x section")
+
     return parser.parse_args()
 
 
 def output_mrcfile(data, out_file, original_mrc):
     """
-    write out a scaled mrc file
+    write out a mrc file
         Args:
             data (numpy.ndarray): the volume data
             out_file (pathlib.Path) the output file
@@ -92,17 +116,24 @@ def output_mrcfile(data, out_file, original_mrc):
         mrc.voxel_size = original_mrc.voxel_size
 
 def chop_image(mrc, args):
-    print(f"chop from {args.xstart} to {args.xend}")
-    pass
+    """
+    slice out the required part of the data file
+    Args:
+        mrc (mrcfile.file): source file
+        args (argpars.namespace): the command line arguments
+    """
+    data = mrc.data[args.zstart:args.zend, args.ystart:args.yend, args.xstart:args.xend]
+    output_mrcfile(data, args.output, mrc)
 
 def main():
     """
     run the script
     """
     args = get_args()
-    with mrcfile.open(args.input, mode='r') as mrc:
+    with mrcfile.open(args.input, mode='r+') as mrc:
         chop_image(mrc, args)
-    print(f"{args.input} filtered and written to {args.output}")
+
+    print(f"{args.input} sliced and written to {args.output}")
 
 if __name__ == "__main__":
     main()
