@@ -291,7 +291,7 @@ def write_tets_to_files(nvoxel, points, cells, tet_array, output_file, ffea_out,
 
     # write tetgen file for ffea input
     if ffea_out:
-        ffea_output(grid, points, output_file, nvoxel, tet_array)
+        ffea_output(grid, points, output_file, tet_array)
 
 def vtk_output(grid, output_file):
     """
