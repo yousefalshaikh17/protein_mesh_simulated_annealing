@@ -34,7 +34,7 @@ from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
-from ffeamesh.writers import write_ffea_output_interp
+from ffeamesh.writers import write_ffea_output
 
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
@@ -519,12 +519,12 @@ def ffea_output(grid, points, tets_connectivity, output_file):
 
     #write to tetgen .ele, .node, .face
     date = datetime.datetime.now().strftime("%x")
-    write_ffea_output_interp(output_file,
-                             tets_connectivity,
-                             points,
-                             faces,
-                             original_ids,
-                             f'# created by {getpass.getuser()} on {date}')
+    write_ffea_output(output_file,
+                      tets_connectivity,
+                      points,
+                      faces,
+                      original_ids,
+                      f'# created by {getpass.getuser()} on {date}')
 
 def make_vtk_tet_connectivity(connectivities):
     """
