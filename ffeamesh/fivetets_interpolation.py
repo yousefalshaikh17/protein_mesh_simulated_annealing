@@ -180,11 +180,10 @@ def voxels_to_5_tets_threshold(mrc, threshold):
         ([float, float, float] list): the coordinates of the vertices
         ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
     """
-    voxel_count = count(0)
-    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-
     coord_store = UniqueTransformStore()
     connectivities_final = []
+    voxel_count = count(0)
+    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
     for voxel_z in range(1, mrc.header.nz-1):
         for voxel_y in range(1, mrc.header.ny-1):
@@ -200,9 +199,6 @@ def voxels_to_5_tets_threshold(mrc, threshold):
                     # make the matching coordinates
                     coords = []
                     create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
-
-                    #coord_end_index = len(coords_final)
-                    #coords_final += (coords)
 
                     # connectivity of 5 tets in single voxel
                     indices = None

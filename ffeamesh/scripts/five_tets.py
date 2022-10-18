@@ -30,8 +30,8 @@ import sys
 import argparse
 import pathlib
 from enum import Enum
-from ffeamesh.fivetets import convert_mrc_to_5tets
-from ffeamesh.fivetets_interpolation import convert_mrc_to_5tets_interp
+from ffeamesh.fivetets import convert_mrc_to_5tets, convert_mrc_to_5tets_interp
+#from ffeamesh.fivetets_interpolation import
 
 class Method(Enum):
     """
