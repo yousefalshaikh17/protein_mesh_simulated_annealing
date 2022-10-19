@@ -145,6 +145,34 @@ class UniqueTransformStore():
         """
         return hash(self.data)
 
+class VolumeBins():
+    """
+    store for histogram of tet volumes every integer is a bin
+    """
+    def __init__(self):
+        """
+        initalize the object
+        """
+        ## the bins
+        self.bin_counts = {}
+
+    def __repr__(self):
+        """
+        return string rep of object
+        """
+        return f"<VolumeBins : bins {len(self.bin_counts)}>"
+
+    def add(self, vol):
+        """
+        add a volume to the bin count
+        Args:
+            vol (float): the volume to be added
+        """
+        tmp = round(vol, 0)
+        if tmp in self.bin_counts.keys():
+            self.bin_counts[tmp] += 1
+        else:
+            self.bin_counts[tmp] = 1
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
