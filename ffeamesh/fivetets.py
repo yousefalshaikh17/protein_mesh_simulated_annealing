@@ -145,16 +145,17 @@ class UniqueTransformStore():
         """
         return hash(self.data)
 
-def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out):
+def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
     Converts the contents of an mrc file to a tetrohedron array.
     Is called from the five_tets.py script and controls the whole conversion.
     Args:
-        input_file (pathlib.Path)
-        output_file (pathlib.Path)
-        threshold (float)
-        ffea_out (bool)
-        vtk_out (bool)
+        input_file (pathlib.Path): name of input file
+        output_file (pathlib.Path): name stem for output files
+        threshold (float): the threshold below which results are ignored (isosurface value)
+        ffea_out (bool): if true produce ffea input files (tetgen format)
+        vtk_out (bool): if true produce vtk file
+        verbose (bool): if true give details of results
     Returns:
         None
     """
@@ -165,7 +166,8 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
             sys.exit()
 
-        print(f"number of voxels over threshold {nvoxel}")
+        if verbose:
+            print(f"number of voxels over threshold {nvoxel}")
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
@@ -222,16 +224,17 @@ def voxels_to_5_tets_threshold(mrc, threshold):
     tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
     return next(voxel_count), tmp, connectivities_final
 
-def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
+def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
     Converts the contents of an mrc file to a tetrohedron array.
     It is called by the fivetets.py script and controls the whole conversion.
     Args:
-        input_file (pathlib.Path): input file
-        output_file (pathlib.Path): name stem of output files
-        threshold (float): threshold for voxel to be included
-        ffea_out (bool): true if ffea input (tetgen) required
-        vtk_out (bool): true if vtk output required
+        input_file (pathlib.Path): name of input file
+        output_file (pathlib.Path): name stem for output files
+        threshold (float): the threshold below which results are ignored (isosurface value)
+        ffea_out (bool): if true produce ffea input files (tetgen format)
+        vtk_out (bool): if true produce vtk file
+        verbose (bool): if true give details of results
     Returns:
         None
     """
@@ -274,7 +277,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out):
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
             sys.exit()
 
-        print(f"number of voxels over threshold {nvoxel}")
+        if verbose:
+            print(f"number of voxels over threshold {nvoxel}")
 
         write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
@@ -371,10 +375,6 @@ def is_odd(x_index, y_index, z_index):
             flag = not x_parity
 
     return flag
-
-
-
-
 
 def make_fractional_to_cartesian_conversion_function(mrc):
     """

@@ -31,7 +31,6 @@ import argparse
 import pathlib
 from enum import Enum
 from ffeamesh.fivetets import convert_mrc_to_5tets, convert_mrc_to_5tets_interp
-#from ffeamesh.fivetets_interpolation import
 
 class Method(Enum):
     """
@@ -101,6 +100,10 @@ def get_args():
                         help="choice of method used to make tetrohedrons",
                         choices=list(Method))
 
+    parser.add_argument("-V",
+                        "--verbose",
+                        action="store_true",
+                        help="write verbose output")
 
     return parser.parse_args()
 
@@ -147,13 +150,16 @@ def main():
                              args.output,
                              args.threshold,
                              args.ffea,
-                             args.vtk)
+                             args.vtk,
+                             args.verbose)
+
     elif args.method == Method.INTERP:
         convert_mrc_to_5tets_interp(args.input,
                                     args.output,
                                     args.threshold,
                                     args.ffea,
-                                    args.vtk)
+                                    args.vtk,
+                                    args.verbose)
 
 if __name__ == "__main__":
     main()
