@@ -7,10 +7,10 @@ def main():
     target = 486.0
 
     coords = []
-    coords.append(CoordTransform(Coordinate(0,0,0), Coordinate(0.0, 0.0, 0.0)))
-    coords.append(CoordTransform(Coordinate(0,0,0), Coordinate(18.0, 0.0, 0.0)))
-    coords.append(CoordTransform(Coordinate(0,0,0), Coordinate(9.0, 18.0, 0.0)))
-    coords.append(CoordTransform(Coordinate(0,0,0), Coordinate(9.0, 9.0, 9.0)))
+    coords.append([0.0, 0.0, 0.0])
+    coords.append([18.0, 0.0, 0.0])
+    coords.append([9.0, 18.0, 0.0])
+    coords.append([9.0, 9.0, 9.0])
 
     volume = tet_volume(coords)
     message = "{}: volume calculated was {} should be {}."

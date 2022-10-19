@@ -148,6 +148,7 @@ class UniqueTransformStore():
 class VolumeBins():
     """
     store for histogram of tet volumes every integer is a bin
+    TODO Significant digits
     """
     def __init__(self):
         """
@@ -192,13 +193,29 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         nvoxel, points, tet_connectivities, = voxels_to_5_tets_threshold(mrc, threshold)
 
         if nvoxel <= 0:
-            print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+            print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
 
         if verbose:
             print(f"number of voxels over threshold {nvoxel}")
+            print_voxel_stats(points, tet_connectivities)
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
+
+def print_voxel_stats(points, tet_connectities):
+    """
+    print stats on volumes
+    """
+    vol_histo = VolumeBins()
+
+    for tet in tet_connectities:
+        coords = []
+        for index in tet:
+            coords.append(points[index])
+        vol_histo.add(tet_volume(coords))
+
+    for vol, count in vol_histo.bin_counts.items():
+        print(f"Volume {vol}: {count} tets")
 
 def voxels_to_5_tets_threshold(mrc, threshold):
     """
@@ -308,6 +325,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
 
         if verbose:
             print(f"number of voxels over threshold {nvoxel}")
+            print_voxel_stats(points, connectivities_final)
 
         write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
@@ -470,8 +488,6 @@ def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
     coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5)))
     coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5)))
 
-
-
 def make_vertex_values(x_index, y_index, z_index, mrc):
     """
     make an arry of eight values by averaging at the vertices
@@ -511,14 +527,14 @@ def tet_volume(coords):
         """
         make vectors (arrays) from cartesian coordinates of two CoordTransform
         Args:
-            start (CoordTransform): start point
-            end (CoordTransform): end point
+            start (float list): start point
+            end (float list): end point
         Returns:
             [x, y, z]: vector from start to end
         """
-        vx = end.cart.x - start.cart.x
-        vy = end.cart.y - start.cart.y
-        vz = end.cart.z - start.cart.z
+        vx = end[0] - start[0]
+        vy = end[1] - start[1]
+        vz = end[2] - start[2]
 
         return [vx, vy, vz]
 
@@ -526,7 +542,7 @@ def tet_volume(coords):
     for coord in coords[1:]:
         sides.append(coords_to_np_vec(coords[0], coord))
 
-    return np.dot(np.cross(sides[0], sides[1]), sides[2])/6.0
+    return abs(np.dot(np.cross(sides[0], sides[1]), sides[2]))/6.0
 
 def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
     """
