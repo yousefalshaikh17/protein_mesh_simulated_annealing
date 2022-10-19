@@ -145,6 +145,7 @@ class UniqueTransformStore():
         """
         return hash(self.data)
 
+
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
     Converts the contents of an mrc file to a tetrohedron array.
@@ -469,9 +470,35 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
 
     return values
 
+def tet_volume(coords):
+    """
+    find tet volume by ((side1 x side2).side2)/6
+    Args:
+        coords [CoordTransform x 4]: the vertices of the tet
+    Returns:
+        (float): the volume of the tet
+    """
+    # inner function
+    def coords_to_np_vec(start, end):
+        """
+        make vectors (arrays) from cartesian coordinates of two CoordTransform
+        Args:
+            start (CoordTransform): start point
+            end (CoordTransform): end point
+        Returns:
+            [x, y, z]: vector from start to end
+        """
+        vx = end.cart.x - start.cart.x
+        vy = end.cart.y - start.cart.y
+        vz = end.cart.z - start.cart.z
 
+        return [vx, vy, vz]
 
+    sides = []
+    for coord in coords[1:]:
+        sides.append(coords_to_np_vec(coords[0], coord))
 
+    return np.dot(np.cross(sides[0], sides[1]), sides[2])/6.0
 
 def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
     """

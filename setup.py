@@ -51,4 +51,5 @@ setup(
              'ffeamesh/scripts/zoom.py',
              'ffeamesh/scripts/fft_smooth.py',
              'ffeamesh/scripts/make_test_mrcfile.py',
-             'ffeamesh/scripts/mrc_threshold.py'])
+             'ffeamesh/scripts/mrc_threshold.py',
+             'tests/tetvolume.py'])
