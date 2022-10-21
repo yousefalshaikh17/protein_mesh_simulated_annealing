@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
  This file is part of the FFEA simulation package
 
@@ -91,12 +90,12 @@ def get_image_stats(mrc):
 
     return descriptive_stats, histogram
 
-def print_image_stats(descriptive_stats,  histogram, infile, outfile=None):
+def print_image_stats(descriptive_stats,  histo, infile, outfile=None):
     """
     generate and print the stats of the image array
     Args:
         descriptive_stats (scipy.stats.DescribeResult): mean etc
-        histogram (numpy.histogram): ten bin histogram
+        histo (numpy.histogram): ten bin histogram
         mrc (mrcfile): the image source
         infile (str): file name of input
         outfile (pathlib.Path) the output file
@@ -110,9 +109,9 @@ def print_image_stats(descriptive_stats,  histogram, infile, outfile=None):
     print(f"Variance {descriptive_stats.variance:.6}", file=outfile)
 
     print("\nbin, range, voxel count, fraction", file=outfile)
-    for i, count in enumerate(histogram[0]):
+    for i, count in enumerate(histo[0]):
         fraction = count/descriptive_stats.nobs
-        print(f"{i}, ({histogram[1][i]:.6}, {histogram[1][i+1]:.6}), {count}, {fraction:.3}", file=outfile)
+        print(f"{i}, ({histo[1][i]:.6}, {histo[1][i+1]:.6}), {count}, {fraction:.3}", file=outfile)
 
 def main():
     """

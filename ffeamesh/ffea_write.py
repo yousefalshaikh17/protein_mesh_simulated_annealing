@@ -22,7 +22,7 @@
 
  Write tetrohedrons out to ffea input files, (tetgen file format).
 
-Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers  - University of Leeds
+Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers - University of Leeds (UK)
 """
 
 def write_ffea_output(output_file, tet_array, points, faces, original_ids, comment=""):
@@ -61,7 +61,7 @@ def write_ffea_elements(output_file, tet_array, comment=""):
 def write_ffea_nodes(output_file, points, comment=""):
     """
     write ffea .node file
-    First line: <# of points> <dimension (must be 3)> <# of attributes> <# of boundary markers (0 or 1)>
+    First line: <num points> <dimension (3)> <num attributes> <num boundary markers (0 or 1)>
     Remaining lines list # of points:
     <point #> <x> <y> <z>
     Args:
@@ -75,7 +75,7 @@ def write_ffea_nodes(output_file, points, comment=""):
             node.write(f"{i+1} {point[0]} {point[1]} {point[2]}\n")
         node.write(comment)
 
-def write_ffea_faces(output_file, faces, original_ids, comment=""):
+def write_ffea_faces(output_file, faces, ids, comment=""):
     """
     write .face file
     First line: <# of faces> <boundary marker (0 or 1)>
@@ -83,13 +83,13 @@ def write_ffea_faces(output_file, faces, original_ids, comment=""):
     <face #> <node> <node> <node> [boundary marker]
     Args:
         output_file (pathlib.Path): root name of file, will have .face added
-        faces
-        original_ids
+        faces (int np.ndarray): connectivity of face polygons
+        ids (int []): index of surface point in the surface faces's points array
         comment (str): any user comment
     """
     with open(output_file.with_suffix(".1.face"), "w") as face_file:
         face_file.write(f"{len(faces)} 1\n")
         for i, face in enumerate(faces):
             face_file.write(
-                f"{i+1} {original_ids[face[1]]+1} {original_ids[face[2]]+1} {original_ids[face[3]]+1} -1\n")
+                f"{i+1} {ids[face[1]]+1} {ids[face[2]]+1} {ids[face[3]]+1} -1\n")
         face_file.write(comment)

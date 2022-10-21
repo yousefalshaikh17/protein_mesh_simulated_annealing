@@ -23,19 +23,10 @@
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
-# set up linting
-# pylint: disable = import-error
-
-
-from itertools import count
 from collections import (namedtuple, OrderedDict)
-import numpy as np
-
-
 
 ## data structure for a 3D coordinate
 Coordinate = namedtuple("Coordinate", "x, y, z")
-
 
 class CoordTransform():
     """

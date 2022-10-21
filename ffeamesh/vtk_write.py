@@ -26,11 +26,7 @@
 # set up linting
 # pylint: disable = import-error
 
-
-import numpy as np
 import vtk.util.numpy_support
-
-
 
 def vtk_output(grid, output_file):
     """
@@ -44,4 +40,3 @@ def vtk_output(grid, output_file):
     writer.SetInputData(grid)
     writer.Update()
     writer.Write()
-

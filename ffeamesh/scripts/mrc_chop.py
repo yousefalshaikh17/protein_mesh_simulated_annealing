@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
  This file is part of the FFEA simulation package
 
@@ -21,19 +20,15 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
-Created on Mon Oct 25 11:50:39 2021
-
-@author: mollygravett
-modified jonathan pickering 23Aug22
+@author: jonathan pickering 23Aug22
 """
 # set up linting conditions
 # pylint: disable = import-error
+
 import argparse
 import pathlib
 from enum import Enum
 import mrcfile
-from scipy import ndimage
-import numpy as np
 
 class Algorithm(Enum):
     """

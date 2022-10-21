@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
  This file is part of the FFEA simulation package
 
@@ -31,8 +30,8 @@
  @author: mollygravett
  modified jonathan pickering 23Aug22
 """
-
-
+# set up linting conditions
+# pylint: disable = import-erro
 
 import argparse
 import pathlib

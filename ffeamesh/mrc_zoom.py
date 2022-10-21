@@ -25,6 +25,8 @@
  @author: mollygravett
  modified jonathan pickering 23Aug22
 """
+# set up linting
+# pylint: disable = import-error
 
 import mrcfile
 from scipy import ndimage
@@ -69,4 +71,3 @@ def output_scaled_mrcfile(data, out_file, original_mrc):
 
         # not sure if doing different scale for each dimension necessary.
         # maybe fine to just use scale_x for all?
-

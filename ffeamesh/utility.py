@@ -28,7 +28,6 @@
 
 import numpy as np
 
-
 def tet_volume(coords):
     """
     Find tet volume by ((side1 x side2).side2)/6
@@ -47,20 +46,18 @@ def tet_volume(coords):
         Returns:
             [x, y, z]: vector from start to end
         """
-        vx = end[0] - start[0]
-        vy = end[1] - start[1]
-        vz = end[2] - start[2]
+        vec_x = end[0] - start[0]
+        vec_y = end[1] - start[1]
+        vec_z = end[2] - start[2]
 
-        return [vx, vy, vz]
+        return [vec_x, vec_y, vec_z]
 
     sides = []
     for coord in coords[1:]:
         sides.append(coords_to_np_vec(coords[0], coord))
 
     return abs(np.dot(np.cross(sides[0], sides[1]), sides[2]))/6.0
-    
-    
-    
+
 class VolumeBins():
     """
     Store for histogram of tet volumes every integer is a bin
@@ -90,8 +87,7 @@ class VolumeBins():
             self.bin_counts[tmp] += 1
         else:
             self.bin_counts[tmp] = 1
-            
-            
+
 def print_voxel_stats(points, tet_connectities):
     """
     Print stats on volumes (as a text histogram).
