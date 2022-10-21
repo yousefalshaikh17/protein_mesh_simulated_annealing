@@ -34,146 +34,72 @@ from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
-from ffeamesh.writers import write_ffea_output
+import ffeamesh.coord_utility as cu 
+from ffeamesh.ffea_write import write_ffea_output
+import ffeamesh.vtk_write as vtk_write
+import ffeamesh.vtk_utility as vtk_u 
+import ffeamesh.utility as utility
 
-## data structure for a 3D coordinate
-Coordinate = namedtuple("Coordinate", "x, y, z")
 
-class CoordTransform():
+def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
-    store for the fractional and cartesian coordinates of a 3D lattice point
+    Converts the contents of an mrc file to a tetrohedron array.
+    It is called by the fivetets.py script and controls the whole conversion.
+    Args:
+        input_file (pathlib.Path): name of input file
+        output_file (pathlib.Path): name stem for output files
+        threshold (float): the threshold below which results are ignored (isosurface value)
+        ffea_out (bool): if true produce ffea input files (tetgen format)
+        vtk_out (bool): if true produce vtk file
+        verbose (bool): if true give details of results
+    Returns:
+        None
     """
-    def __init__(self, frac, cart):
-        """
-        initalize the object
-        Args:
-            frac (Coordinate): fractional coordinate
-            cart (Coordinate): cartesian coordinate
-        """
-        ## storage for the fractional coordinate
-        self.frac = frac
+    # Reads mrc file into a map which is the fastest way to work with the data and has
+    # a header and data section in it.
+    with mrcfile.mmap(input_file, mode='r+') as mrc:
 
-        ## storage for the cartesian coordinate
-        self.cart = cart
+        coord_store = cu.UniqueTransformStore()
+        connectivities_final = []
+        voxel_count = count(0)
+        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
 
-    def __eq__(self, lhs):
-        """
-        equality is based on fractional coordinate only
-        Args:
-            lhs (CoordTransform): the object for comparison
-        Returns:
-            (bool) True if fractional coordinates are equal else False
-        """
-        if self.frac.x != lhs.frac.x:
-            return False
+        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
+        for voxel_z in range(0, mrc.header.nz):
+            for voxel_y in range(0, mrc.header.ny):
+                for voxel_x in range(0, mrc.header.nx):
+                    # Threshold the voxels out of the mrc map data
+                    if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
+                        next(voxel_count)
+                        coords = []
+                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
 
-        if self.frac.y != lhs.frac.y:
-            return False
+                        indices = None
+                        if is_odd(voxel_x, voxel_y, voxel_z):
+                            indices = odd_cube_tet_indecies()
+                        else:
+                            indices = even_cube_tet_indices()
 
-        if self.frac.z != lhs.frac.z:
-            return False
+                         # test the tets and append those that pass
+                        for tet in indices:
+                            tet_indices = []
+                            for index in tet:
+                                tet_indices.append(coord_store.add(coords[index]))
+                            connectivities_final.append(tet_indices)
 
-        return True
 
-    def __hash__(self):
-        """
-        hash value is based on the fractional coordinate only
-        Returns:
-            (int) the hash value of the fractional coordinate
-        """
-        return hash((self.frac.x, self.frac.y, self.frac.z))
+        points = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
+        nvoxel = next(voxel_count)
+        if nvoxel < 1:
+            print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
+            sys.exit()
 
-    def __repr__(self):
-        """
-        string representation of the object
-        """
-        str_frac = f"({self.frac.x}, {self.frac.y}, {self.frac.z})"
-        str_cart = f"({self.cart.x}, {self.cart.y}, {self.cart.z})"
-        return f"<CoordTransform: {str_frac} => {str_cart}>"
+        if verbose:
+            print(f"number of voxels over threshold {nvoxel}")
+            utility.print_voxel_stats(points, connectivities_final)
 
-class UniqueTransformStore():
-    """
-    store for CoordTransform which only holds unique objects,
-    based on fractional coordinate
-    """
-    def __init__(self):
-        """
-        initalize the object
-        """
-        ## current size of the array
-        self.current_size = 0
+        write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
-        ## dictionary holding the data, will work python < 3.7
-        self.data = OrderedDict()
-
-    def add(self, coord):
-        """
-        add a new CoordTransform
-        Args:
-            coord (CoordTransform): the object to be added
-        Returns
-            (int): the index of the object in the list of unique objects
-        """
-        # if already stored return the equivalent array index
-        if coord in self.data.keys():
-            return self.data[coord]
-
-        # if new point store and return the equivalent array index
-        self.data[coord] = self.current_size
-        tmp = self.current_size
-        self.current_size += 1
-
-        return tmp
-
-    def to_list(self):
-        """
-        convert the keys to a list in entry order
-        Returns:
-            (CoordTransform list)
-        """
-        return self.data.keys()
-
-    def __str__(self):
-        """
-        provide string representation
-        """
-        return f"<UniqueArray: {self.current_size} items>"
-
-    def __hash__(self):
-        """
-        hash function is the hash of the data
-        """
-        return hash(self.data)
-
-class VolumeBins():
-    """
-    store for histogram of tet volumes every integer is a bin
-    TODO Significant digits
-    """
-    def __init__(self):
-        """
-        initalize the object
-        """
-        ## the bins
-        self.bin_counts = {}
-
-    def __repr__(self):
-        """
-        return string rep of object
-        """
-        return f"<VolumeBins : bins {len(self.bin_counts)}>"
-
-    def add(self, vol):
-        """
-        add a volume to the bin count
-        Args:
-            vol (float): the volume to be added
-        """
-        tmp = round(vol, 0)
-        if tmp in self.bin_counts.keys():
-            self.bin_counts[tmp] += 1
-        else:
-            self.bin_counts[tmp] = 1
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
     """
@@ -202,20 +128,9 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
-def print_voxel_stats(points, tet_connectities):
-    """
-    print stats on volumes
-    """
-    vol_histo = VolumeBins()
 
-    for tet in tet_connectities:
-        coords = []
-        for index in tet:
-            coords.append(points[index])
-        vol_histo.add(tet_volume(coords))
 
-    for vol, count in vol_histo.bin_counts.items():
-        print(f"Volume {vol}: {count} tets")
+
 
 def voxels_to_5_tets_threshold(mrc, threshold):
     """
@@ -269,65 +184,10 @@ def voxels_to_5_tets_threshold(mrc, threshold):
 
     tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
     return next(voxel_count), tmp, connectivities_final
-
-def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
-    """
-    Converts the contents of an mrc file to a tetrohedron array.
-    It is called by the fivetets.py script and controls the whole conversion.
-    Args:
-        input_file (pathlib.Path): name of input file
-        output_file (pathlib.Path): name stem for output files
-        threshold (float): the threshold below which results are ignored (isosurface value)
-        ffea_out (bool): if true produce ffea input files (tetgen format)
-        vtk_out (bool): if true produce vtk file
-        verbose (bool): if true give details of results
-    Returns:
-        None
-    """
-    # Reads mrc file into a map which is the fastest way to work with the data and has
-    # a header and data section in it.
-    with mrcfile.mmap(input_file, mode='r+') as mrc:
-
-        coord_store = UniqueTransformStore()
-        connectivities_final = []
-        voxel_count = count(0)
-        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-
-        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-        for voxel_z in range(0, mrc.header.nz):
-            for voxel_y in range(0, mrc.header.ny):
-                for voxel_x in range(0, mrc.header.nx):
-                    # Threshold the voxels out of the mrc map data
-                    if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
-                        next(voxel_count)
-                        coords = []
-                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
-
-                        indices = None
-                        if is_odd(voxel_x, voxel_y, voxel_z):
-                            indices = odd_cube_tet_indecies()
-                        else:
-                            indices = even_cube_tet_indices()
-
-                         # test the tets and append those that pass
-                        for tet in indices:
-                            tet_indices = []
-                            for index in tet:
-                                tet_indices.append(coord_store.add(coords[index]))
-                            connectivities_final.append(tet_indices)
+    
 
 
-        points = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
-        nvoxel = next(voxel_count)
-        if nvoxel < 1:
-            print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
-            sys.exit()
 
-        if verbose:
-            print(f"number of voxels over threshold {nvoxel}")
-            print_voxel_stats(points, connectivities_final)
-
-        write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
 def even_cube_tet_indices():
     """
@@ -458,8 +318,8 @@ def make_fractional_to_cartesian_conversion_function(mrc):
         y_cart = (y_frac * y_res) + y_trans
         z_cart = (z_frac * z_res) + z_trans
 
-        return CoordTransform(Coordinate(x_frac, y_frac, z_frac),
-                              Coordinate(x_cart, y_cart, z_cart))
+        return cu.CoordTransform(cu.Coordinate(x_frac, y_frac, z_frac),
+                              cu.Coordinate(x_cart, y_cart, z_cart))
 
     return fractional_to_cartesian_coordinates
 
@@ -514,39 +374,13 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
 
     return values
 
-def tet_volume(coords):
-    """
-    find tet volume by ((side1 x side2).side2)/6
-    Args:
-        coords [CoordTransform x 4]: the vertices of the tet
-    Returns:
-        (float): the volume of the tet
-    """
-    # inner function
-    def coords_to_np_vec(start, end):
-        """
-        make vectors (arrays) from cartesian coordinates of two CoordTransform
-        Args:
-            start (float list): start point
-            end (float list): end point
-        Returns:
-            [x, y, z]: vector from start to end
-        """
-        vx = end[0] - start[0]
-        vy = end[1] - start[1]
-        vz = end[2] - start[2]
 
-        return [vx, vy, vz]
+    
 
-    sides = []
-    for coord in coords[1:]:
-        sides.append(coords_to_np_vec(coords[0], coord))
-
-    return abs(np.dot(np.cross(sides[0], sides[1]), sides[2]))/6.0
 
 def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
     """
-    outupt the files
+    Sets it up so data goes to the ffea writer and the vtk writer correctly.
     Args:
         points_list (float*3 list): 3d coordinates of the points forming the tets
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
@@ -559,7 +393,7 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     # convert coords to np.array
     points_np = np.array(points_list)
 
-    cells_con = make_vtk_tet_connectivity(tets_connectivity)
+    cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
 
     # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()
@@ -570,56 +404,17 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
 
     #write vtk file
     if vtk_out:
-        vtk_output(grid, output_file)
+        vtk_write.vtk_output(grid, output_file)
 
     # write tetgen file for ffea input
     if ffea_out:
         ffea_output(grid, points_np, tets_connectivity, output_file)
 
-def vtk_output(grid, output_file):
-    """
-    setup and use vtk writer
-    Args:
-        grid (vtk.vtkUnstructuredGrid): vtk scene
-        output_file (pathlib.Path)
-    """
-    writer = vtk.vtkUnstructuredGridWriter()
-    writer.SetFileName(str(output_file.with_suffix(".vtk")))
-    writer.SetInputData(grid)
-    writer.Update()
-    writer.Write()
 
-def get_vtk_surface(grid):
-    """
-    get the surface polygons from a vtk scene.
-    Args:
-        grid (vtk.vtkUnstructuredGrid): vtk scene
-    Return
-        (float np.array): the vertices on the surface
-        (vtkmodules.vtkCommonCore.vtkIdTypeArray) connectivity of surface polygons
-        (int) numer of cells in surface
-    """
-    # make a surface filter to extract the geometric boundary
-    surf_filt = vtk.vtkDataSetSurfaceFilter()
-    surf_filt.SetInputData(grid)
-    surf_filt.Update()
-
-    # get the geometric boundary (the suface of the volume)
-    surf = surf_filt.GetOutput()
-
-    # get the points in the surface geomatry
-    surf_points=np.array(surf.GetPoints().GetData())
-
-    # get the surface polygons
-    cells = surf.GetPolys()
-    cell_count = cells.GetNumberOfCells()
-    cell_data = cells.GetData()
-
-    return surf_points, cell_data, cell_count
 
 def ffea_output(grid, points, tets_connectivity, output_file):
     """
-    construct the faces and output the ffea input files
+    Constructs the faces and calls the ffea writer to output file.
     Args:
         grid (vtk.vtkUnstructuredGrid): vtk scene
         points (float np.ndarray): duplicate free list of vertices
@@ -628,7 +423,7 @@ def ffea_output(grid, points, tets_connectivity, output_file):
     Returns:
         None
     """
-    surf_points, cell_data, cell_count = get_vtk_surface(grid)
+    surf_points, cell_data, cell_count = vtk_u.get_vtk_surface(grid)
 
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
@@ -653,53 +448,3 @@ def ffea_output(grid, points, tets_connectivity, output_file):
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
 
-def make_vtk_tet_connectivity(connectivities):
-    """
-    setup and use vtk writer
-    Args:
-        connectivities (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-    Returns:
-        (vtk.vtkCellArray): array holding the tet's connectivity as vtk data
-    """
-    #create vtk array for holding cells
-    cells_con = vtk.vtkCellArray()
-
-    # add tetrahedron cells to array
-    for tet in connectivities:
-        tetra = vtk.vtkTetra()
-        for i, coord in enumerate(tet):
-            tetra.GetPointIds().SetId(i, coord)
-
-        #add tet data to vtk cell array
-        cells_con.InsertNextCell(tetra)
-
-    return cells_con
-
-def make_vtk_cell_connectivity(tet_array, cell_count):
-    """
-    setup and use vtk writer
-    Args:
-        tet_array (int np.ndarray): 2D number of tets by four, the entry for each tet
-                                    is a list of its four vertices in the points array
-        cell_count (int): the number of voxels
-    Returns:
-        (vtk.vtkCellArray): array holding the tet's connectivity as vtk data
-    """
-    #create vtk array for holding cells
-    cells_con = vtk.vtkCellArray()
-
-    # add tetrahedron cells to array
-    for i in range(cell_count):
-        for tet in range(5):
-            tet_con = tet_array[(i*5) + tet]
-
-            tetra = vtk.vtkTetra()
-            tetra.GetPointIds().SetId(0, tet_con[0])
-            tetra.GetPointIds().SetId(1, tet_con[1])
-            tetra.GetPointIds().SetId(2, tet_con[2])
-            tetra.GetPointIds().SetId(3, tet_con[3])
-
-            cells_con.InsertNextCell(tetra) #add tet data to vtk cell array
-
-    return cells_con
