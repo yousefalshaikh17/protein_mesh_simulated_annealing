@@ -30,15 +30,14 @@ import sys
 import datetime
 import getpass
 from itertools import count
-from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
 import ffeamesh.coord_utility as cu
 from ffeamesh.ffea_write import write_ffea_output
-import ffeamesh.vtk_write as vtk_write
+from ffeamesh import vtk_write
 import ffeamesh.vtk_utility as vtk_u
-import ffeamesh.utility as utility
+from ffeamesh import utility
 
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
@@ -433,4 +432,3 @@ def ffea_output(grid, points, tets_connectivity, output_file):
                       faces,
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
-

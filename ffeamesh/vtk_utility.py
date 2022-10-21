@@ -26,17 +26,8 @@
 # set up linting
 # pylint: disable = import-error
 
-import sys
-import datetime
-import getpass
-from itertools import count
-from collections import (namedtuple, OrderedDict)
 import numpy as np
-import mrcfile
 import vtk.util.numpy_support
-from ffeamesh import coord_utility
-from ffeamesh.ffea_write import write_ffea_output
-
 
 def make_vtk_tet_connectivity(connectivities):
     """
