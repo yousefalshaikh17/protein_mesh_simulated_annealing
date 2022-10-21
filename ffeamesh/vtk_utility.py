@@ -91,8 +91,6 @@ def make_vtk_cell_connectivity(tet_array, cell_count):
 
     return cells_con
 
-
-
 def get_vtk_surface(grid):
     """
     Get the surface polygons from a vtk scene.

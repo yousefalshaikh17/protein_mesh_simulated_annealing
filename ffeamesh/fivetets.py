@@ -34,10 +34,10 @@ from collections import (namedtuple, OrderedDict)
 import numpy as np
 import mrcfile
 import vtk.util.numpy_support
-import ffeamesh.coord_utility as cu 
+import ffeamesh.coord_utility as cu
 from ffeamesh.ffea_write import write_ffea_output
 import ffeamesh.vtk_write as vtk_write
-import ffeamesh.vtk_utility as vtk_u 
+import ffeamesh.vtk_utility as vtk_u
 import ffeamesh.utility as utility
 
 
@@ -124,13 +124,9 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         if verbose:
             print(f"number of voxels over threshold {nvoxel}")
-            print_voxel_stats(points, tet_connectivities)
+            utility.print_voxel_stats(points, tet_connectivities)
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
-
-
-
-
 
 def voxels_to_5_tets_threshold(mrc, threshold):
     """
@@ -143,7 +139,7 @@ def voxels_to_5_tets_threshold(mrc, threshold):
         ([float, float, float] list): the coordinates of the vertices
         ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
     """
-    coord_store = UniqueTransformStore()
+    coord_store = cu.UniqueTransformStore()
     connectivities_final = []
     voxel_count = count(0)
     frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
@@ -184,10 +180,6 @@ def voxels_to_5_tets_threshold(mrc, threshold):
 
     tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
     return next(voxel_count), tmp, connectivities_final
-    
-
-
-
 
 def even_cube_tet_indices():
     """
@@ -374,10 +366,6 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
 
     return values
 
-
-    
-
-
 def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
     """
     Sets it up so data goes to the ffea writer and the vtk writer correctly.
@@ -410,8 +398,6 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     if ffea_out:
         ffea_output(grid, points_np, tets_connectivity, output_file)
 
-
-
 def ffea_output(grid, points, tets_connectivity, output_file):
     """
     Constructs the faces and calls the ffea writer to output file.
@@ -428,7 +414,7 @@ def ffea_output(grid, points, tets_connectivity, output_file):
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
     for pos, point in enumerate(surf_points):
-        # index of surface point in the tet's points array
+        # index of surface point in the surface faces's points array
         original_ids[pos] = np.where((points==point).all(axis=1))[0]
 
     # This holds true if all polys are of the same kind, e.g. triangles.

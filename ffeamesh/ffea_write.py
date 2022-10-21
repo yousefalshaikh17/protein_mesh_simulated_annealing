@@ -20,7 +20,7 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
- Write tetrohedrons out to ffea input files, tetgen fromat.
+ Write tetrohedrons out to ffea input files, (tetgen file format).
 
 Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers  - University of Leeds
 """
@@ -30,10 +30,10 @@ def write_ffea_output(output_file, tet_array, points, faces, original_ids, comme
     write the ffea input files
     Args:
         nvoxel (int): number of voxels
-        tet_array ():
-        points ():
-        faces
-        original_ids
+        tet_array (int*4 list): for each tet the indices of its vertices in the points list
+        points (float np.ndarray): duplicate free list of vertices
+        faces (int np.ndarray): connectivity of face polygons
+        original_ids (int []): index of surface point in the surface faces's points array
         comment (str): any user comment
     """
     write_ffea_elements(output_file, tet_array, comment)
