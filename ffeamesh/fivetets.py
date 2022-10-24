@@ -38,6 +38,7 @@ from ffeamesh.ffea_write import write_ffea_output
 from ffeamesh import vtk_write
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import utility
+from ffeamesh.coord_utility import Coordinate
 
 def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, start_z=0):
     """
@@ -76,8 +77,7 @@ def voxel_into_5_tets(voxel_x, voxel_y, voxel_z, frac_to_cart, coord_store, conn
     Args:
 
     """
-    coords = []
-    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+    coords =create_cube_coords(Coordinate(voxel_x, voxel_y, voxel_z), frac_to_cart)
 
     indices = None
     if is_odd(voxel_x, voxel_y, voxel_z):
@@ -224,8 +224,7 @@ def voxels_to_5_tets_interp(mrc, threshold, progress):
                     next(voxel_count)
 
                     # make the matching coordinates
-                    coords = []
-                    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+                    coords = create_cube_coords(Coordinate(voxel_x, voxel_y, voxel_z), frac_to_cart)
 
                     # connectivity of 5 tets in single voxel
                     indices = None
@@ -383,30 +382,28 @@ def make_fractional_to_cartesian_conversion_function(mrc):
 
     return fractional_to_cartesian_coordinates
 
-def create_cube_coords(x_index, y_index, z_index, frac_to_cart, coords):
+def create_cube_coords(voxel, frac_to_cart):
     '''
-    Caluculates the next 8 coords for the next volxel that has been thresholded
-    previously (logic in loop that calls this one).
+    Caluculates the next 8 coords for the next volxel that has been
+    previously thresholded (logic in loop that calls this one).
     Args:
-        x_index (int):          Indecies to the x coord in the coords array.
-        y_index (int)           Indecies to the y coord in the coords array.
-        z_index (int)           Indecies to the z coord in the coords array.
+        voxel (Coordinate): array indices of voxel
         frac_to_cart (float*3=>CoordTransform): fractional to cartesian conversin function
-        coords (CoordTransform list): The coordinates of the thresholded voxels passed by
-                                      reference to this function.
-
     Returns:
         None
     '''
+    coords = []
     # Calculate the cordinates of each vertex of the voxel
-    coords.append(frac_to_cart((x_index-0.5), (y_index-0.5), (z_index-0.5)))
-    coords.append(frac_to_cart((x_index+0.5), (y_index-0.5), (z_index-0.5)))
-    coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index-0.5)))
-    coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index-0.5)))
-    coords.append(frac_to_cart((x_index-0.5), (y_index-0.5), (z_index+0.5)))
-    coords.append(frac_to_cart((x_index+0.5), (y_index-0.5), (z_index+0.5)))
-    coords.append(frac_to_cart((x_index+0.5), (y_index+0.5), (z_index+0.5)))
-    coords.append(frac_to_cart((x_index-0.5), (y_index+0.5), (z_index+0.5)))
+    coords.append(frac_to_cart((voxel.x-0.5), (voxel.y-0.5), (voxel.z-0.5)))
+    coords.append(frac_to_cart((voxel.x+0.5), (voxel.y-0.5), (voxel.z-0.5)))
+    coords.append(frac_to_cart((voxel.x+0.5), (voxel.y+0.5), (voxel.z-0.5)))
+    coords.append(frac_to_cart((voxel.x-0.5), (voxel.y+0.5), (voxel.z-0.5)))
+    coords.append(frac_to_cart((voxel.x-0.5), (voxel.y-0.5), (voxel.z+0.5)))
+    coords.append(frac_to_cart((voxel.x+0.5), (voxel.y-0.5), (voxel.z+0.5)))
+    coords.append(frac_to_cart((voxel.x+0.5), (voxel.y+0.5), (voxel.z+0.5)))
+    coords.append(frac_to_cart((voxel.x-0.5), (voxel.y+0.5), (voxel.z+0.5)))
+
+    return coords
 
 def make_vertex_values(x_index, y_index, z_index, mrc):
     """
