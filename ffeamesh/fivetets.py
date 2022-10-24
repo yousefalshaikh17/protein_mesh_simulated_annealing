@@ -144,7 +144,7 @@ def plain_voxel_to_5_tets(voxel, frac_to_cart, coord_store, connectivities):
 
     indices = None
     if is_odd(voxel.x, voxel.y, voxel.z):
-        indices = odd_cube_tet_indecies()
+        indices = odd_cube_tet_indices()
     else:
         indices = even_cube_tet_indices()
 
@@ -260,7 +260,7 @@ def interp_voxel_to_5_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
     # connectivity of 5 tets in single voxel
     indices = None
     if is_odd(voxel.x, voxel.y, voxel.z):
-        indices = odd_cube_tet_indecies()
+        indices = odd_cube_tet_indices()
     else:
         indices = even_cube_tet_indices()
 
@@ -299,17 +299,17 @@ def even_cube_tets(cube):
     Returns
         lits(list) : five lists of four vertices representing the tets
     """
-    tet1 = np.array([cube[0], cube[4], cube[5], cube[7]])
-    tet2 = np.array([cube[0], cube[1], cube[2], cube[5]])
-    tet3 = np.array([cube[2], cube[5], cube[6], cube[7]])
-    tet4 = np.array([cube[0], cube[2], cube[3], cube[7]])
-    tet5 = np.array([cube[0], cube[2], cube[5], cube[7]])
-
-    tet_list = [tet1, tet2, tet3, tet4, tet5]
+    indices_array = even_cube_tet_indices()
+    tet_list = []
+    for indices in indices_array:
+        tet_list.append(np.array([cube[indices[0]],
+                                  cube[indices[1]],
+                                  cube[indices[2]],
+                                  cube[indices[3]]]))
 
     return tet_list
 
-def odd_cube_tet_indecies():
+def odd_cube_tet_indices():
     """
     return a list of lists for the constuction of 5 tets from the 8 vertices of an odd cube
     Args:
@@ -332,13 +332,13 @@ def odd_cube_tets(cube):
     Returns
         lits(list) : five lists of four vertices representing the tets
     """
-    tet1 = np.array([cube[0], cube[1], cube[3], cube[4]])
-    tet2 = np.array([cube[1], cube[4], cube[5], cube[6]])
-    tet3 = np.array([cube[1], cube[2], cube[3], cube[6]])
-    tet4 = np.array([cube[3], cube[4], cube[6], cube[7]])
-    tet5 = np.array([cube[1], cube[3], cube[4], cube[6]])
-
-    tet_list = [tet1, tet2, tet3, tet4, tet5]
+    indices_array = odd_cube_tet_indices()
+    tet_list = []
+    for indices in indices_array:
+        tet_list.append(np.array([cube[indices[0]],
+                                  cube[indices[1]],
+                                  cube[indices[2]],
+                                  cube[indices[3]]]))
 
     return tet_list
 
