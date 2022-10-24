@@ -39,8 +39,40 @@ from ffeamesh import vtk_write
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import utility
 
+def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, start_z=0):
+    """
+    make a progress test function
+    Args:
+        end_x (int): number of x columns
+        end_y (int): number of y columns
+        end_z (int): number of z columns
+        steps (int): the number of iterations between reporting
+        start_x (int): the count (zero start) of the first x column
+        start_y (int): the count (zero start) of the first y column
+        start_z (int): the count (zero start) of the first z column
+    Returns:
+        function(int, int, int) =>int or None
+        (int): the total number of iterations
+    """
+    total = (end_x - start_x) * (end_y - start_y) * (end_z - start_z)
+    stage = int(total/steps)
 
-def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
+    def progress_test(current_iteration):
+        """
+        test if the current iteration should be reported for prograss
+        Args:
+            current_iteration (int): the number of the current iteration
+        Returns:
+            if the current iteration should be reported, the iteration , else
+        """
+        if current_iteration%stage == 0:
+            return current_iteration
+
+        return None
+
+    return progress_test, total
+
+def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
     Converts the contents of an mrc file to a tetrohedron array.
     It is called by the fivetets.py script and controls the whole conversion.
@@ -51,6 +83,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
         ffea_out (bool): if true produce ffea input files (tetgen format)
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
+        progress (bool): if true print out progress
     Returns:
         None
     """
@@ -61,12 +94,19 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
         coord_store = cu.UniqueTransformStore()
         connectivities_final = []
         voxel_count = count(0)
+        curent_iteration = count(1)
         frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+        prog_test, total_voxels = make_progress_test(mrc.header.nx, mrc.header.ny, mrc.header.nz)
 
         # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
         for voxel_z in range(0, mrc.header.nz):
             for voxel_y in range(0, mrc.header.ny):
                 for voxel_x in range(0, mrc.header.nx):
+                    if progress:
+                        prog = prog_test(next(curent_iteration))
+                        if prog is not None:
+                            print(f"Processed {prog} out of {total_voxels}.")
+
                     # Threshold the voxels out of the mrc map data
                     if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
                         next(voxel_count)
@@ -99,8 +139,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
 
         write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
-
-def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose):
+def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
     Converts the contents of an mrc file to a tetrohedron array.
     Is called from the five_tets.py script and controls the whole conversion.
@@ -111,11 +150,12 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         ffea_out (bool): if true produce ffea input files (tetgen format)
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
+        progress (bool): if true print out progress
     Returns:
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities, = voxels_to_5_tets_threshold(mrc, threshold)
+        nvoxel, points, tet_connectivities, = voxels_to_5_tets_threshold(mrc, threshold, progress)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
@@ -127,12 +167,13 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
-def voxels_to_5_tets_threshold(mrc, threshold):
+def voxels_to_5_tets_threshold(mrc, threshold, progress):
     """
     converts voxels to tetrohedrons and returns those with average values above a threshold
     Args:
         mrc (mrcfile.mmap): the input file
         threshold (float): the acceptance limit
+        progress (bool): if true print out progress
     Returns:
         (int): the number of voxels transformed
         ([float, float, float] list): the coordinates of the vertices
@@ -140,12 +181,24 @@ def voxels_to_5_tets_threshold(mrc, threshold):
     """
     coord_store = cu.UniqueTransformStore()
     connectivities_final = []
+    curent_iteration = count(1)
     voxel_count = count(0)
     frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+    prog_test, total_voxels = make_progress_test(mrc.header.nx-1,
+                                                 mrc.header.ny-1,
+                                                 mrc.header.nz-1,
+                                                 start_x=1,
+                                                 start_y=1,
+                                                 start_z=1)
 
     for voxel_z in range(1, mrc.header.nz-1):
         for voxel_y in range(1, mrc.header.ny-1):
             for voxel_x in range(1, mrc.header.nx-1):
+                if progress:
+                    prog = prog_test(next(curent_iteration))
+                    if prog is not None:
+                        print(f"Processed {prog} out of {total_voxels}.")
+
                 # find the interpolated values at the vertices
                 cube_vertex_values = make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
 

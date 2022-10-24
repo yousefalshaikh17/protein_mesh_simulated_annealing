@@ -105,6 +105,11 @@ def get_args():
                         action="store_true",
                         help="write verbose output")
 
+    parser.add_argument("-p",
+                        "--progress",
+                        action="store_true",
+                        help="print progress")
+
     return parser.parse_args()
 
 def validate_command_line(args):
@@ -126,7 +131,15 @@ def validate_command_line(args):
             if file.exists():
                 return f"Error: file {file} exists, use option -w to allow overwrite."
 
-        # TODO CHECK FOR FFEA FILES
+        if args.ffea:
+            files = []
+            files.append(args.output.with_suffix(".vtk"))
+            files.append(args.output.with_suffix(".1.ele"))
+            files.append(args.output.with_suffix(".1.face"))
+            files.append(args.output.with_suffix(".1.node"))
+            for file in files:
+                if file.exists():
+                    return f"Error: file {file} exists, use option -w to allow overwrite."
 
     # check that some output has been specified
     if not args.vtk and not args.ffea:
@@ -151,7 +164,8 @@ def main():
                              args.threshold,
                              args.ffea,
                              args.vtk,
-                             args.verbose)
+                             args.verbose,
+                             args.progress)
 
     elif args.method == Method.INTERP:
         convert_mrc_to_5tets_interp(args.input,
@@ -159,7 +173,8 @@ def main():
                                     args.threshold,
                                     args.ffea,
                                     args.vtk,
-                                    args.verbose)
+                                    args.verbose,
+                                    args.progress)
 
 if __name__ == "__main__":
     main()
