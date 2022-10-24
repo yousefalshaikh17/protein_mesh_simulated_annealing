@@ -66,11 +66,66 @@ def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, star
             if the current iteration should be reported, the iteration , else
         """
         if current_iteration%stage == 0:
-            return current_iteration
+            print(f"Completed {current_iteration} out of {total} iterations")
 
-        return None
+    return progress_test
 
-    return progress_test, total
+def voxel_into_5_tets(voxel_x, voxel_y, voxel_z, frac_to_cart, coord_store, connectivities_final):
+    """
+    convert a single voxel into 5 tets
+    Args:
+
+    """
+    coords = []
+    create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
+
+    indices = None
+    if is_odd(voxel_x, voxel_y, voxel_z):
+        indices = odd_cube_tet_indecies()
+    else:
+        indices = even_cube_tet_indices()
+
+        # test the tets and append those that pass
+    for tet in indices:
+        tet_indices = []
+        for index in tet:
+            tet_indices.append(coord_store.add(coords[index]))
+        connectivities_final.append(tet_indices)
+
+def voxels_to_5_tets_plain(mrc, threshold, progress):
+    """
+    converts voxels to tetrohedrons and returns those with average values above a threshold
+    Args:
+        mrc (mrcfile.mmap): the input file
+        threshold (float): the acceptance limit
+        progress (bool): if true print out progress
+    Returns:
+        (int): the number of voxels transformed
+        ([float, float, float] list): the coordinates of the vertices
+        ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
+    """
+    coord_store = cu.UniqueTransformStore()
+    connectivities_final = []
+    voxel_count = count(0)
+    curent_iteration = count(1)
+    frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
+    prog_test = make_progress_test(mrc.header.nx, mrc.header.ny, mrc.header.nz)
+
+    # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
+    for voxel_z in range(0, mrc.header.nz):
+        for voxel_y in range(0, mrc.header.ny):
+            for voxel_x in range(0, mrc.header.nx):
+                if progress:
+                    prog_test(next(curent_iteration))
+
+                # Threshold the voxels out of the mrc map data
+                if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
+                    voxel_into_5_tets(voxel_x, voxel_y, voxel_z, frac_to_cart, coord_store, connectivities_final)
+                    next(voxel_count)
+
+    points = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
+
+    return next(voxel_count), points, connectivities_final
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
@@ -90,45 +145,8 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
     # Reads mrc file into a map which is the fastest way to work with the data and has
     # a header and data section in it.
     with mrcfile.mmap(input_file, mode='r+') as mrc:
+        nvoxel, points, connectivities_final = voxels_to_5_tets_plain(mrc, threshold, progress)
 
-        coord_store = cu.UniqueTransformStore()
-        connectivities_final = []
-        voxel_count = count(0)
-        curent_iteration = count(1)
-        frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-        prog_test, total_voxels = make_progress_test(mrc.header.nx, mrc.header.ny, mrc.header.nz)
-
-        # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
-        for voxel_z in range(0, mrc.header.nz):
-            for voxel_y in range(0, mrc.header.ny):
-                for voxel_x in range(0, mrc.header.nx):
-                    if progress:
-                        prog = prog_test(next(curent_iteration))
-                        if prog is not None:
-                            print(f"Processed {prog} out of {total_voxels}.")
-
-                    # Threshold the voxels out of the mrc map data
-                    if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
-                        next(voxel_count)
-                        coords = []
-                        create_cube_coords(voxel_x, voxel_y, voxel_z, frac_to_cart, coords)
-
-                        indices = None
-                        if is_odd(voxel_x, voxel_y, voxel_z):
-                            indices = odd_cube_tet_indecies()
-                        else:
-                            indices = even_cube_tet_indices()
-
-                         # test the tets and append those that pass
-                        for tet in indices:
-                            tet_indices = []
-                            for index in tet:
-                                tet_indices.append(coord_store.add(coords[index]))
-                            connectivities_final.append(tet_indices)
-
-
-        points = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
-        nvoxel = next(voxel_count)
         if nvoxel < 1:
             print(f"Error: threshold value of {threshold} yielded no voxels", file=sys.stderr)
             sys.exit()
@@ -141,7 +159,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
 
 def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
-    Converts the contents of an mrc file to a tetrohedron array.
+    Converts the contents of a mrc file to a tetrohedron array.
     Is called from the five_tets.py script and controls the whole conversion.
     Args:
         input_file (pathlib.Path): name of input file
@@ -155,7 +173,7 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities, = voxels_to_5_tets_threshold(mrc, threshold, progress)
+        nvoxel, points, tet_connectivities, = voxels_to_5_tets_interp(mrc, threshold, progress)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
@@ -167,7 +185,7 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
 
         write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
-def voxels_to_5_tets_threshold(mrc, threshold, progress):
+def voxels_to_5_tets_interp(mrc, threshold, progress):
     """
     converts voxels to tetrohedrons and returns those with average values above a threshold
     Args:
@@ -184,20 +202,18 @@ def voxels_to_5_tets_threshold(mrc, threshold, progress):
     curent_iteration = count(1)
     voxel_count = count(0)
     frac_to_cart = make_fractional_to_cartesian_conversion_function(mrc)
-    prog_test, total_voxels = make_progress_test(mrc.header.nx-1,
-                                                 mrc.header.ny-1,
-                                                 mrc.header.nz-1,
-                                                 start_x=1,
-                                                 start_y=1,
-                                                 start_z=1)
+    prog_test = make_progress_test(mrc.header.nx-1,
+                                   mrc.header.ny-1,
+                                   mrc.header.nz-1,
+                                   start_x=1,
+                                   start_y=1,
+                                   start_z=1)
 
     for voxel_z in range(1, mrc.header.nz-1):
         for voxel_y in range(1, mrc.header.ny-1):
             for voxel_x in range(1, mrc.header.nx-1):
                 if progress:
-                    prog = prog_test(next(curent_iteration))
-                    if prog is not None:
-                        print(f"Processed {prog} out of {total_voxels}.")
+                    prog_test(next(curent_iteration))
 
                 # find the interpolated values at the vertices
                 cube_vertex_values = make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
