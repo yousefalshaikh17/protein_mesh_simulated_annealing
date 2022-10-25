@@ -108,7 +108,7 @@ def get_args():
     parser.add_argument("-p",
                         "--progress",
                         action="store_true",
-                        help="print progress")
+                        help="print progress during operation (may slow package)")
 
     return parser.parse_args()
 

@@ -52,7 +52,7 @@ def write_ffea_elements(output_file, tet_array, comment=""):
         tet_array ():
         comment (str): any user comment
     """
-    with open(output_file.with_suffix(".1.ele"), "w") as ele:
+    with open(output_file.with_suffix(".1.ele"), "w", encoding="utf-8") as ele:
         ele.write(f"{len(tet_array)} 4 0\n")
         for i, tet in enumerate(tet_array):
             ele.write(f"{i+1} {tet[0]+1} {tet[1]+1} {tet[2]+1} {tet[3]+1}\n")
@@ -69,7 +69,7 @@ def write_ffea_nodes(output_file, points, comment=""):
         points ():
         comment (str): any user comment
     """
-    with open(output_file.with_suffix(".1.node"), "w") as node:
+    with open(output_file.with_suffix(".1.node"), "w", encoding="utf-8") as node:
         node.write(f"{len(points)} 3 0 0\n")
         for i, point in enumerate(points):
             node.write(f"{i+1} {point[0]} {point[1]} {point[2]}\n")
@@ -87,7 +87,7 @@ def write_ffea_faces(output_file, faces, ids, comment=""):
         ids (int []): index of surface point in the surface faces's points array
         comment (str): any user comment
     """
-    with open(output_file.with_suffix(".1.face"), "w") as face_file:
+    with open(output_file.with_suffix(".1.face"), "w", encoding="utf-8") as face_file:
         face_file.write(f"{len(faces)} 1\n")
         for i, face in enumerate(faces):
             face_file.write(
