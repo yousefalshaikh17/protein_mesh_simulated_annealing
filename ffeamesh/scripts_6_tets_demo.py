@@ -31,15 +31,23 @@ import vtk.util.numpy_support
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import vtk_write
 
+class Shift():
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def apply(self, coord):
+        return [coord[0]+self.x, coord[1]+self.y, coord[1]+self.z]
 
 """
-      Vertex Labels:
-         6+----------+7
+      Vertex Indices:
+         7+----------+6
          /|         /|
         / |        / |
       4+----------+5 |
        |  |       |  |         Axes:
-       | 2+-------|--+3        z  y
+       | 3+-------|--+2        z  y
        | /        | /          | /
        |/         |/           |/
       0+----------+1           +----x
@@ -48,14 +56,23 @@ from ffeamesh import vtk_write
 def unit_cube_coords():
     return [[0.0, 0.0, 0.0],
             [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
             [1.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
             [0.0, 0.0, 1.0],
             [1.0, 0.0, 1.0],
-            [0.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0], # cube 0 end
+            [1.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0],
+            [2.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0],
+            [1.0, 0.0, 1.0],
+            [2.0, 0.0, 1.0],
+            [2.0, 1.0, 1.0],
             [1.0, 1.0, 1.0]]
 
-def cube_tet_indices():
+
+def cube_5tet_indices():
     """
     return a list of lists for the constuction of 5 tets from the 8 vertices of an even cube
     Args:
@@ -69,9 +86,30 @@ def cube_tet_indices():
             [0, 2, 3, 7],
             [0, 2, 5, 7]]
 
+def cube_6tet_indices():
+    """
+    return a list of lists for the constuction of 5 tets from the 8 vertices of an even cube
+    Args:
+        None
+    Returns
+        lits(list) : five lists of four vertex indices representing the tets
+    """
+    return [[0, 6, 5, 1],
+            [0, 6, 1, 2],
+            [0, 6, 2, 3],
+            [0, 6, 3, 7],
+            [0, 6, 7, 4],
+            [0, 6, 4, 5],
+            [8, 14, 13, 9],
+            [8, 14, 9, 10],
+            [8, 14, 10, 11],
+            [8, 14, 11, 15],
+            [8, 14, 15, 12],
+            [8, 14, 12, 13]]
+
 def main():
     points_np = np.array(unit_cube_coords())
-    cells_con = vtk_u.make_vtk_tet_connectivity(cube_tet_indices())
+    cells_con = vtk_u.make_vtk_tet_connectivity(cube_6tet_indices())
 
     # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()

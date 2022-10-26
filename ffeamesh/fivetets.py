@@ -277,13 +277,13 @@ def interp_voxel_to_5_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
             connectivities.append(tet_indices)
 
 """
-      Vertex Labels:
-         6+----------+7
+      Vertex Indices:
+         7+----------+6
          /|         /|
         / |        / |
       4+----------+5 |
        |  |       |  |         Axes:
-       | 2+-------|--+3        z  y
+       | 3+-------|--+2        z  y
        | /        | /          | /
        |/         |/           |/
       0+----------+1           +----x
