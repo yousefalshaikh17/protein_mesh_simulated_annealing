@@ -42,8 +42,7 @@ from ffeamesh.coord_utility import Coordinate
 
 def convert_mrc_to_6tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
-    Converts the contents of an mrc file to a tetrohedron array.
-    It is called by the fivetets.py script and controls the whole conversion.
+    Converts the contents of an mrc file to a tetrohedron array (5 tets pre voxel).
     Args:
         input_file (pathlib.Path): name of input file
         output_file (pathlib.Path): name stem for output files
@@ -72,8 +71,7 @@ def convert_mrc_to_6tets(input_file, output_file, threshold, ffea_out, vtk_out, 
 
 def convert_mrc_to_6tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
-    Converts the contents of a mrc file to a tetrohedron array.
-    Is called from the five_tets.py script and controls the whole conversion.
+    Converts the contents of a mrc file to a tetrohedron array (6 pre voxel).
     Args:
         input_file (pathlib.Path): name of input file
         output_file (pathlib.Path): name stem for output files
@@ -86,7 +84,7 @@ def convert_mrc_to_6tets_interp(input_file, output_file, threshold, ffea_out, vt
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities, = voxels_to_5_tets_interp(mrc, threshold, progress)
+        nvoxel, points, tet_connectivities, = voxels_to_6_tets_interp(mrc, threshold, progress)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
@@ -204,9 +202,9 @@ def voxels_to_6_tets_plain(mrc, threshold, progress):
 
     return next(voxel_count), points, connectivities_final
 
-def voxels_to_5_tets_interp(mrc, threshold, progress):
+def voxels_to_6_tets_interp(mrc, threshold, progress):
     """
-    converts voxels to tetrohedrons and returns those with average values above a threshold
+    converts voxels to 6 tetrohedrons and returns those with average values above a threshold
     Args:
         mrc (mrcfile.mmap): the input file
         threshold (float): the acceptance limit
@@ -242,7 +240,7 @@ def voxels_to_5_tets_interp(mrc, threshold, progress):
                     # count the number of voxels
                     next(voxel_count)
 
-                    interp_voxel_to_5_tets(Coordinate(voxel_x, voxel_y, voxel_z),
+                    interp_voxel_to_6_tets(Coordinate(voxel_x, voxel_y, voxel_z),
                                            frac_to_cart,
                                            threshold,
                                            cube_vertex_values,
@@ -252,9 +250,9 @@ def voxels_to_5_tets_interp(mrc, threshold, progress):
     tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
     return next(voxel_count), tmp, connectivities_final
 
-def interp_voxel_to_5_tets(voxel, frac_to_cart, threshold, cube_vertex_values, coord_store, connectivities):
+def interp_voxel_to_6_tets(voxel, frac_to_cart, threshold, cube_vertex_values, coord_store, connectivities):
     """
-    convert a voxel to 5 tets thresholding the tets by interpolating vertex values
+    convert a voxel to 6 tets thresholding the tets by interpolating vertex values
     Args:
         voxel (Coordinate): the array indices of the voxel
         frac_to_cart (fractional => cartesian): coordinates conversion function
@@ -268,15 +266,8 @@ def interp_voxel_to_5_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
     # make the matching coordinates
     coords = create_cube_coords(voxel, frac_to_cart)
 
-    # connectivity of 5 tets in single voxel
-    indices = None
-    if is_odd(voxel.x, voxel.y, voxel.z):
-        indices = odd_cube_tet_indices()
-    else:
-        indices = even_cube_tet_indices()
-
     # test the tets and append those that pass
-    for tet in indices:
+    for tet in cube_6_tet_indices():
         average = 0.0
         for index in tet:
             average += cube_vertex_values[index]

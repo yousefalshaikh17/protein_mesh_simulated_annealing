@@ -30,7 +30,7 @@ import argparse
 import pathlib
 from enum import Enum
 
-from ffeamesh.sixtets import convert_mrc_to_6tets
+from ffeamesh.sixtets import (convert_mrc_to_6tets, convert_mrc_to_6tets_interp)
 
 class Method(Enum):
     """
@@ -48,7 +48,6 @@ def get_args():
     Returns:
         (argparse.namespace)
     """
-
     parser = argparse.ArgumentParser("""process MRC files and produces a regular
         tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
         This is written out in the tetgen .ele, .face, and .node file format for
@@ -158,7 +157,6 @@ def main():
         return
 
     if args.method == Method.PLAIN:
-        print("Plain")
         convert_mrc_to_6tets(args.input,
                              args.output,
                              args.threshold,
@@ -168,7 +166,14 @@ def main():
                              args.progress)
 
     elif args.method == Method.INTERP:
-        print("Interpolated")
+        convert_mrc_to_6tets_interp(args.input,
+                                    args.output,
+                                    args.threshold,
+                                    args.ffea,
+                                    args.vtk,
+                                    args.verbose,
+                                    args.progress)
+
 
 if __name__ == "__main__":
     main()
