@@ -276,6 +276,19 @@ def interp_voxel_to_5_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
                 tet_indices.append(coord_store.add(coords[index]))
             connectivities.append(tet_indices)
 
+"""
+      Vertex Labels:
+         6+----------+7
+         /|         /|
+        / |        / |
+      4+----------+5 |
+       |  |       |  |         Axes:
+       | 2+-------|--+3        z  y
+       | /        | /          | /
+       |/         |/           |/
+      0+----------+1           +----x
+"""
+
 def even_cube_tet_indices():
     """
     return a list of lists for the constuction of 5 tets from the 8 vertices of an even cube
