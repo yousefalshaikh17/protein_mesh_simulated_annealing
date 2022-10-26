@@ -30,6 +30,8 @@ import argparse
 import pathlib
 from enum import Enum
 
+from ffeamesh.sixtets import convert_mrc_to_6tets
+
 class Method(Enum):
     """
     enumeration of possible methods of converting
@@ -157,6 +159,13 @@ def main():
 
     if args.method == Method.PLAIN:
         print("Plain")
+        convert_mrc_to_6tets(args.input,
+                             args.output,
+                             args.threshold,
+                             args.ffea,
+                             args.vtk,
+                             args.verbose,
+                             args.progress)
 
     elif args.method == Method.INTERP:
         print("Interpolated")

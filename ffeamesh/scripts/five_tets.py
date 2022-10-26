@@ -41,7 +41,6 @@ class Method(Enum):
     ## interpolated decomp into 5 tets
     INTERP = 'interp'
 
-
 def get_args():
     """
     get the command line arguments
