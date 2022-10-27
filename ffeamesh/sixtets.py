@@ -135,21 +135,6 @@ def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, star
 
     return progress_test
 
-def cube_6_tet_indices():
-    """
-    return a list of lists for the constuction of 6 tets from the 8 vertices a cube
-    Args:
-        None
-    Returns
-        lits(list) : five lists of four vertex indices representing the tets
-    """
-    return [[0, 6, 5, 1],
-            [0, 6, 1, 2],
-            [0, 6, 2, 3],
-            [0, 6, 3, 7],
-            [0, 6, 7, 4],
-            [0, 6, 4, 5]]
-
 def plain_voxel_to_6_tets(voxel, frac_to_cart, coord_store, connectivities):
     """
     Convert a single voxel into 6 tets.
@@ -163,7 +148,7 @@ def plain_voxel_to_6_tets(voxel, frac_to_cart, coord_store, connectivities):
     """
     coords =v2t.create_cube_coords(voxel, frac_to_cart)
 
-    indices = cube_6_tet_indices()
+    indices = v2t.cube_6_tet_indices()
 
         # test the tets and append those that pass
     for tet in indices:
@@ -275,7 +260,7 @@ def interp_voxel_to_6_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
     coords = v2t.create_cube_coords(voxel, frac_to_cart)
 
     # test the tets and append those that pass
-    for tet in cube_6_tet_indices():
+    for tet in v2t.cube_6_tet_indices():
         average = 0.0
         for index in tet:
             average += cube_vertex_values[index]

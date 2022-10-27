@@ -84,6 +84,115 @@ def make_fractional_to_cartesian_conversion_function(mrc):
 
     return fractional_to_cartesian_coordinates
 
+def cube_6_tet_indices():
+    """
+    return a list of lists for the constuction of 6 tets from the 8 vertices a cube
+    Args:
+        None
+    Returns
+        lits(list) : five lists of four vertex indices representing the tets
+    """
+    return [[0, 6, 5, 1],
+            [0, 6, 1, 2],
+            [0, 6, 2, 3],
+            [0, 6, 3, 7],
+            [0, 6, 7, 4],
+            [0, 6, 4, 5]]
+
+def even_cube_tet_indices():
+    """
+    return a list of lists for the constuction of 5 tets from the 8 vertices of an even cube
+    Args:
+        None
+    Returns
+        lits(list) : five lists of four vertex indices representing the tets
+    """
+    return [[0, 4, 5, 7],
+            [0, 1, 2, 5],
+            [2, 5, 6, 7],
+            [0, 2, 3, 7],
+            [0, 2, 5, 7]]
+
+def even_cube_tets(cube):
+    """
+    convert a list of the eight vertices of a an even cube
+    into a list of lists representing tets
+    Args:
+        cube (list): the eight vertices of a cube
+    Returns
+        lits(list) : five lists of four vertices representing the tets
+    """
+    indices_array = even_cube_tet_indices()
+    tet_list = []
+    for indices in indices_array:
+        tet_list.append(np.array([cube[indices[0]],
+                                  cube[indices[1]],
+                                  cube[indices[2]],
+                                  cube[indices[3]]]))
+
+    return tet_list
+
+def odd_cube_tet_indices():
+    """
+    return a list of lists for the constuction of 5 tets from the 8 vertices of an odd cube
+    Args:
+        None
+    Returns
+        lits(list) : five lists of four vertex indices representing the tets
+    """
+    return [[0, 1, 3, 4],
+            [1, 4, 5, 6],
+            [1, 2, 3, 6],
+            [3, 4, 6, 7],
+            [1, 3, 4, 6]]
+
+def odd_cube_tets(cube):
+    """
+    convert a list of the eight vertices of a an odd cube
+    into a list of lists representing tets
+    Args:
+        cube (list): the eight vertices of a cube
+    Returns
+        lits(list) : five lists of four vertices representing the tets
+    """
+    indices_array = odd_cube_tet_indices()
+    tet_list = []
+    for indices in indices_array:
+        tet_list.append(np.array([cube[indices[0]],
+                                  cube[indices[1]],
+                                  cube[indices[2]],
+                                  cube[indices[3]]]))
+
+    return tet_list
+
+def is_odd(x_index, y_index, z_index):
+    '''
+    Logic to decide if a voxel is an odd or and even.
+    Args:
+        x_index (int) Index for x value in values array.
+        y_index (int) Index for y value in values array.
+        z_index (int) Index for z value in values array.
+    Returns:
+        (bool)  True if voxel in an odd position, else odd
+    '''
+    flag = None
+    y_parity = (y_index % 2 == 0)
+    x_parity = (x_index % 2 == 0)
+
+    # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
+    if z_index % 2 == 0:
+        if y_parity:
+            flag = not x_parity
+        else:
+            flag = x_parity
+    else:
+        if y_parity:
+            flag = x_parity
+        else:
+            flag = not x_parity
+
+    return flag
+
 def create_cube_coords(voxel, frac_to_cart):
     '''
     Caluculates the next 8 coords for the next volxel that has been
