@@ -25,7 +25,7 @@ Prerequisites {#prerequisites}
    * [Python (>= 3.8)](https://www.python.org/).
      Required for running the tool scripts.
 
-   * [NumPy](https://numpy.org/).
+   * [NumPy (<1.23.0)](https://numpy.org/).
      Required Python library.
 
    * [SciPy](https://scipy.org/).
@@ -37,6 +37,41 @@ Prerequisites {#prerequisites}
    * [mrcfile for Python](https://pypi.org/project/mrcfile/).
      Required Python library.
 
+   * [doxygen](https://pypi.org/project/doxypypy/)
+     Required for building documentation
+
+   * [pylint](https://pypi.org/project/pylint/)
+     Required for development
+
+Installation {#installation}
+============
+Get a copy of the latest version from bitbucket by running
+
+`git clone https://bitbucket.org/FFEA/ffea-meshing.git/`
+
+or, if you alreay have cloned
+
+`git pull`
+
+If you have an old conda environment remove it.
+
+`conda env remove --name ffea-mesh`
+
+Create a new environment
+
+`conda env create -f .\environment_ffea-mesh.yml`
+
+Activate the environment
+
+`conda activate ffea-mesh`
+
+Install the package to the environment
+
+`pip install --editable .`
+
+Make the documentation
+
+`doxygen`
 
 How to Use {#how}
 =============
