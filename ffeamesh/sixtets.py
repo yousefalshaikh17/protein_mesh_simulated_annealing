@@ -22,8 +22,7 @@
 
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
-"""
-"""
+
       Vertex Indices:
          7+----------+6
          /|         /|
@@ -229,7 +228,7 @@ def voxels_to_6_tets_interp(mrc, threshold, progress):
                 cube_vertex_values = v2t.make_vertex_values(voxel_x, voxel_y, voxel_z, mrc)
 
                 # test is at least one is over the the threshold
-                if sum([np.count_nonzero(x>threshold) for x in cube_vertex_values]) > 0:
+                if sum(np.count_nonzero(x>threshold) for x in cube_vertex_values) > 0:
                     # count the number of voxels
                     next(voxel_count)
 
@@ -270,6 +269,3 @@ def interp_voxel_to_6_tets(voxel, frac_to_cart, threshold, cube_vertex_values, c
             for index in tet:
                 tet_indices.append(coord_store.add(coords[index]))
             connectivities.append(tet_indices)
-
-
-
