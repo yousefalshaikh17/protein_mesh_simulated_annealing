@@ -40,16 +40,10 @@
 # pylint: disable = import-error
 
 import sys
-import datetime
-import getpass
 from itertools import count
 import numpy as np
 import mrcfile
-import vtk.util.numpy_support
 import ffeamesh.coord_utility as cu
-from ffeamesh.ffea_write import write_ffea_output
-from ffeamesh import vtk_write
-import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import utility
 from ffeamesh.coord_utility import Coordinate
 import ffeamesh.voxels2tets_utility as v2t
@@ -218,7 +212,7 @@ def voxels_to_6_tets_plain(mrc, threshold, progress):
 
 def voxels_to_6_tets_interp(mrc, threshold, progress):
     """
-    Converts voxels intto 6 tetrohedrons and returns only the tetrahedrons above a threshold.
+    Converts voxels into 6 tetrohedrons and returns only the tetrahedrons above a threshold.
     Args:
         mrc (mrcfile.mmap): the input file
         threshold (float): the acceptance limit
