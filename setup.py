@@ -48,8 +48,13 @@ setup(
         'mrcfile'
     ],
     scripts=['ffeamesh/scripts/five_tets.py',
+             'ffeamesh/scripts/six_tets.py',
+             'ffeamesh/scripts/six_tets_demo.py',
              'ffeamesh/scripts/zoom.py',
              'ffeamesh/scripts/fft_smooth.py',
              'ffeamesh/scripts/make_test_mrcfile.py',
              'ffeamesh/scripts/mrc_threshold.py',
+             'ffeamesh/scripts/mrc_chop.py',
+             'ffeamesh/scripts/mrc_header_info.py',
+             'ffeamesh/scripts/mrc_image_stats.py',
              'tests/tetvolume.py'])

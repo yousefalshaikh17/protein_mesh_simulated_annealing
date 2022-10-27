@@ -10,6 +10,8 @@ five_tets.py
 five_tets.py --help
 pip uninstall ffeamesh
 conda deactivate ffea-mesh
+conda env remove -n ffea-mesh
+
 
 The original five_tets will cease to write output for large mrc files,
 3616864 bytes workes 8554624 fails
