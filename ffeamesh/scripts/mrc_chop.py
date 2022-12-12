@@ -27,16 +27,8 @@
 
 import argparse
 import pathlib
-from enum import Enum
+import numpy as np
 import mrcfile
-
-class Algorithm(Enum):
-    """
-    enumeration of possible kernels
-    """
-    ELLIPSOID = 'ellipsoid'
-    GAUSSIAN = 'gaussian'
-    UNIFORM = 'uniform'
 
 def get_args():
     """
@@ -94,8 +86,12 @@ def get_args():
                         default=100,
                         help="end of x section")
 
-    return parser.parse_args()
+    parser.add_argument("-p",
+                        "--pad",
+                        action='store_true',
+                        help="add zero padding one voxel thick around selection")
 
+    return parser.parse_args()
 
 def output_mrcfile(data, out_file, original_mrc):
     """
@@ -118,6 +114,9 @@ def chop_image(mrc, args):
         args (argpars.namespace): the command line arguments
     """
     data = mrc.data[args.zstart:args.zend, args.ystart:args.yend, args.xstart:args.xend]
+    print(f"{type(data)}, {data.shape}")
+    if args.pad:
+        data = np.pad(data, 1)
     output_mrcfile(data, args.output, mrc)
 
 def main():
