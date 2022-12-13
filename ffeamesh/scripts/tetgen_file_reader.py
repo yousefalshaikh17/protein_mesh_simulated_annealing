@@ -27,6 +27,7 @@ import pathlib
 import collections
 import argparse
 import sys
+import operator
 
 ## data structure for metadata line of tetgen .node file
 ## number of points, dimension, number of attributes and boundary markers
@@ -122,16 +123,7 @@ def read_node_file(input_file):
             er_m = f"File {input_file} should have {req} points, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, points
-
-def print_data(meta_data, data):
-    """
-    print the node data
-    """
-    print(meta_data)
-
-    for item in data:
-        print(item)
+    return meta_data, sorted(points, key=operator.attrgetter('index'))
 
 def read_face_file(input_file):
     """
@@ -161,7 +153,7 @@ def read_face_file(input_file):
             er_m = f"File {input_file} should have {req} points, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, faces
+    return meta_data, sorted(faces, key=operator.attrgetter('index'))
 
 def read_tet_file(input_file):
     """
@@ -195,11 +187,11 @@ def read_tet_file(input_file):
                                          None))
             else:
                 tets.append(Tetrahedron4(int(row[0]),
-                                             int(row[1]),
-                                             int(row[2]),
-                                             int(row[3]),
-                                             int(row[4],
-                                             int(row[5]))))
+                                         int(row[1]),
+                                         int(row[2]),
+                                         int(row[3]),
+                                         int(row[4],
+                                         int(row[5]))))
 
         if len(tets) != meta_data.tets:
             req = meta_data.tets
@@ -207,7 +199,26 @@ def read_tet_file(input_file):
             er_m = f"File {input_file} should have {req} points, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, tets
+    return meta_data, sorted(tets, key=operator.attrgetter('index'))
+
+def print_data(root_name, nodes_data, faces_data, tets_data):
+    """
+    print the node data
+    """
+    out_s = f"System {root_name}: "
+    out_s += f"{nodes_data.points} vertices, "
+    out_s += f"{tets_data.tets} tetrahedra, "
+    out_s += f"{faces_data.faces} faces"
+    print(out_s)
+
+def to_stl(name_root, nodes, faces):
+    """
+    write surface to STL file
+    Args:
+        name_root (pathlib.Path): root name of system
+        nodes ([NodePoint])
+        faces ([Face])
+    """
 
 def main():
     """
@@ -231,14 +242,12 @@ def main():
         return
 
     try:
-        node_data, node_points = read_node_file(node_file)
-        print_data(node_data, node_points)
-
-        face_data, faces = read_face_file(face_file)
-        print_data(face_data, faces)
-
+        nodes_data, node_points = read_node_file(node_file)
+        faces_data, faces = read_face_file(face_file)
         tets_data, tets = read_tet_file(tets_file)
-        print_data(tets_data, tets)
+
+        print_data(args.root_name, nodes_data, faces_data, tets_data)
+
     except ValueError as error:
         print(error, file=sys.stderr)
         return
