@@ -30,10 +30,24 @@ import sys
 
 ## data structure for metadata line of tetgen .node file
 ## number of points, dimension, number of attributes and boundary markers
-NodeMeatadata = collections.namedtuple("NodeMetadata", "points, dimension, attributes, bms")
+NodeMetaData = collections.namedtuple("NodeMetaData", "points, dimension, attributes, bms")
 
 ## 3D point with index
 NodePoint = collections.namedtuple("NodePoint", "index, x, y, z")
+
+## data structure for metadata line of tetgen .node file
+## number of faces and boundary markers
+FaceMetaData = collections.namedtuple("FaceMetaData", "faces, bm")
+
+## a face
+Face = collections.namedtuple("Face", "index, vert0, vert1, vert2, bm")
+
+## data structure for metadata line of tetgen .node file
+## number of tets, number of nodes pre tet and region attribute
+TetMetaData = collections.namedtuple("TetMetaData", "tets, nodes, ra")
+
+## a face
+Tetrahedron4 = collections.namedtuple("Tetrahedron4", "index, vert0, vert1, vert2, vert3, ra")
 
 def make_decomment(comment):
     """
@@ -69,11 +83,11 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-n",
-                        "--node_file",
+    parser.add_argument("-r",
+                        "--root_name",
                         type=pathlib.Path,
                         required=True,
-                        help="node input file")
+                        help="root name of .node .face & .ele files")
 
     return parser.parse_args()
 
@@ -83,7 +97,7 @@ def read_node_file(input_file):
     Args:
         input_file (pathlib.Path): source
     Return
-        (NodeMeatadata): the file's metadata
+        (NodeMetaData): the file's metadata
         ([Point]): the points
     Throws:
         ValueError if problem
@@ -93,7 +107,7 @@ def read_node_file(input_file):
     with input_file.open('r', newline='') as file:
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
-        meta_data = NodeMeatadata(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
+        meta_data = NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
 
         if meta_data.dimension != 3:
             raise ValueError(f"File {input_file} is not 3D.")
@@ -110,27 +124,121 @@ def read_node_file(input_file):
 
     return meta_data, points
 
-def print_node_data(meta_data, points):
+def print_data(meta_data, data):
     """
     print the node data
     """
     print(meta_data)
 
-    for point in points:
-        print(point)
+    for item in data:
+        print(item)
+
+def read_face_file(input_file):
+    """
+    read a tetgen faces file
+    Args:
+        input_file (pathlib.Path): source
+    Return
+        (FaceMetaData): the file's metadata
+        ([Face]): the faces
+    Throws:
+        ValueError if problem
+    """
+    decomment = make_decomment("#")
+
+    with input_file.open('r', newline='') as file:
+        reader = csv.reader(decomment(file), delimiter=' ')
+        row = next(reader)
+        meta_data = FaceMetaData(int(row[0]), int(row[1]))
+
+        faces = []
+        for row in reader:
+            faces.append(Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4])))
+
+        if len(faces) != meta_data.faces:
+            req = meta_data.faces
+            act = len(faces)
+            er_m = f"File {input_file} should have {req} points, but {act} were found!"
+            raise ValueError(er_m)
+
+    return meta_data, faces
+
+def read_tet_file(input_file):
+    """
+    read a tetgen ele file
+    Args:
+        input_file (pathlib.Path): source
+    Return
+        (TetMetaData): the file's metadata
+        ([Tetrahedron4]): the tets
+    Throws:
+        ValueError if problem
+    """
+    decomment = make_decomment("#")
+
+    with input_file.open('r', newline='') as file:
+        reader = csv.reader(decomment(file), delimiter=' ')
+        row = next(reader)
+        meta_data = TetMetaData(int(row[0]), int(row[1]), int(row[2]))
+
+        if meta_data.nodes != 4:
+            raise ValueError("This reader can only handle four nodes per tetrahedron.")
+
+        tets = []
+        for row in reader:
+            if meta_data.ra == 0:
+                tets.append(Tetrahedron4(int(row[0]),
+                                         int(row[1]),
+                                         int(row[2]),
+                                         int(row[3]),
+                                         int(row[4]),
+                                         None))
+            else:
+                tets.append(Tetrahedron4(int(row[0]),
+                                             int(row[1]),
+                                             int(row[2]),
+                                             int(row[3]),
+                                             int(row[4],
+                                             int(row[5]))))
+
+        if len(tets) != meta_data.tets:
+            req = meta_data.tets
+            act = len(tets)
+            er_m = f"File {input_file} should have {req} points, but {act} were found!"
+            raise ValueError(er_m)
+
+    return meta_data, tets
 
 def main():
     """
     run the program
     """
     args = get_args()
-    if not args.node_file.exists():
-        print(f"File {args.node_filet} doesn't exist", file=sys.stderr)
+    node_file = args.root_name.with_suffix(".1.node")
+    face_file = args.root_name.with_suffix(".1.face")
+    tets_file = args.root_name.with_suffix(".1.ele")
+
+    if not node_file.exists():
+        print(f"File {node_file} doesn't exist", file=sys.stderr)
+        return
+
+    if not face_file.exists():
+        print(f"File {face_file} doesn't exist", file=sys.stderr)
+        return
+
+    if not tets_file.exists():
+        print(f"File {tets_file} doesn't exist", file=sys.stderr)
         return
 
     try:
-        node_data, node_points = read_node_file(args.node_file)
-        print_node_data(node_data, node_points)
+        node_data, node_points = read_node_file(node_file)
+        print_data(node_data, node_points)
+
+        face_data, faces = read_face_file(face_file)
+        print_data(face_data, faces)
+
+        tets_data, tets = read_tet_file(tets_file)
+        print_data(tets_data, tets)
     except ValueError as error:
         print(error, file=sys.stderr)
         return
