@@ -219,6 +219,7 @@ def to_stl(name_root, nodes, faces):
         nodes ([NodePoint])
         faces ([Face])
     """
+    print(f"to_stl: {name_root}, {len(faces)} faces on {len(nodes)} nodes")
 
 def main():
     """
@@ -243,8 +244,8 @@ def main():
 
     try:
         nodes_data, node_points = read_node_file(node_file)
-        faces_data, faces = read_face_file(face_file)
-        tets_data, tets = read_tet_file(tets_file)
+        faces_data, faces       = read_face_file(face_file)
+        tets_data, tets         = read_tet_file(tets_file)
 
         print_data(args.root_name, nodes_data, faces_data, tets_data)
 
