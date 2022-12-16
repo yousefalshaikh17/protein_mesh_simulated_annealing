@@ -28,9 +28,8 @@
 import argparse
 import pathlib
 import mrcfile
-from collections import namedtuple
 
-DVector = namedtuple("DVector", "dx, dy, dz")
+from ffeamesh.utility import voxel_size
 
 def get_args():
     """
@@ -47,19 +46,6 @@ def get_args():
                         help="input file")
 
     return parser.parse_args()
-
-def voxel_size(mrc):
-    """
-    cacluate the voxel size
-    Args:
-        mrc (mrcfile): source data
-    Returns
-        DVector
-    """
-    delta_x = mrc.header.cella.x/mrc.header.mx
-    delta_y = mrc.header.cella.y/mrc.header.my
-    delta_z = mrc.header.cella.z/mrc.header.mz
-    return DVector(delta_x, delta_y, delta_z)
 
 def main():
     """

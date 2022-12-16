@@ -27,6 +27,7 @@
 # pylint: disable = import-error
 
 import numpy as np
+from collections import namedtuple
 
 def tet_volume(coords):
     """
@@ -102,3 +103,19 @@ def print_voxel_stats(points, tet_connectities):
 
     for vol, count in vol_histo.bin_counts.items():
         print(f"Volume {vol}: {count} tets")
+
+## storage for a voxel
+DVector = namedtuple("DVector", "dx, dy, dz")
+
+def voxel_size(mrc):
+    """
+    cacluate the voxel size
+    Args:
+        mrc (mrcfile): source data
+    Returns
+        DVector
+    """
+    delta_x = mrc.header.cella.x/mrc.header.mx
+    delta_y = mrc.header.cella.y/mrc.header.my
+    delta_z = mrc.header.cella.z/mrc.header.mz
+    return DVector(delta_x, delta_y, delta_z)
