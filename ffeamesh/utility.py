@@ -119,3 +119,18 @@ def voxel_size(mrc):
     delta_y = mrc.header.cella.y/mrc.header.my
     delta_z = mrc.header.cella.z/mrc.header.mz
     return DVector(delta_x, delta_y, delta_z)
+
+def verbose_output(mrc, points, tet_connectivities, nvoxel):
+    """
+    print description of the output
+    Args:
+        mrc (mrcfile): source file
+        points [float, float, float] list): the coordinates of the vertices
+        tet_connectivities ([int, int, int int] list): tets map to vertices
+        nvoxel (int): the number of voxels transformed
+    """
+    print(f"Number of voxels over threshold {nvoxel}")
+    v_size = voxel_size(mrc)
+    vol = v_size.dx * v_size.dx * v_size.dx
+    print(f"Voxel size ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
+    print_voxel_stats(points, tet_connectivities)

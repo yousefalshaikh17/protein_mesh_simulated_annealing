@@ -44,7 +44,6 @@ import numpy as np
 import mrcfile
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
-from ffeamesh.coord_utility import Coordinate
 import ffeamesh.voxels2tets_utility as v2t
 
 def convert_mrc_to_6tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
@@ -71,8 +70,7 @@ def convert_mrc_to_6tets(input_file, output_file, threshold, ffea_out, vtk_out, 
             sys.exit()
 
         if verbose:
-            print(f"number of voxels over threshold {nvoxel}")
-            utility.print_voxel_stats(points, connectivities_final)
+            utility.verbose_output(mrc, points, connectivities_final, nvoxel)
 
         v2t.write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
@@ -98,10 +96,9 @@ def convert_mrc_to_6tets_interp(input_file, output_file, threshold, ffea_out, vt
             sys.exit()
 
         if verbose:
-            print(f"number of voxels over threshold {nvoxel}")
-            utility.print_voxel_stats(points, tet_connectivities)
-
+            utility.verbose_output(mrc, points, tet_connectivities, nvoxel)
         v2t.write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
+
 
 def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, start_z=0):
     """
@@ -184,7 +181,7 @@ def voxels_to_6_tets_plain(mrc, threshold, progress):
 
                 # Threshold the voxels out of the mrc map data
                 if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
-                    plain_voxel_to_6_tets(Coordinate(voxel_x, voxel_y, voxel_z),
+                    plain_voxel_to_6_tets(cu.Coordinate(voxel_x, voxel_y, voxel_z),
                                           frac_to_cart,
                                           coord_store,
                                           connectivities_final)
@@ -232,7 +229,7 @@ def voxels_to_6_tets_interp(mrc, threshold, progress):
                     # count the number of voxels
                     next(voxel_count)
 
-                    interp_voxel_to_6_tets(Coordinate(voxel_x, voxel_y, voxel_z),
+                    interp_voxel_to_6_tets(cu.Coordinate(voxel_x, voxel_y, voxel_z),
                                            frac_to_cart,
                                            threshold,
                                            cube_vertex_values,

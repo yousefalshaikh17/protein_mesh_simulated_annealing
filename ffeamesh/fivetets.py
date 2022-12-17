@@ -44,7 +44,6 @@ import numpy as np
 import mrcfile
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
-from ffeamesh.coord_utility import Coordinate
 import ffeamesh.voxels2tets_utility as v2t
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
@@ -71,8 +70,7 @@ def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, 
             sys.exit()
 
         if verbose:
-            print(f"number of voxels over threshold {nvoxel}")
-            utility.print_voxel_stats(points, connectivities_final)
+            utility.verbose_output(mrc, points, connectivities_final, nvoxel)
 
         v2t.write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
@@ -91,15 +89,14 @@ def convert_mrc_to_5tets_interp(input_file, output_file, threshold, ffea_out, vt
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities, = voxels_to_5_tets_interp(mrc, threshold, progress)
+        nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, threshold, progress)
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
 
         if verbose:
-            print(f"number of voxels over threshold {nvoxel}")
-            utility.print_voxel_stats(points, tet_connectivities)
+            utility.verbose_output(mrc, points, tet_connectivities, nvoxel)
 
         v2t.write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
 
@@ -138,7 +135,7 @@ def plain_voxel_to_5_tets(voxel, frac_to_cart, coord_store, connectivities):
     """
     convert a single voxel into 5 tets
     Args:
-        voxel (Coordinage): array indices of voxel
+        voxel (Coordinate): array indices of voxel
         frac_to_cart (function fractional => cartesian): coordinages transform
         coord_store (CoordTransform, []): list for coordinates
         connectivities ([[int, int, int int]]): tet connectivities
@@ -188,7 +185,7 @@ def voxels_to_5_tets_plain(mrc, threshold, progress):
 
                 # Threshold the voxels out of the mrc map data
                 if mrc.data[voxel_z, voxel_y, voxel_x] > threshold:
-                    plain_voxel_to_5_tets(Coordinate(voxel_x, voxel_y, voxel_z),
+                    plain_voxel_to_5_tets(cu.Coordinate(voxel_x, voxel_y, voxel_z),
                                           frac_to_cart,
                                           coord_store,
                                           connectivities_final)
@@ -236,7 +233,7 @@ def voxels_to_5_tets_interp(mrc, threshold, progress):
                     # count the number of voxels
                     next(voxel_count)
 
-                    interp_voxel_to_5_tets(Coordinate(voxel_x, voxel_y, voxel_z),
+                    interp_voxel_to_5_tets(cu.Coordinate(voxel_x, voxel_y, voxel_z),
                                            frac_to_cart,
                                            threshold,
                                            cube_vertex_values,
