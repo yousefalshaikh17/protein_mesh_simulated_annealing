@@ -34,7 +34,18 @@ import operator
 NodeMetaData = collections.namedtuple("NodeMetaData", "points, dimension, attributes, bms")
 
 ## 3D point with index
-NodePoint = collections.namedtuple("NodePoint", "index, x, y, z")
+_NodePoint = collections.namedtuple("_NodePoint", "index, x, y, z")
+
+class NodePoint(_NodePoint):
+    def to_stl(self):
+        return f"{round(self.x, 4)}, {round(self.y, 4)}, {round(self.z, 4)}"
+
+    def dot(self, other):
+        return self.x*other.x + self.y*other.y + self.z*other.z
+
+    def cross(self, other):
+        # TODO
+        return 0.0, 0.0, 0.0
 
 ## data structure for metadata line of tetgen .node file
 ## number of faces and boundary markers
@@ -76,22 +87,6 @@ def make_decomment(comment):
 
     return decomment
 
-def get_args():
-    """
-    get command line arguments
-    Returns
-        (argparse.namespace)
-    """
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("-r",
-                        "--root_name",
-                        type=pathlib.Path,
-                        required=True,
-                        help="root name of .node .face & .ele files")
-
-    return parser.parse_args()
-
 def read_node_file(input_file):
     """
     read a tetgen nodes file
@@ -113,9 +108,10 @@ def read_node_file(input_file):
         if meta_data.dimension != 3:
             raise ValueError(f"File {input_file} is not 3D.")
 
-        points = []
+        points = {}
         for row in reader:
-            points.append(NodePoint(int(row[0]), float(row[1]),  float(row[2]), float(row[3]),))
+            index = int(row[0])
+            points[index] = NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
 
         if len(points) != meta_data.points:
             req = meta_data.points
@@ -123,7 +119,7 @@ def read_node_file(input_file):
             er_m = f"File {input_file} should have {req} points, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, sorted(points, key=operator.attrgetter('index'))
+    return meta_data, points
 
 def read_face_file(input_file):
     """
@@ -201,6 +197,28 @@ def read_tet_file(input_file):
 
     return meta_data, sorted(tets, key=operator.attrgetter('index'))
 
+def write_stl(nodes_data, nodes, faces_data, faces, stl_name):
+    """
+    write surface to STL file
+    Args:
+        name_root (pathlib.Path): root name of system
+        nodes ([NodePoint])
+        faces ([Face])
+    """
+    if stl_name.suffix != '.stl':
+        stl_name = pathlib.Path(str(stl_name)+".stl")
+
+    print(f"to_stl: {stl_name}, {len(faces)} faces on {len(nodes)} nodes")
+
+    for face in faces:
+        print(face.vert0, face.vert1, face.vert2)
+        print(face.vert0, ": ", nodes[face.vert0].to_stl(), " || ",
+              face.vert1, ": ", nodes[face.vert1].to_stl(), " || ",
+              face.vert2, ": ", nodes[face.vert2].to_stl())
+
+#########################################################################
+#########################################################################
+
 def print_data(root_name, nodes_data, faces_data, tets_data):
     """
     print the node data
@@ -211,15 +229,46 @@ def print_data(root_name, nodes_data, faces_data, tets_data):
     out_s += f"{faces_data.faces} faces"
     print(out_s)
 
-def to_stl(name_root, nodes, faces):
+def get_args():
     """
-    write surface to STL file
-    Args:
-        name_root (pathlib.Path): root name of system
-        nodes ([NodePoint])
-        faces ([Face])
+    get command line arguments
+    Returns
+        (argparse.namespace)
     """
-    print(f"to_stl: {name_root}, {len(faces)} faces on {len(nodes)} nodes")
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-r",
+                        "--root_name",
+                        type=pathlib.Path,
+                        required=True,
+                        help="root name of .node .face & .ele files")
+
+    parser.add_argument("-s",
+                        "--stl_name",
+                        type=pathlib.Path,
+                        required=False,
+                        help="file for stl outut if required")
+
+    return parser.parse_args()
+
+def process_files(node_file, face_file, tets_file, args):
+    """
+    process the three files
+    """
+    try:
+        nodes_data, node_points = read_node_file(node_file)
+        faces_data, faces       = read_face_file(face_file)
+        tets_data, tets         = read_tet_file(tets_file)
+
+        print_data(args.root_name, nodes_data, faces_data, tets_data)
+
+        if args.stl_name is not None:
+            write_stl(nodes_data, node_points, faces_data, faces, args.stl_name)
+
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return
+
 
 def main():
     """
@@ -242,16 +291,7 @@ def main():
         print(f"File {tets_file} doesn't exist", file=sys.stderr)
         return
 
-    try:
-        nodes_data, node_points = read_node_file(node_file)
-        faces_data, faces       = read_face_file(face_file)
-        tets_data, tets         = read_tet_file(tets_file)
-
-        print_data(args.root_name, nodes_data, faces_data, tets_data)
-
-    except ValueError as error:
-        print(error, file=sys.stderr)
-        return
+    process_files(node_file, face_file, tets_file, args)
 
 if __name__ == "__main__":
     main()
