@@ -28,6 +28,7 @@ import collections
 import argparse
 import sys
 import operator
+import numpy as np
 
 ## data structure for metadata line of tetgen .node file
 ## number of points, dimension, number of attributes and boundary markers
@@ -37,15 +38,77 @@ NodeMetaData = collections.namedtuple("NodeMetaData", "points, dimension, attrib
 _NodePoint = collections.namedtuple("_NodePoint", "index, x, y, z")
 
 class NodePoint(_NodePoint):
-    def to_stl(self):
-        return f"{round(self.x, 4)}, {round(self.y, 4)}, {round(self.z, 4)}"
+    """
+    a point with an index
+    """
 
-    def dot(self, other):
-        return self.x*other.x + self.y*other.y + self.z*other.z
+    def to_edge(self, rhs):
+        """
+        vector from self to rhs
+        Args:
+            rhs (NodePoint): the 'to' vector
+        Returns:
+            EdgeVector
+        """
+        return StlVector([rhs.x - self.x, rhs.y - self.y, rhs.z - self.z])
 
-    def cross(self, other):
-        # TODO
-        return 0.0, 0.0, 0.0
+    def to_stl_vertex(self):
+        """
+        to text stl vertex format
+        """
+        return f"vertex {self.x:e} {self.y:e} {self.z:e}"
+
+class StlVector(list):
+    """
+    a vector represnting an edge or normal
+    """
+
+    def dot(self, rhs):
+        """
+        dot (inner) product self.rhs
+        Args:
+            rhs (NodePoint): right hand side of dot
+        Returns
+            float
+        """
+        return self[0]*rhs[0] + self[1]*rhs[1] + self[2]*rhs[2]
+
+    def cross(self, rhs):
+        """
+        cross product self x rhs
+        Args:
+            rhs (NodePoint): right hand side of cross
+        Returns:
+            (float, float, float)
+        """
+        return StlVector(np.cross(self, rhs))
+
+    def normalize(self):
+        """
+        make a normalized copy of objects vector
+        Returns
+            [float]
+        """
+        length = np.linalg.norm(self)
+        tmp = np.divide(self, length)
+        return StlVector(tmp)
+
+    def isclose(self, rhs):
+        """
+        floating point comparison of two vectors
+        Args:
+            rhs (StlVector): comaprison object
+        Returns:
+            True if all comonants pass numpy isclose
+        """
+        results = np.isclose(self, rhs)
+        return all(x for x in results)
+
+    def to_stl_normal(self):
+        """
+        make a stl fromat normal vector
+        """
+        return f"normal {self[0]:e} {self[1]:e} {self[2]:e}"
 
 ## data structure for metadata line of tetgen .node file
 ## number of faces and boundary markers
@@ -103,6 +166,8 @@ def read_node_file(input_file):
     with input_file.open('r', newline='') as file:
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
+        row = [x for x in row if x != '']
+        print(row)
         meta_data = NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
 
         if meta_data.dimension != 3:
@@ -110,6 +175,7 @@ def read_node_file(input_file):
 
         points = {}
         for row in reader:
+            row = [x for x in row if x != '']
             index = int(row[0])
             points[index] = NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
 
@@ -137,10 +203,12 @@ def read_face_file(input_file):
     with input_file.open('r', newline='') as file:
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
+        row = [x for x in row if x != '']
         meta_data = FaceMetaData(int(row[0]), int(row[1]))
 
         faces = []
         for row in reader:
+            row = [x for x in row if x != '']
             faces.append(Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4])))
 
         if len(faces) != meta_data.faces:
@@ -167,6 +235,7 @@ def read_tet_file(input_file):
     with input_file.open('r', newline='') as file:
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
+        row = [x for x in row if x != '']
         meta_data = TetMetaData(int(row[0]), int(row[1]), int(row[2]))
 
         if meta_data.nodes != 4:
@@ -174,6 +243,7 @@ def read_tet_file(input_file):
 
         tets = []
         for row in reader:
+            row = [x for x in row if x != '']
             if meta_data.ra == 0:
                 tets.append(Tetrahedron4(int(row[0]),
                                          int(row[1]),
@@ -197,7 +267,7 @@ def read_tet_file(input_file):
 
     return meta_data, sorted(tets, key=operator.attrgetter('index'))
 
-def write_stl(nodes_data, nodes, faces_data, faces, stl_name):
+def write_stl(nodes, faces, stl_name):
     """
     write surface to STL file
     Args:
@@ -208,16 +278,168 @@ def write_stl(nodes_data, nodes, faces_data, faces, stl_name):
     if stl_name.suffix != '.stl':
         stl_name = pathlib.Path(str(stl_name)+".stl")
 
+    print_stl_file(nodes, faces, stl_name)
     print(f"to_stl: {stl_name}, {len(faces)} faces on {len(nodes)} nodes")
 
-    for face in faces:
-        print(face.vert0, face.vert1, face.vert2)
-        print(face.vert0, ": ", nodes[face.vert0].to_stl(), " || ",
-              face.vert1, ": ", nodes[face.vert1].to_stl(), " || ",
-              face.vert2, ": ", nodes[face.vert2].to_stl())
+def print_stl_file(nodes, faces, stl_name):
+    """
+    write an stl file
+    """
+    with stl_name.open('w') as out_file:
+        print(f"solid {stl_name.stem}", file=out_file)
+        for face in faces:
+            print_stl_facet(nodes[face.vert0], nodes[face.vert1], nodes[face.vert2], out_file)
+        print(f"endsolid", file=out_file)
+
+def print_stl_facet(node0, node1, node2, out_stream=sys.stdout):
+    """
+    convert three nodes to an stl facet and print
+    Args:
+        node1 (NodePoint)
+        node1 (NodePoint)
+        node1 (NodePoint)
+        out_stream (iotextstream): output destination
+    """
+    normal = make_stl_normal(node0, node1, node2)
+
+    print(f" facet {normal.to_stl_normal()}", file=out_stream)
+    print(" outer loop", file=out_stream)
+    print(f"   {node0.to_stl_vertex()}", file=out_stream)
+    print(f"   {node1.to_stl_vertex()}", file=out_stream)
+    print(f"   {node2.to_stl_vertex()}", file=out_stream)
+    print(" endloop", file=out_stream)
+    print(" endfacet", file=out_stream)
 
 #########################################################################
 #########################################################################
+
+def make_test_nodes():
+    """
+    make some test nodes
+    """
+    node0 = NodePoint(0, 10.867435455322266, 272.447998046875, -69.545654296875)
+    node1 = NodePoint(0, 10.867435455322266, 257.23294067382813, -56.546279907226563)
+    node2 = NodePoint(0, -6.920966625213623, 272.447998046875, -56.546279907226563)
+
+    return node0, node1, node2
+
+def demo_print_stl():
+    """
+    test the construction of edge vectors & their cross product
+    Args:
+
+    """
+    node0, node1, node2 = make_test_nodes()
+    print_stl_facet(node0, node1, node2)
+
+
+def make_stl_normal(node0, node1, node2):
+    """
+    make an stl normal from nodes assume vertices are listed in counter-clock-wise order from outside
+    """
+    vec0 = node0.to_edge(node1)
+    vec1 = node1.to_edge(node2)
+
+    return vec0.cross(vec1).normalize()
+
+
+def test_vector():
+    """
+    test the construction of edge vectors & their cross product
+    """
+    node0, node1, node2 = make_test_nodes()
+    normal = make_stl_normal(node0, node1, node2)
+
+    if normal.isclose(StlVector([-0.48567734492792791, -0.56782065825723671, -0.6646030519641607])):
+        print("Test vector: Pass")
+    else:
+        print("Test vector: Fail")
+
+#TODO move to tests
+def make_test_vectors():
+    """
+    make a set of test nodes
+    returns
+        NodePoint, NodePoint, NodePoint, NodePoint
+    """
+    t_x = StlVector([1.0, 0.0, 0.0])
+    t_y = StlVector([0.0, 1.0, 0.0])
+    t_z = StlVector([0.0, 0.0, 1.0])
+    t_t = StlVector([2.0, 3.0, 4.0])
+
+    return t_x, t_y, t_z, t_t
+
+def test_cross():
+    """
+    test the cross product
+    """
+    t_x, _, t_z, t_t = make_test_vectors()
+
+    r_x, r_y, r_z = t_x.cross(t_z)
+
+    if r_x != 0.0 and r_y != 1.0 and r_z != 0.0:
+        print(f"Cross product: Fail {t_x}x{t_z} = ({r_x}, {r_y}, {r_z})")
+        return
+    else:
+        print("Cross product: Pass")
+
+    r_x, r_y, r_z = t_z.cross(t_x)
+
+    if r_x != 0.0 and r_y != -1.0 and r_z != 0.0:
+        print(f"Cross product: Fail {t_z}x{t_x} = ({r_x}, {r_y}, {r_z})")
+        return
+    else:
+        print("Cross product: Pass")
+
+    r_x, r_y, r_z = t_x.cross(t_t)
+
+    if r_x != 0.0 and r_y != -4.0 and r_z != 3.0:
+        print(f"Cross product: Fail {t_x}x{t_t} = ({r_x}, {r_y}, {r_z})")
+        return
+    else:
+        print("Cross product: Pass")
+
+def test_dot():
+    """
+    test the dot product
+    """
+    t_x, t_y, t_z, t_t = make_test_vectors()
+
+    if t_x.dot(t_y) != 0.0:
+        print("Dot product: Fail {t_x}.{t_y} != 0.0")
+        return
+    else:
+        print("Dot product: Pass")
+
+    if t_x.dot(t_z) != 0.0:
+        print("Dot product: Fail {t_x}.{t_z} != 0.0")
+        return
+    else:
+        print("Dot product: Pass")
+
+    if t_y.dot(t_z) != 0.0:
+        print("Dot product: Fail {t_y}.{t_z} != 0.0")
+        return
+    else:
+        print("Dot product: Pass")
+
+    if t_x.dot(t_t) != 2.0:
+        print("Dot product: Fail {t_x}.{t_t} != 2.0")
+        return
+    else:
+        print("Dot product: Pass")
+
+    if t_y.dot(t_t) != 3.0:
+        print("Dot product: Fail {t_y}.{t_t} != 3.0")
+        return
+    else:
+        print("Dot product: Pass")
+
+    if t_z.dot(t_t) != 4.0:
+        print("Dot product: Fail {t_z}.{t_t} != 4.0")
+        return
+    else:
+        print("Dot product: Pass")
 
 def print_data(root_name, nodes_data, faces_data, tets_data):
     """
@@ -240,7 +462,7 @@ def get_args():
     parser.add_argument("-r",
                         "--root_name",
                         type=pathlib.Path,
-                        required=True,
+                        required=False,
                         help="root name of .node .face & .ele files")
 
     parser.add_argument("-s",
@@ -248,6 +470,11 @@ def get_args():
                         type=pathlib.Path,
                         required=False,
                         help="file for stl outut if required")
+
+    parser.add_argument("-t",
+                        "--test",
+                        action="store_true",
+                        help="if set run the test harness")
 
     return parser.parse_args()
 
@@ -257,13 +484,16 @@ def process_files(node_file, face_file, tets_file, args):
     """
     try:
         nodes_data, node_points = read_node_file(node_file)
+        print("read nodes")
         faces_data, faces       = read_face_file(face_file)
+        print("read faces")
         tets_data, tets         = read_tet_file(tets_file)
+        print("read elements")
 
         print_data(args.root_name, nodes_data, faces_data, tets_data)
 
         if args.stl_name is not None:
-            write_stl(nodes_data, node_points, faces_data, faces, args.stl_name)
+            write_stl(node_points, faces, args.stl_name)
 
     except ValueError as error:
         print(error, file=sys.stderr)
@@ -275,6 +505,17 @@ def main():
     run the program
     """
     args = get_args()
+
+    if args.test:
+        test_dot()
+        test_cross()
+        test_vector()
+        demo_print_stl()
+        return
+
+    if args.root_name is None:
+        return
+
     node_file = args.root_name.with_suffix(".1.node")
     face_file = args.root_name.with_suffix(".1.face")
     tets_file = args.root_name.with_suffix(".1.ele")
