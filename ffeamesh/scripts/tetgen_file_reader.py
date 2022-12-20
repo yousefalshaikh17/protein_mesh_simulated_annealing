@@ -319,7 +319,7 @@ def measure_excentricity(node_points, tets):
     Returns:
         ([int])
     """
-    ratios = []
+    ratios = {}
     for tet in tets.values():
         nodes = []
         nodes.append(node_points[tet.vert0])
@@ -332,7 +332,7 @@ def measure_excentricity(node_points, tets):
         scales = [abs(x) for x in e_vals]
         scales.sort()
 
-        ratios.append(scales[2]/scales[0])
+        ratios[tet.index] = scales[2]/scales[0]
 
     return ratios
 
@@ -356,15 +356,18 @@ def make_inertia_tensor(nodes):
 
     inertia_tensor = np.zeros([3, 3], dtype=float)
     for vec in offsets:
+        # leading diagonal
         squares = [x*x for x in vec]
         inertia_tensor[0, 0] += squares[1] + squares[2]
         inertia_tensor[1, 1] += squares[0] + squares[2]
         inertia_tensor[1, 1] += squares[0] + squares[1]
 
+        # uppar triangular
         inertia_tensor[0, 1] -= vec[0]*vec[1]
         inertia_tensor[0, 2] -= vec[0]*vec[2]
         inertia_tensor[1, 2] -= vec[1]*vec[2]
 
+    # lower triangular (symmetric with uppar)
     inertia_tensor[1, 0] = inertia_tensor[0, 1]
     inertia_tensor[2, 0] = inertia_tensor[0, 2]
     inertia_tensor[2, 1] = inertia_tensor[1, 2]
@@ -574,10 +577,11 @@ def process_files(node_file, face_file, tets_file, args):
         if args.stl_name is not None:
             write_stl(node_points, faces, args.stl_name)
 
+
         if args.tets_excentricity:
             ratios = measure_excentricity(node_points, tets)
-            max_index = np.argmax(ratios)
-            print(f"Max: {ratios[max_index]}, tet number {max_index+1}")
+            maximum = max(ratios.values())
+            print(f"Max: {maximum}")#, tet number {max_index+1}")
 
     except ValueError as error:
         print(error, file=sys.stderr)
