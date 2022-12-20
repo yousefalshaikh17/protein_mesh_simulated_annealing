@@ -167,7 +167,6 @@ def read_node_file(input_file):
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
         row = [x for x in row if x != '']
-        print(row)
         meta_data = NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
 
         if meta_data.dimension != 3:
@@ -241,23 +240,24 @@ def read_tet_file(input_file):
         if meta_data.nodes != 4:
             raise ValueError("This reader can only handle four nodes per tetrahedron.")
 
-        tets = []
+        tets = {}
         for row in reader:
             row = [x for x in row if x != '']
+            index = int(row[0])
             if meta_data.ra == 0:
-                tets.append(Tetrahedron4(int(row[0]),
-                                         int(row[1]),
-                                         int(row[2]),
-                                         int(row[3]),
-                                         int(row[4]),
-                                         None))
+                tets[index] = Tetrahedron4(index,
+                                           int(row[1]),
+                                           int(row[2]),
+                                           int(row[3]),
+                                           int(row[4]),
+                                           None)
             else:
-                tets.append(Tetrahedron4(int(row[0]),
-                                         int(row[1]),
-                                         int(row[2]),
-                                         int(row[3]),
-                                         int(row[4],
-                                         int(row[5]))))
+                tets[index] = Tetrahedron4(index,
+                                           int(row[1]),
+                                           int(row[2]),
+                                           int(row[3]),
+                                           int(row[4],
+                                           int(row[5])))
 
         if len(tets) != meta_data.tets:
             req = meta_data.tets
@@ -265,7 +265,7 @@ def read_tet_file(input_file):
             er_m = f"File {input_file} should have {req} points, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, sorted(tets, key=operator.attrgetter('index'))
+    return meta_data, tets
 
 def write_stl(nodes, faces, stl_name):
     """
@@ -310,15 +310,17 @@ def print_stl_facet(node0, node1, node2, out_stream=sys.stdout):
     print(" endloop", file=out_stream)
     print(" endfacet", file=out_stream)
 
-
 def measure_excentricity(node_points, tets):
     """
     build tets and check excentricity
     Args:
         node_points ([NodePoint]): the vertices
         tets ([Tetrahedron4]): the tets
+    Returns:
+        ([int])
     """
-    for tet in tets:
+    ratios = []
+    for tet in tets.values():
         nodes = []
         nodes.append(node_points[tet.vert0])
         nodes.append(node_points[tet.vert1])
@@ -326,11 +328,13 @@ def measure_excentricity(node_points, tets):
         nodes.append(node_points[tet.vert3])
 
         inertia_tensor = make_inertia_tensor(nodes)
-        # eigen vectors values
-        # sort values
-        # ratio max/mim
+        e_vals, _ = np.linalg.eig(inertia_tensor)
+        scales = [abs(x) for x in e_vals]
+        scales.sort()
 
-        print(inertia_tensor)
+        ratios.append(scales[2]/scales[0])
+
+    return ratios
 
 def make_inertia_tensor(nodes):
     """
@@ -415,7 +419,6 @@ def make_stl_normal(node0, node1, node2):
     vec1 = node1.to_edge(node2)
 
     return vec0.cross(vec1).normalize()
-
 
 def test_vector():
     """
@@ -563,11 +566,8 @@ def process_files(node_file, face_file, tets_file, args):
     """
     try:
         nodes_data, node_points = read_node_file(node_file)
-        print("read nodes")
         faces_data, faces       = read_face_file(face_file)
-        print("read faces")
         tets_data, tets         = read_tet_file(tets_file)
-        print("read elements")
 
         print_data(args.root_name, nodes_data, faces_data, tets_data)
 
@@ -575,7 +575,9 @@ def process_files(node_file, face_file, tets_file, args):
             write_stl(node_points, faces, args.stl_name)
 
         if args.tets_excentricity:
-            measure_excentricity(node_points, tets)
+            ratios = measure_excentricity(node_points, tets)
+            max_index = np.argmax(ratios)
+            print(f"Max: {ratios[max_index]}, tet number {max_index+1}")
 
     except ValueError as error:
         print(error, file=sys.stderr)
