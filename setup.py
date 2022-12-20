@@ -54,7 +54,7 @@ setup(
              'ffeamesh/scripts/fft_smooth.py',
              'ffeamesh/scripts/make_test_mrcfile.py',
              'ffeamesh/scripts/mrc_threshold.py',
-             'ffeamesh/scripts/mrc_chop.py',
+             'ffeamesh/scripts/mrc_crop.py',
              'ffeamesh/scripts/mrc_header_info.py',
              'ffeamesh/scripts/mrc_image_stats.py',
              'tests/tetvolume.py'])
