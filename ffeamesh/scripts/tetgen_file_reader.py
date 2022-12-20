@@ -336,10 +336,36 @@ def make_inertia_tensor(nodes):
     """
     construct the inertia tensor of a set of nodes,
     (assume unit mass each node point unit mass)
+    Args:
+        nodes ([NodePoint])
+    Returns:
+        (numpy.array 3x3 float)
     """
     ctr_x, ctr_y, ctr_z = find_centre(nodes)
 
-    return ctr_x, ctr_y, ctr_z
+    offsets = []
+    for node in nodes:
+        tmp_x = node.x - ctr_x
+        tmp_y = node.y - ctr_y
+        tmp_z = node.z - ctr_z
+        offsets.append(StlVector([tmp_x, tmp_y, tmp_z]))
+
+    inertia_tensor = np.zeros([3, 3], dtype=float)
+    for vec in offsets:
+        squares = [x*x for x in vec]
+        inertia_tensor[0, 0] += squares[1] + squares[2]
+        inertia_tensor[1, 1] += squares[0] + squares[2]
+        inertia_tensor[1, 1] += squares[0] + squares[1]
+
+        inertia_tensor[0, 1] -= vec[0]*vec[1]
+        inertia_tensor[0, 2] -= vec[0]*vec[2]
+        inertia_tensor[1, 2] -= vec[1]*vec[2]
+
+    inertia_tensor[1, 0] = inertia_tensor[0, 1]
+    inertia_tensor[2, 0] = inertia_tensor[0, 2]
+    inertia_tensor[2, 1] = inertia_tensor[1, 2]
+
+    return inertia_tensor
 
 def find_centre(nodes):
     """
