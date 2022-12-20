@@ -310,6 +310,54 @@ def print_stl_facet(node0, node1, node2, out_stream=sys.stdout):
     print(" endloop", file=out_stream)
     print(" endfacet", file=out_stream)
 
+
+def measure_excentricity(node_points, tets):
+    """
+    build tets and check excentricity
+    Args:
+        node_points ([NodePoint]): the vertices
+        tets ([Tetrahedron4]): the tets
+    """
+    for tet in tets:
+        nodes = []
+        nodes.append(node_points[tet.vert0])
+        nodes.append(node_points[tet.vert1])
+        nodes.append(node_points[tet.vert2])
+        nodes.append(node_points[tet.vert3])
+
+        inertia_tensor = make_inertia_tensor(nodes)
+        # eigen vectors values
+        # sort values
+        # ratio max/mim
+
+        print(inertia_tensor)
+
+def make_inertia_tensor(nodes):
+    """
+    construct the inertia tensor of a set of nodes,
+    (assume unit mass each node point unit mass)
+    """
+    ctr_x, ctr_y, ctr_z = find_centre(nodes)
+
+    return ctr_x, ctr_y, ctr_z
+
+def find_centre(nodes):
+    """
+    find the centre of a set of nodes
+    """
+    ctr_x = 0.0
+    ctr_y = 0.0
+    ctr_z = 0.0
+
+    for node in nodes:
+        ctr_x += node.x
+        ctr_y += node.y
+        ctr_z += node.z
+
+    length = len(nodes)
+
+    return ctr_x/length, ctr_y/length, ctr_z/length
+
 #########################################################################
 #########################################################################
 
@@ -471,6 +519,11 @@ def get_args():
                         required=False,
                         help="file for stl outut if required")
 
+    parser.add_argument("-e",
+                        "--tets_excentricity",
+                        action="store_true",
+                        help="if set compute the excentricity of the tets")
+
     parser.add_argument("-t",
                         "--test",
                         action="store_true",
@@ -495,10 +548,12 @@ def process_files(node_file, face_file, tets_file, args):
         if args.stl_name is not None:
             write_stl(node_points, faces, args.stl_name)
 
+        if args.tets_excentricity:
+            measure_excentricity(node_points, tets)
+
     except ValueError as error:
         print(error, file=sys.stderr)
         return
-
 
 def main():
     """
