@@ -338,6 +338,7 @@ def measure_excentricity(node_points, tets):
 
         inertia_tensor = make_inertia_tensor(nodes)
         e_vals, _ = np.linalg.eig(inertia_tensor)
+
         scales = [abs(x) for x in e_vals]
         scales.sort()
 
@@ -399,7 +400,7 @@ def find_centre(nodes):
         ctr_y += node.y
         ctr_z += node.z
 
-    length = len(nodes)
+    length = float(len(nodes))
 
     return ctr_x/length, ctr_y/length, ctr_z/length
 
