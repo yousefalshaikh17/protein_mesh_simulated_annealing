@@ -65,13 +65,36 @@ Activate the environment
 
 `conda activate ffea-mesh`
 
-Install the package to the environment
+Install the package to the environment using pip
 
 `pip install --editable .`
 
-Make the documentation
+Make the documentation run doxygen
 
 `doxygen`
+
+Available Programs {#programs}
+=================
+
+The programs are provided in the ffeamesh/scripts directory.  They are listed here grouped by function.
+
+Meta Data {#programs-meta}
+---------
+- mrc_header_info.py: List all header information in MRC file.
+- mrc_image_stats.py: Image intensity stats in ten bins.
+- mrc_voxel_size.py: Report the voxel size for MRC file.
+
+Filter {#programs-filter}
+------
+- mrc_crop.py: Cut a subset out of image and save in new file.
+- mrc_threshold.py: Make new MRC image with all voxels below threshold set to zero.
+- zoom.py: Reduce the number of voxels in MRC file.
+- fft_smooth.py: Smooth data in MRC file using Fast Fourier Transform (FFT).
+
+Meshing {#programs-meshing}
+------
+- five_tets.py: Threshold image and convert surviving voxels into five tetrahedrons.
+- six_tets.py: Threshold image and convert surviving voxels into six tetrahedrons.
 
 How to Use {#how}
 =============
