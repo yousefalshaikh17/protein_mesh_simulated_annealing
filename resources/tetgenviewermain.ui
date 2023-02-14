@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TetgenViewerMain</class>
+ <widget class="QMainWindow" name="TetgenViewerMain">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>476</width>
+    <height>367</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TetgenViewer</string>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Tetrahedra View</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
+        <item>
+         <widget class="TetViewer" name="_tetViewer" native="true"/>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>View Controls</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QCheckBox" name="_surfaceButton">
+               <property name="text">
+                <string>Show surface</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="_surfaceLatticeButton">
+               <property name="text">
+                <string>Surface Lattice</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="_ctrTetButton">
+               <property name="text">
+                <string>Centre Tet</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="_hideButton">
+               <property name="text">
+                <string>Hide Tet</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Rot Horizontal</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="_rotXSlider">
+               <property name="maximum">
+                <number>360</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+               <property name="sliderPosition">
+                <number>0</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Rot Vertical    </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="_rotYSlider">
+               <property name="maximum">
+                <number>360</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Tetrahedra Data</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QTableWidget" name="_tetsTableWidget">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="columnCount">
+           <number>5</number>
+          </property>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <column/>
+          <column/>
+          <column/>
+          <column/>
+          <column/>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QGroupBox" name="groupBox_3">
+            <property name="title">
+             <string>Background</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="_blackButton">
+               <property name="text">
+                <string>Black</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">_backgroundGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="_whiteButton">
+               <property name="text">
+                <string>White</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">_backgroundGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="_grayButton">
+               <property name="text">
+                <string>Gray</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">_backgroundGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_4">
+            <property name="title">
+             <string>View</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QRadioButton" name="_perspectiveButton">
+               <property name="text">
+                <string>Perspective</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">_viewGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="_orthogonalButton">
+               <property name="text">
+                <string>Orthogonal</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">_viewGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>476</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="_actionLoad"/>
+    <addaction name="separator"/>
+    <addaction name="_actionSaveImage"/>
+    <addaction name="_actionSaveTetData"/>
+    <addaction name="separator"/>
+    <addaction name="_actionExit"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="_actionLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="_actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="_actionSaveImage">
+   <property name="text">
+    <string>Save image</string>
+   </property>
+  </action>
+  <action name="_actionSaveTetData">
+   <property name="text">
+    <string>Save tet data</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TetViewer</class>
+   <extends>QWidget</extends>
+   <header>tgv.gui.tetviewer</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>_actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionLoad</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>get_and_load_files()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_rotXSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>set_rot_x()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>196</x>
+     <y>610</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_rotYSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>set_rot_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>196</x>
+     <y>643</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_tetsTableWidget</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>selection_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>676</x>
+     <y>389</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionSaveTetData</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>save_tet_data()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionSaveImage</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>save_image()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_backgroundGroup</sender>
+   <signal>buttonToggled(QAbstractButton*,bool)</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>background_change(QAbstractButton*,bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_ctrTetButton</sender>
+   <signal>clicked()</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>centre_tet()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_surfaceButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>show_surface(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_surfaceLatticeButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>show_surface_lattice(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_hideButton</sender>
+   <signal>clicked()</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>remove_current_tet()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>536</x>
+     <y>604</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_viewGroup</sender>
+   <signal>buttonToggled(QAbstractButton*,bool)</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>view_change(QAbstractButton*,bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <buttongroups>
+  <buttongroup name="_viewGroup"/>
+  <buttongroup name="_backgroundGroup"/>
+ </buttongroups>
+</ui>

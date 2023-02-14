@@ -57,4 +57,5 @@ setup(
              'ffeamesh/scripts/mrc_crop.py',
              'ffeamesh/scripts/mrc_header_info.py',
              'ffeamesh/scripts/mrc_image_stats.py',
-             'tests/tetvolume.py'])
+             'tests/tetvolume.py',
+             'ffeamesh/app_tgv/tgv.py'])

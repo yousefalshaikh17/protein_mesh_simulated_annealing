@@ -9,3 +9,7 @@ dependencies:
   - mrcfile
   - doxygen
   - pylint
+  - python
+  - pyopengl
+  - pyqt
+  - pyrr
