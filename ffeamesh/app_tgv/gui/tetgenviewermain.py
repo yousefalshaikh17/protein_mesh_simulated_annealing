@@ -25,9 +25,9 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
-import tgv.libs.tetgen_read as tr
-import tgv.libs.tetprops as tp
-from tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
+import ffeamesh.tetgen_read as tr
+import ffeamesh.tetprops as tp
+from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
     """the viewers main window"""

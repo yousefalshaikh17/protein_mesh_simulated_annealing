@@ -27,10 +27,10 @@ import PyQt5.QtGui as qg
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
-from tgv.gui.sphere import Sphere
-from tgv.gui.threestore import ThreeStore
+from ffeamesh.app_tgv.gui.sphere import Sphere
+from ffeamesh.app_tgv.gui.threestore import ThreeStore
 
-import tgv.libs.tetprops as tp
+import ffeamesh.tetprops as tp
 
 class MouseStates(Enum):
     """

@@ -202,4 +202,4 @@ class Ui_TetgenViewerMain(object):
         self._actionExit.setText(_translate("TetgenViewerMain", "Exit"))
         self._actionSaveImage.setText(_translate("TetgenViewerMain", "Save image"))
         self._actionSaveTetData.setText(_translate("TetgenViewerMain", "Save tet data"))
-from tgv.gui.tetviewer import TetViewer
+from ffeamesh.app_tgv.gui.tetviewer import TetViewer

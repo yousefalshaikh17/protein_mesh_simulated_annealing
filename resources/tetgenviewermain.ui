@@ -316,7 +316,7 @@
   <customwidget>
    <class>TetViewer</class>
    <extends>QWidget</extends>
-   <header>tgv.gui.tetviewer</header>
+   <header>ffeamesh.app_tgv.gui.tetviewer</header>
   </customwidget>
  </customwidgets>
  <resources/>
