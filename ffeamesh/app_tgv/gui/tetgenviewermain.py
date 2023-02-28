@@ -251,6 +251,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         qw.QMessageBox.information(self,
                                    "TeggenView Save",
                                    f"Data written to {name}")
+
     @qc.pyqtSlot()
     def save_image(self):
         """
