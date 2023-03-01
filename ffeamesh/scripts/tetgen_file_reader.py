@@ -26,7 +26,7 @@ import pathlib
 import argparse
 import sys
 
-import ffeamesh.tetgen_read as tr
+import ffeamesh.tetmeshtools.tetgen_read as tr
 
 def make_test_nodes():
     """
