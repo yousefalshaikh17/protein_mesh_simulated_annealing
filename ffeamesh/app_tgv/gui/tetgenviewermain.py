@@ -26,7 +26,7 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
-import ffeamesh.tetmeshtools.tetgen_read as tr
+import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.tetprops as tp
 from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
