@@ -26,7 +26,7 @@
 # pylint: disable = import-error
 import numpy as np
 
-from tetview.linesegment import LineSegment
+from ffeamesh.tetmeshtools.linesegment import LineSegment
 
 class TriSurface():
     """
@@ -130,3 +130,7 @@ class TriSurface():
             surface_nodes[index] = self._nodes[index]
 
         return surface_nodes
+
+    def __str__(self):
+        """to string"""
+        return f"Surface: {len(self._faces)} triangles on {len(self._nodes)} nodes"

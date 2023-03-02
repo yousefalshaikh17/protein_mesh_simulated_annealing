@@ -99,3 +99,7 @@ class TetModel():
         getter for the number of triangles in the surface
         """
         return len(self._surface.get_faces())
+
+    def __str__(self):
+        """to string method"""
+        return f"TetModel: <{self._surface}> <{self._tets}>"

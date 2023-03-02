@@ -29,6 +29,7 @@ import PyQt5.QtCore as qc
 import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.tetprops as tp
+
 from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
@@ -75,8 +76,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             file_path (pathlib.Path): file path
         """
-        print(f"Load {file_path}")
-
         try:
             points, surface, volume = fr.read_file(file_path)
 

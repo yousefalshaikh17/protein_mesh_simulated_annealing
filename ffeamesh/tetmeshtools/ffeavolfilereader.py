@@ -98,6 +98,9 @@ def read_file(source_file):
         [[int, int, int]]: surface triangles
         [[int, int, int, int]]: volume tets
     """
+    if not source_file.exists():
+        raise ValueError(f"File {source_file} does not exist.")
+
     with source_file.open(mode='r') as in_file:
         lines = in_file.readlines()
 

@@ -47,7 +47,7 @@ class TetMesh():
         """getter for the nodes"""
         return self._nodes
 
-    def number_of_tets(self)
+    def number_of_tets(self):
         """getter for the number of tets in mesh"""
         return len(self._tets)
 
@@ -87,3 +87,7 @@ class TetMesh():
             total = np.add(total, vert)
 
         return [x/4 for x in total]
+
+    def __str__(self):
+        """to string"""
+        return f"Mesh: {len(self._tets)} tets on {len(self._nodes)} nodes"
