@@ -114,37 +114,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         self._tetViewer.reset_all()
 
-###########################################
-    def fitness(self):
-        """
-        calculate a fitness function for the current data
-        """
-        sum_e2ar = 0.0
-        for face in self._faces:
-            nodes = []
-            nodes.append(self._nodes[face.vert0])
-            nodes.append(self._nodes[face.vert1])
-            nodes.append(self._nodes[face.vert2])
-            sum_e2ar += tr.edges_to_area_ratio(nodes)
-
-        e2ar = sum_e2ar/len(self._faces)
-
-        print(f"Surface faces: average edge to area {e2ar}")
-
-        tet_props = {}
-        for tet in self._tets.values():
-            tet_props[tet.index] = []
-
-        tr.volumes(self._nodes, self._tets, tet_props)
-        tr.areas(self._nodes, self._tets, tet_props)
-
-        volumes = [x[1] for x in tet_props.values()]
-        uniformaty = tr.uniformity(volumes)
-
-        print(f"Tet Volumes: variance / mean^2 {uniformaty}")
-
-###########################################
-
     def list_tets(self, tet_props):
         """
         list the tet properties in the table

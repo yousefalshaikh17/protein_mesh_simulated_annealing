@@ -20,7 +20,8 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
- @author: jonathan pickering, joanna leng 20 Dec 22
+@copyright 2023
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 import csv
 import collections

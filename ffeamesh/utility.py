@@ -20,8 +20,8 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
-    Authors: Joanna Leng, Jonathan Pickering - University of Leeds
-    Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
+@copyright 2023
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 # set up linting
 # pylint: disable = import-error
