@@ -20,12 +20,14 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = c-extension-no-member
 import pathlib
 import csv
+import operator
 import numpy as np
 
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
 import ffeamesh.tetmeshtools.tetgen_read as tr
+import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.tetprops as tp
 from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
@@ -59,10 +61,52 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         ## current source directory
         self._current_source = None
 
-        if config_args.input is not None:
-            self.load_files(config_args.input)
+        if config_args.input is None:
+            return
 
-    def load_files(self, root_name):
+        if config_args.input.suffix == ".vol":
+            self.load_ffea_file(config_args.input)
+        else:
+            self.load_tetgen_files(config_args.input)
+
+    def load_ffea_file(self, file_path):
+        """
+        load a ffea .vol file
+        Args:
+            file_path (pathlib.Path): file path
+        """
+        print(f"Load {file_path}")
+
+        try:
+            points, surface, volume = fr.read_file(file_path)
+
+            self._nodes = {}
+            for index, point in enumerate(points):
+                index += 1
+                self._nodes[index] = tr.NodePoint(index, point[0], point[1], point[2])
+
+            self._faces = []
+            for index, face in enumerate(surface):
+                index += 1
+                self._faces.append(tr.Face(index, face[0], face[1], face[2], -1))
+
+            self._faces = sorted(self._faces, key=operator.attrgetter('index'))
+
+            self._tets = {}
+            for index, tet in enumerate(volume):
+                index += 1
+                self._tets[index] = tr.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
+
+            tet_props = tp.get_tet_props(self._nodes, self._tets)
+
+            self.list_tets(tet_props)
+            self.reset_view()
+            self._current_source = file_path.parent
+
+        except ValueError as error:
+            qw.QMessageBox.warning(self, "Tetgen viewer", error)
+            return
+    def load_tetgen_files(self, root_name):
         """
         load tetgen files
         Args:
@@ -79,12 +123,9 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
             tet_props = tp.get_tet_props(self._nodes, self._tets)
 
-            # shouldn't be here
-            #self.fitness()
-
             self.list_tets(tet_props)
             self.reset_view()
-            self._current_source = pathlib.Path(root_name).parent
+            self._current_source = root_name.parent
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -159,19 +200,23 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if self._current_source is not None:
             path = str(self._current_source)
 
-        file_types = "node (*.1.node);; face (*.1.face);; element (*.1.ele)"
-        fname, _ = qw.QFileDialog.getOpenFileName(self,
+        file_types = "node (*.1.node);; face (*.1.face);; element (*.1.ele);; ffea vol (*.vol)"
+        fname, ftype = qw.QFileDialog.getOpenFileName(self,
                                                   "Enter one tetgen file",
                                                   path,
                                                   file_types)
         if fname is None or fname == '':
             return
 
+        if ftype == "ffea vol (*.vol)":
+            self.load_ffea_file(pathlib.Path(fname))
+            return
+
         for suffix in [".1.node", ".1.ele", ".1.face"]:
             if fname.endswith(suffix):
                 fname = fname.removesuffix(suffix)
 
-        self.load_files(pathlib.Path(fname))
+        self.load_tetgen_files(pathlib.Path(fname))
 
     @qc.pyqtSlot()
     def selection_changed(self):

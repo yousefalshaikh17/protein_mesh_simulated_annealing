@@ -176,7 +176,7 @@ def read_tet_file(input_file):
         input_file (pathlib.Path): source
     Return
         (TetMetaData): the file's metadata
-        ([Tetrahedron4]): the tets
+        ({index => Tetrahedron4}): the tets
     Throws:
         ValueError if problem
     """

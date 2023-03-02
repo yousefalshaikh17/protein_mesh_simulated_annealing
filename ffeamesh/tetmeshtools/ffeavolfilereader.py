@@ -24,9 +24,6 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
-import collections
-
-Node = collections.namedtuple("Node", "index, x, y, z")
 
 def get_data_start_end_indices(lines, keyword):
     """
