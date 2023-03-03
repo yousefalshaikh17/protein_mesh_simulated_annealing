@@ -376,7 +376,7 @@ class TetViewer(qw.QOpenGLWidget):
         new_z = self._shift.z - float(del_y)
 
         self._mouse_position = mouse_position
-        if new_z > -1490.0:
+        if new_z > -2000.0: #-1490.0:
             self._shift.z = new_z
 
         self.update()
