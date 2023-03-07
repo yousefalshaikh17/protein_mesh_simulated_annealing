@@ -100,6 +100,10 @@ class TetModel():
         """
         return len(self._surface.get_faces())
 
+    def get_tetmesh(self):
+        """get the tetmesh object"""
+        return self._tets
+
     def __str__(self):
         """to string method"""
         return f"TetModel: <{self._surface}> <{self._tets}>"

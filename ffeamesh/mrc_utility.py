@@ -54,7 +54,7 @@ def get_cell_props(mrc):
 
 def get_cell_sizes(mrc):
     """
-    extract cell sizes from mrc file
+    extract cell sizes from mrc file  (voxel size x/nx etc)
     Args:
         mrc (mrcfile): the input file
     Returns
