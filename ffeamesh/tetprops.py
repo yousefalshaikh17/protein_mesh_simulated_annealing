@@ -131,6 +131,25 @@ def volumes(node_points, tets, tet_props):
 
         tet_props[tet.index].append(tet_volume(nodes))
 
+def total_volume(node_points, tets):
+    """
+    total volume of tests
+    Args:
+        node_points ([NodePoint]): the vertices
+        tets ([Tetrahedron4]): the tets
+    """
+    total = 0.0
+    for tet in tets.values():
+        nodes = []
+        nodes.append(node_points[tet.vert0])
+        nodes.append(node_points[tet.vert1])
+        nodes.append(node_points[tet.vert2])
+        nodes.append(node_points[tet.vert3])
+
+        total += tet_volume(nodes)
+
+    return total
+
 def get_tet_props(node_points, tets):
     """
     lists shortest side of each tet
@@ -227,7 +246,7 @@ def find_centre(nodes):
 
     return ctr_x/length, ctr_y/length, ctr_z/length
 
-def uniformity(values):
+def dispersity(values):
     """
     find the variance of the values devided by the square of the average
     Args:
