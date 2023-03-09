@@ -51,6 +51,10 @@ class TetMesh():
         """getter for the number of tets in mesh"""
         return len(self._tets)
 
+    def get_tet_keys(self):
+        """getter for the tet's dict keys (tetgen indices)"""
+        return self._tets.keys()
+
     def get_tets(self):
         """getter for the tets"""
         return self._tets

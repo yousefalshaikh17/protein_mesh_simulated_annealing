@@ -181,10 +181,10 @@ def edges_to_area_ratio(nodes):
     """
     sides = []
     sides.append(nodes[0].to_edge_array(nodes[1]))
-    sides.append(nodes[0].to_edge_array(nodes[2]))
     sides.append(nodes[1].to_edge_array(nodes[2]))
+    sides.append(nodes[2].to_edge_array(nodes[0]))
 
-    # half the length of the cross product
+    # area is half the size of the cross product
     area = np.linalg.norm(np.cross(sides[0], sides[1]))/2.0
 
     length = sum(np.linalg.norm(x) for x in sides)
