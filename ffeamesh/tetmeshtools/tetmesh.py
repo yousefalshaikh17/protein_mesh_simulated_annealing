@@ -25,6 +25,8 @@
 """
 import numpy as np
 
+import ffeamesh.tetmeshtools.tetgenread as tr
+
 class TetMesh():
     """
     mutable store of a tetmesh derived from tetgen files
@@ -91,6 +93,34 @@ class TetMesh():
             total = np.add(total, vert)
 
         return [x/4 for x in total]
+
+    def get_tet_signed_volume(self, index):
+        """
+        compute a signed volume for a tet using the formular
+        a, b, c are three edge vectors extending from one vertex
+        V = ((axb).c)/6
+        """
+        nodes = self.get_tet_verts(index)
+        v01 = self._nodes[nodes[0].index].to_edge_array(self._nodes[nodes[1].index])
+        v02 = self._nodes[nodes[0].index].to_edge_array(self._nodes[nodes[2].index])
+        v03 = self._nodes[nodes[0].index].to_edge_array(self._nodes[nodes[3].index])
+
+        tmp = np.cross(v01, v02)
+        tmp = np.dot(tmp, v03)/6.0
+
+        return tmp
+
+    def get_tet_signed_volume_list(self):
+        """
+        get the signed volumes of the all the tets
+        Returns:
+            [float]
+        """
+        sv = []
+        for index in self._tets.keys():
+            sv.append(self.get_tet_signed_volume(index))
+
+        return sv
 
     def __str__(self):
         """to string"""
