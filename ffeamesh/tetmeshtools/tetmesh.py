@@ -94,11 +94,13 @@ class TetMesh():
 
         return [x/4 for x in total]
 
-    def get_tet_signed_volume(self, index):
+    def get_tet_signed_6volume(self, index):
         """
-        compute a signed volume for a tet using the formular
+        compute a six times the signed volume for a tet using the formular
         a, b, c are three edge vectors extending from one vertex
-        V = ((axb).c)/6
+        V = ((axb).c)
+
+        to convert to actual volume: vol = np.abs(v/6)
         """
         nodes = self.get_tet_verts(index)
         v01 = self._nodes[nodes[0].index].to_edge_array(self._nodes[nodes[1].index])
@@ -106,19 +108,20 @@ class TetMesh():
         v03 = self._nodes[nodes[0].index].to_edge_array(self._nodes[nodes[3].index])
 
         tmp = np.cross(v01, v02)
-        tmp = np.dot(tmp, v03)/6.0
+        tmp = np.dot(tmp, v03)
 
         return tmp
 
-    def get_tet_signed_volume_list(self):
+    def get_tet_signed_6volume_list(self):
         """
-        get the signed volumes of the all the tets
+        get the six times the signed volumes of the all the tets
+        to convert to actual volume: vol = [np.abs(v/6) for v in vols6]
         Returns:
             [float]
         """
         sv = []
         for index in self._tets.keys():
-            sv.append(self.get_tet_signed_volume(index))
+            sv.append(self.get_tet_signed_6volume(index))
 
         return sv
 
