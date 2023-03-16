@@ -27,14 +27,15 @@ import argparse
 import sys
 
 import ffeamesh.tetmeshtools.tetgenread as tr
+import ffeamesh.tetmeshtools.tetgenstructs as ts
 
 def make_test_nodes():
     """
     make some test nodes
     """
-    node0 = tr.NodePoint(0, 10.867435455322266, 272.447998046875, -69.545654296875)
-    node1 = tr.NodePoint(0, 10.867435455322266, 257.23294067382813, -56.546279907226563)
-    node2 = tr.NodePoint(0, -6.920966625213623, 272.447998046875, -56.546279907226563)
+    node0 = ts.NodePoint(0, 10.867435455322266, 272.447998046875, -69.545654296875)
+    node1 = ts.NodePoint(0, 10.867435455322266, 257.23294067382813, -56.546279907226563)
+    node2 = ts.NodePoint(0, -6.920966625213623, 272.447998046875, -56.546279907226563)
 
     return node0, node1, node2
 
@@ -68,12 +69,13 @@ def make_test_vectors():
     returns
         NodePoint, NodePoint, NodePoint, NodePoint
     """
-    t_x = tr.StlVector([1.0, 0.0, 0.0])
-    t_y = tr.StlVector([0.0, 1.0, 0.0])
-    t_z = tr.StlVector([0.0, 0.0, 1.0])
-    t_t = tr.StlVector([2.0, 3.0, 4.0])
+    # t_x = tr.StlVector([1.0, 0.0, 0.0])
+    # t_y = tr.StlVector([0.0, 1.0, 0.0])
+    # t_z = tr.StlVector([0.0, 0.0, 1.0])
+    # t_t = tr.StlVector([2.0, 3.0, 4.0])
 
-    return t_x, t_y, t_z, t_t
+    # return t_x, t_y, t_z, t_t
+    pass
 
 def test_cross():
     """

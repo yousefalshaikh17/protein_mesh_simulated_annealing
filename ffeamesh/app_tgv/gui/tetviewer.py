@@ -266,7 +266,7 @@ class TetViewer(qw.QOpenGLWidget):
         display a tet
         Args:
             tet (tetgen_read.Tetrahedron4)
-            nodes ({tetgen_read.NodePoint}): the points
+            nodes ({NodePoint}): the points
         """
         self._current_tet = []
         self._current_tet.append(nodes[tet.vert0])

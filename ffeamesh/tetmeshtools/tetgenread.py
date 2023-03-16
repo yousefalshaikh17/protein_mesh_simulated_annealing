@@ -24,56 +24,9 @@
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 import csv
-import collections
 import operator
 
-from ffeamesh.vector3 import Vector3
-
-## data structure for metadata line of tetgen .node file
-## number of points, dimension, number of attributes and boundary markers
-NodeMetaData = collections.namedtuple("NodeMetaData", "points, dimension, attributes, bms")
-
-## 3D point with index base
-_NodePoint = collections.namedtuple("_NodePoint", "index, x, y, z")
-
-class NodePoint(_NodePoint):
-    """
-    extend 3D point
-    """
-
-    def to_edge_array(self, rhs):
-        """
-        vector from self to rhs
-        Args:
-            rhs (NodePoint): the 'to' vector
-        Returns:
-            EdgeVector
-        """
-        return [rhs.x - self.x, rhs.y - self.y, rhs.z - self.z]
-
-    def to_edge_vector(self, rhs):
-        """
-        vector from self to rhs
-        Args:
-            rhs (NodePoint): the 'to' vector
-        Returns:
-            EdgeVector
-        """
-        return Vector3(self.to_edge_array(rhs))
-
-## data structure for metadata line of tetgen .node file
-## number of faces and boundary markers
-FaceMetaData = collections.namedtuple("FaceMetaData", "faces, bm")
-
-## a face
-Face = collections.namedtuple("Face", "index, vert0, vert1, vert2, bm")
-
-## data structure for metadata line of tetgen .node file
-## number of tets, number of nodes pre tet and region attribute
-TetMetaData = collections.namedtuple("TetMetaData", "tets, nodes, ra")
-
-## a tetrahedron
-Tetrahedron4 = collections.namedtuple("Tetrahedron4", "index, vert0, vert1, vert2, vert3, ra")
+import ffeamesh.tetmeshtools.tetgenstructs as ts
 
 def make_decomment(comment):
     """
@@ -118,7 +71,7 @@ def read_node_file(input_file):
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
         row = [x for x in row if x != '']
-        meta_data = NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
+        meta_data = ts.NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
 
         if meta_data.dimension != 3:
             raise ValueError(f"File {input_file} is not 3D.")
@@ -127,7 +80,7 @@ def read_node_file(input_file):
         for row in reader:
             row = [x for x in row if x != '']
             index = int(row[0])
-            points[index] = NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
+            points[index] = ts.NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
 
         if len(points) != meta_data.points:
             req = meta_data.points
@@ -154,12 +107,12 @@ def read_face_file(input_file):
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
         row = [x for x in row if x != '']
-        meta_data = FaceMetaData(int(row[0]), int(row[1]))
+        meta_data = ts.FaceMetaData(int(row[0]), int(row[1]))
 
         faces = []
         for row in reader:
             row = [x for x in row if x != '']
-            faces.append(Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4])))
+            faces.append(ts.Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4])))
 
         if len(faces) != meta_data.faces:
             req = meta_data.faces
@@ -186,7 +139,7 @@ def read_tet_file(input_file):
         reader = csv.reader(decomment(file), delimiter=' ')
         row = next(reader)
         row = [x for x in row if x != '']
-        meta_data = TetMetaData(int(row[0]), int(row[1]), int(row[2]))
+        meta_data = ts.TetMetaData(int(row[0]), int(row[1]), int(row[2]))
 
         if meta_data.nodes != 4:
             raise ValueError("This reader can only handle four nodes per tetrahedron.")
@@ -196,19 +149,19 @@ def read_tet_file(input_file):
             row = [x for x in row if x != '']
             index = int(row[0])
             if meta_data.ra == 0:
-                tets[index] = Tetrahedron4(index,
-                                           int(row[1]),
-                                           int(row[2]),
-                                           int(row[3]),
-                                           int(row[4]),
-                                           None)
+                tets[index] = ts.Tetrahedron4(index,
+                                              int(row[1]),
+                                              int(row[2]),
+                                              int(row[3]),
+                                              int(row[4]),
+                                              None)
             else:
-                tets[index] = Tetrahedron4(index,
-                                           int(row[1]),
-                                           int(row[2]),
-                                           int(row[3]),
-                                           int(row[4],
-                                           int(row[5])))
+                tets[index] = ts.Tetrahedron4(index,
+                                              int(row[1]),
+                                              int(row[2]),
+                                              int(row[3]),
+                                              int(row[4],
+                                              int(row[5])))
 
         if len(tets) != meta_data.tets:
             req = meta_data.tets

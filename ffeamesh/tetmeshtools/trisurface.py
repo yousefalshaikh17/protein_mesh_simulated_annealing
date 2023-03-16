@@ -37,8 +37,8 @@ class TriSurface():
         """
         set up the object
         Args:
-            nodes (tetview.NodePoint)
-            faces (tetview.Face)
+            nodes (NodePoint)
+            faces (Face)
         """
         ## the vertices of the faces
         self._nodes = nodes

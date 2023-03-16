@@ -22,7 +22,8 @@
 
  @author: jonathan pickering, joanna leng 26 Jan 23
 """
-import tgv.libs.tetgen_read as tr
+import ffeamesh.tetmeshtools.tetgenstructs as ts
+import ffeamesh.tetmeshtools.tetgenread as tr
 
 def test_uniformity():
     """
@@ -36,7 +37,7 @@ def test_edges_to_area_ratio():
     test edges_to_area_ratio
     """
     nodes = []
-    nodes.append(tr.NodePoint(7,   0.0, 0.0, 0.0))
-    nodes.append(tr.NodePoint(12,  1.0, 0.0, 0.0))
-    nodes.append(tr.NodePoint(123, 0.0, 1.0, 0.0))
+    nodes.append(ts.NodePoint(7,   0.0, 0.0, 0.0))
+    nodes.append(ts.NodePoint(12,  1.0, 0.0, 0.0))
+    nodes.append(ts.NodePoint(123, 0.0, 1.0, 0.0))
     print(f"Edges to area ratio {tr.edges_to_area_ratio(nodes)} should be 23.3137")

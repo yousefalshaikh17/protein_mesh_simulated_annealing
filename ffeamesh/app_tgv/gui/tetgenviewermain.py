@@ -27,6 +27,7 @@ import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
 import ffeamesh.tetmeshtools.tetgenread as tr
+import ffeamesh.tetmeshtools.tetgenstructs as ts
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.tetprops as tp
 
@@ -82,19 +83,19 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._nodes = {}
             for index, point in enumerate(points):
                 index += 1
-                self._nodes[index] = tr.NodePoint(index, point[0], point[1], point[2])
+                self._nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
 
             self._faces = []
             for index, face in enumerate(surface):
                 index += 1
-                self._faces.append(tr.Face(index, face[0], face[1], face[2], -1))
+                self._faces.append(ts.Face(index, face[0], face[1], face[2], -1))
 
             self._faces = sorted(self._faces, key=operator.attrgetter('index'))
 
             self._tets = {}
             for index, tet in enumerate(volume):
                 index += 1
-                self._tets[index] = tr.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
+                self._tets[index] = ts.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
 
             tet_props = tp.get_tet_props(self._nodes, self._tets)
 

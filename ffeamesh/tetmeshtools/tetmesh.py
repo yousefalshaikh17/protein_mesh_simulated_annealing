@@ -36,8 +36,8 @@ class TetMesh():
         """
         set up the object
         Args:
-            nodes (tetview.NodePoint)
-            tets  (tetview.Tetrahedron4)
+            nodes (NodePoint)
+            tets  (Tetrahedron4)
         """
         ## the vertices of the tets
         self._nodes = nodes
