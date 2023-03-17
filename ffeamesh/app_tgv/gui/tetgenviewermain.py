@@ -237,7 +237,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if self._current_source is not None:
             path = str(self._current_source)
 
-        print(f"Path {path}")
         name, _ = qw.QFileDialog.getSaveFileName(self,
                                                  "Enter one tetgen file",
                                                  path,
@@ -323,6 +322,11 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             flag (bool): the new state
         """
+        if self._nodes is None:
+            return
+        if self._faces is None:
+            return
+
         if flag:
             self._tetViewer.show_surface_lattice(self._nodes, self._faces)
             return

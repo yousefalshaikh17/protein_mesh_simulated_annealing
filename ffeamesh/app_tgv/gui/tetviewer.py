@@ -196,16 +196,16 @@ class TetViewer(qw.QOpenGLWidget):
         render the triangles outlines
         """
         nodes = self._lattice["nodes"]
-        gl.glEnable(gl.GL_BLEND)
-        gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
-        gl.glBlendEquation(gl.GL_FUNC_ADD)
+        # gl.glEnable(gl.GL_BLEND)
+        # gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
+        # gl.glBlendEquation(gl.GL_FUNC_ADD)
 
         gl.glPushMatrix()
         gl.glScale(scale.x, scale.y, scale.z)
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
         gl.glColor(1.0, 0.0, 0.0, 1.0)
-        gl.glLineWidth(1)
+        gl.glLineWidth(5)
         gl.glBegin(gl.GL_LINES)
         for index, verts_indices in self._lattice.items():
             if index != "nodes":
@@ -222,7 +222,7 @@ class TetViewer(qw.QOpenGLWidget):
 
         gl.glPopAttrib()
         gl.glPopMatrix()
-        gl.glDisable(gl.GL_BLEND)
+        # gl.glDisable(gl.GL_BLEND)
 
     def draw_selected_tet(self, scale):
         """
