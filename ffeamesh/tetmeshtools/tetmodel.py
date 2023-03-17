@@ -2,6 +2,9 @@
 @copyright 2022
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+import pathlib
+
+import ffeamesh.tetmeshtools.tetgenwrite as tw
 
 class TetModel():
     """
@@ -111,3 +114,15 @@ class TetModel():
     def __str__(self):
         """to string method"""
         return f"TetModel: <{self._surface}> <{self._tets}>"
+
+    def write_to_file(self, file_name):
+        """
+        write contents to file_name.1.ele, file_name.1.node, file_name.1.face
+        Args:
+            file_name (str)
+        """
+        path = pathlib.Path(file_name)
+
+        tw.write_tetgen_nodes(path, self._surface.get_nodes())
+        tw.write_tetgen_faces(path, self._surface.get_faces())
+        tw.write_tetgen_elements(path, self._tets.get_tets())

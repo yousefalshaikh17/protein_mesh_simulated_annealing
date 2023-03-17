@@ -48,6 +48,7 @@ class TriSurface():
 
     def get_faces(self):
         """getter for the faces"""
+        print(f"Type Faces {type(self._faces)}")
         return self._faces
 
     def get_nodes(self):
