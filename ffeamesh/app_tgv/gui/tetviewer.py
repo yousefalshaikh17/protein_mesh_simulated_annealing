@@ -155,10 +155,10 @@ class TetViewer(qw.QOpenGLWidget):
         scale = ThreeStore(1.0, 1.0, 1.0)
         if self._current_tet is not None:
             self.draw_selected_tet(scale)
-        if self._surface is not None:
-            self.draw_triangles(scale)
         if self._lattice is not None:
             self.draw_triangle_outline(scale)
+        if self._surface is not None:
+            self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
 
@@ -175,7 +175,7 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glScale(scale.x, scale.y, scale.z)
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
-        gl.glColor4f(0.5, 0.0, 0.2, 0.5)
+        gl.glColor4f(1.0, 0.0, 0.7, 0.5)
         gl.glBegin(gl.GL_TRIANGLES)
         for index, verts_indices in self._surface.items():
             if index != "nodes":
@@ -196,9 +196,6 @@ class TetViewer(qw.QOpenGLWidget):
         render the triangles outlines
         """
         nodes = self._lattice["nodes"]
-        # gl.glEnable(gl.GL_BLEND)
-        # gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
-        # gl.glBlendEquation(gl.GL_FUNC_ADD)
 
         gl.glPushMatrix()
         gl.glScale(scale.x, scale.y, scale.z)
@@ -222,7 +219,6 @@ class TetViewer(qw.QOpenGLWidget):
 
         gl.glPopAttrib()
         gl.glPopMatrix()
-        # gl.glDisable(gl.GL_BLEND)
 
     def draw_selected_tet(self, scale):
         """
