@@ -166,6 +166,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         render the triangles
         """
+        import numpy as np
         nodes = self._surface["nodes"]
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
@@ -175,17 +176,51 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glScale(scale.x, scale.y, scale.z)
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
-        gl.glColor4f(1.0, 0.0, 0.7, 0.5)
+        #gl.glColor4f(1.0, 0.0, 0.7, 0.5)
+        mat_specular = [1.0, 1.0, 1.0, 1.0]
+        mat_shininess = [50.0]
+        mat_amb_diff = [0.1, 0.5, 0.8, 0.5]
+
+        light_ambient = [0.0, 0.0, 0.0, 1.0]
+        light_diffuse = [1.0, 1.0, 1.0, 1.0]
+        light_specular = [1.0, 1.0, 1.0, 1.0]
+
+        light_position = [1000.0, 100.0, 100.0, 0.0]
+        gl.glShadeModel (gl.GL_SMOOTH)
+        gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE, mat_amb_diff)
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR, mat_specular)
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_SHININESS, mat_shininess)
+
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, light_ambient)
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, light_diffuse)
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, light_specular)
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, light_position)
+
+        gl.glEnable(gl.GL_LIGHTING)
+        gl.glEnable(gl.GL_LIGHT0)
         gl.glBegin(gl.GL_TRIANGLES)
         for index, verts_indices in self._surface.items():
             if index != "nodes":
                 node0 = nodes[verts_indices[0]]
                 node1 = nodes[verts_indices[1]]
                 node2 = nodes[verts_indices[2]]
+
+                edge0 = node0.to_edge_array(node1)
+                edge1 = node1.to_edge_array(node2)
+                normal = np.cross(edge0, edge1)
+                norm = np.linalg.norm(normal)
+                normal = normal/norm
+
+                gl.glNormal(normal[0], normal[1], normal[2])
                 gl.glVertex(node0.x, node0.y, node0.z)
                 gl.glVertex(node1.x, node1.y, node1.z)
                 gl.glVertex(node2.x, node2.y, node2.z)
+
+
         gl.glEnd()
+
+        gl.glDisable(gl.GL_LIGHT0)
+        gl.glDisable(gl.GL_LIGHTING)
 
         gl.glPopAttrib()
         gl.glPopMatrix()
