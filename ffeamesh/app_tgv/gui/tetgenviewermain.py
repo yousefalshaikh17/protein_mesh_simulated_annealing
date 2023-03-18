@@ -30,6 +30,9 @@ import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.tetgenstructs as ts
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.tetprops as tp
+import ffeamesh.tetmeshtools.tetmodel as tm
+import ffeamesh.tetmeshtools.trisurface as tris
+import ffeamesh.tetmeshtools.tetmesh as tmes
 
 from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
@@ -48,14 +51,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         super().__init__(parent)
         self.setupUi(self)
 
-        ## pointer for the tets list
-        self._tets = None
-
-        ## pointer for the faces list
-        self._faces = None
-
-        ## pointer for the nodes list
-        self._nodes = None
+        ## model
+        self._model = None
 
         ## connect up signals
         self._tetViewer.reset_rot_input.connect(self.reset_sliders)
@@ -80,24 +77,27 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         try:
             points, surface, volume = fr.read_file(file_path)
 
-            self._nodes = {}
+            nodes = {}
             for index, point in enumerate(points):
                 index += 1
-                self._nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
+                nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
 
-            self._faces = []
+            faces = []
             for index, face in enumerate(surface):
                 index += 1
-                self._faces.append(ts.Face(index, face[0], face[1], face[2], -1))
+                faces.append(ts.Face(index, face[0], face[1], face[2], -1))
 
-            self._faces = sorted(self._faces, key=operator.attrgetter('index'))
+            faces = sorted(faces, key=operator.attrgetter('index'))
 
-            self._tets = {}
+            tets = {}
             for index, tet in enumerate(volume):
                 index += 1
-                self._tets[index] = ts.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
+                tets[index] = ts.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
 
-            tet_props = tp.get_tet_props(self._nodes, self._tets)
+            tet_props = tp.get_tet_props(nodes, tets)
+
+            self._model = tm.TetModel(tris.TriSurface(nodes, faces),
+                                      tmes.TetMesh(nodes, tets))
 
             self.list_tets(tet_props)
             self.reset_view()
@@ -106,6 +106,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
             return
+
     def load_tetgen_files(self, root_name):
         """
         load tetgen files
@@ -117,11 +118,14 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         tets_file = root_name.with_suffix(".1.ele")
 
         try:
-            _, self._nodes = tr.read_node_file(node_file)
-            _, self._faces = tr.read_face_file(face_file)
-            _, self._tets  = tr.read_tet_file(tets_file)
+            _, nodes = tr.read_node_file(node_file)
+            _, faces = tr.read_face_file(face_file)
+            _, tets  = tr.read_tet_file(tets_file)
 
-            tet_props = tp.get_tet_props(self._nodes, self._tets)
+            tet_props = tp.get_tet_props(nodes, tets)
+
+            self._model = tm.TetModel(tris.TriSurface(nodes, faces),
+                                      tmes.TetMesh(nodes, tets))
 
             self.list_tets(tet_props)
             self.reset_view()
@@ -226,12 +230,13 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         indices = self._tetsTableWidget.selectedIndexes()
         row = indices[0].row()
         index = self._tetsTableWidget.item(row, 0)
-        self._tetViewer.display(self._tets[int(index.text())], self._nodes)
+
+        self._tetViewer.display(self._model.get_tet(int(index.text())))
 
     @qc.pyqtSlot()
     def save_tet_data(self):
         """
-        save eccentricities data
+        save table of tet data
         """
         path = str(pathlib.Path.home())
         if self._current_source is not None:
@@ -310,7 +315,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             flag (bool): the new state
         """
         if flag:
-            self._tetViewer.show_faces(self._nodes, self._faces)
+            self._tetViewer.show_faces(self._model.get_surface().get_nodes(),
+                                       self._model.get_surface().get_faces())
             return
 
         self._tetViewer.hide_faces()
@@ -322,13 +328,13 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             flag (bool): the new state
         """
-        if self._nodes is None:
-            return
-        if self._faces is None:
+        if self._model is None:
             return
 
         if flag:
-            self._tetViewer.show_surface_lattice(self._nodes, self._faces)
+            self._tetViewer.show_surface_lattice(self._model.get_surface().get_nodes(),
+                                                 self._model.get_surface().get_faces(),
+                                                 self._model.get_surface().get_surface_ctr())
             return
 
         self._tetViewer.hide_surface_lattice()

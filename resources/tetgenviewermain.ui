@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
+    <width>656</width>
     <height>367</height>
    </rect>
   </property>
@@ -57,6 +57,16 @@
               </widget>
              </item>
              <item>
+              <widget class="QSpinBox" name="_thicknessBox">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -81,6 +91,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="_hideButton">
+               <property name="text">
+                <string>Hide Tet</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -94,9 +111,9 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="_hideButton">
+              <widget class="QPushButton" name="_ctrMeshButton">
                <property name="text">
-                <string>Hide Tet</string>
+                <string>Centre Mesh</string>
                </property>
               </widget>
              </item>
@@ -273,7 +290,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>476</width>
+     <width>656</width>
      <height>22</height>
     </rect>
    </property>
@@ -529,9 +546,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>_ctrMeshButton</sender>
+   <signal>clicked()</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>centre_mesh()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>264</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_thicknessBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>set_thickness(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="_viewGroup"/>
   <buttongroup name="_backgroundGroup"/>
+  <buttongroup name="_viewGroup"/>
  </buttongroups>
 </ui>

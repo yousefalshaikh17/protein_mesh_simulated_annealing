@@ -24,6 +24,7 @@
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 import collections
+import numpy as np
 
 from ffeamesh.vector3 import Vector3
 
@@ -38,6 +39,14 @@ class NodePoint(_NodePoint):
     """
     extend 3D point
     """
+
+    def to_array(self):
+        """
+        convert to numpy.array
+        Return:
+            numpy.array(float32)
+        """
+        return np.array([self.x, self.y, self.z], dtype=np.float32)
 
     def to_edge_array(self, rhs):
         """

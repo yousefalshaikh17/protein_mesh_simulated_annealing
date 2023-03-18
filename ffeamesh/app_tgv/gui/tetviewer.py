@@ -87,6 +87,12 @@ class TetViewer(qw.QOpenGLWidget):
         ## centre of the tet being viewed
         self._current_tet_ctr = None
 
+        ## centre of the surface
+        self._surface_ctr = None
+
+        ## pixel thickness of edges
+        self._edges_width = 1
+
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
 
@@ -176,7 +182,6 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glScale(scale.x, scale.y, scale.z)
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
-        #gl.glColor4f(1.0, 0.0, 0.7, 0.5)
         mat_specular = [1.0, 1.0, 1.0, 1.0]
         mat_shininess = [50.0]
         mat_amb_diff = [0.1, 0.5, 0.8, 0.5]
@@ -236,8 +241,8 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glScale(scale.x, scale.y, scale.z)
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
-        gl.glColor(1.0, 0.0, 0.0, 1.0)
-        gl.glLineWidth(5)
+        gl.glColor(0.1, 0.0, 0.7, 1.0)
+        gl.glLineWidth(self._edges_width)
         gl.glBegin(gl.GL_LINES)
         for index, verts_indices in self._lattice.items():
             if index != "nodes":
@@ -292,19 +297,13 @@ class TetViewer(qw.QOpenGLWidget):
 
         gl.glEnd()
 
-    def display(self, tet, nodes):
+    def display(self, tet):
         """
         display a tet
         Args:
-            tet (tetgen_read.Tetrahedron4)
-            nodes ({NodePoint}): the points
+            tet [Tetrahedron4]: the tets node points
         """
-        self._current_tet = []
-        self._current_tet.append(nodes[tet.vert0])
-        self._current_tet.append(nodes[tet.vert1])
-        self._current_tet.append(nodes[tet.vert2])
-        self._current_tet.append(nodes[tet.vert3])
-
+        self._current_tet = tet
         ctr = tp.find_centre(self._current_tet)
         self._current_tet_ctr = ThreeStore(ctr[0], ctr[1], ctr[2])
 
@@ -342,13 +341,14 @@ class TetViewer(qw.QOpenGLWidget):
 
         self.update()
 
-    def show_surface_lattice(self, nodes, faces):
+    def show_surface_lattice(self, nodes, faces, surface_ctr):
         """
         show the faces
         Args:
             nodes
             faces
         """
+        self._surface_ctr = surface_ctr
         self._lattice = {}
         self._lattice["nodes"] = nodes
         for face in faces:
@@ -447,6 +447,14 @@ class TetViewer(qw.QOpenGLWidget):
         self.update()
 
     @qc.pyqtSlot(int)
+    def set_thickness(self, val):
+        """
+        set thickness of surface triangle edges
+        """
+        self._edges_width = val
+        self.update()
+
+    @qc.pyqtSlot(int)
     def set_rot_x(self, val):
         """
         set rotation about x axis
@@ -499,9 +507,20 @@ class TetViewer(qw.QOpenGLWidget):
         return super().mouseReleaseEvent(event)
 
     @qc.pyqtSlot()
+    def centre_mesh(self):
+        """
+        callback for click of ctr mesh button
+        """
+        if self._surface_ctr is not None:
+            self._shift.x = self._surface_ctr[0]
+            self._shift.y = self._surface_ctr[1]
+            self._shift.z = -1350.0
+            self.update()
+
+    @qc.pyqtSlot()
     def centre_tet(self):
         """
-        callback for click of ctr button
+        callback for click of ctr tet button
         """
         if self._current_tet_ctr is not None:
             self._shift.x = self._current_tet_ctr.x

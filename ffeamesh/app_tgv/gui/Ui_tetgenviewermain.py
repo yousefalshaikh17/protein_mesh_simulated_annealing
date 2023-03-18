@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TetgenViewerMain(object):
     def setupUi(self, TetgenViewerMain):
         TetgenViewerMain.setObjectName("TetgenViewerMain")
-        TetgenViewerMain.resize(476, 367)
+        TetgenViewerMain.resize(656, 367)
         TetgenViewerMain.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.centralwidget = QtWidgets.QWidget(TetgenViewerMain)
         self.centralwidget.setObjectName("centralwidget")
@@ -43,6 +43,11 @@ class Ui_TetgenViewerMain(object):
         self._surfaceLatticeButton = QtWidgets.QCheckBox(self.groupBox1)
         self._surfaceLatticeButton.setObjectName("_surfaceLatticeButton")
         self.horizontalLayout_4.addWidget(self._surfaceLatticeButton)
+        self._thicknessBox = QtWidgets.QSpinBox(self.groupBox1)
+        self._thicknessBox.setMinimum(1)
+        self._thicknessBox.setMaximum(10)
+        self._thicknessBox.setObjectName("_thicknessBox")
+        self.horizontalLayout_4.addWidget(self._thicknessBox)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
@@ -51,11 +56,14 @@ class Ui_TetgenViewerMain(object):
         self._ctrTetButton = QtWidgets.QPushButton(self.groupBox1)
         self._ctrTetButton.setObjectName("_ctrTetButton")
         self.horizontalLayout_3.addWidget(self._ctrTetButton)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem1)
         self._hideButton = QtWidgets.QPushButton(self.groupBox1)
         self._hideButton.setObjectName("_hideButton")
         self.horizontalLayout_3.addWidget(self._hideButton)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
+        self._ctrMeshButton = QtWidgets.QPushButton(self.groupBox1)
+        self._ctrMeshButton.setObjectName("_ctrMeshButton")
+        self.horizontalLayout_3.addWidget(self._ctrMeshButton)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -138,7 +146,7 @@ class Ui_TetgenViewerMain(object):
         self.verticalLayout_6.addWidget(self.splitter)
         TetgenViewerMain.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(TetgenViewerMain)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 476, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 656, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -176,6 +184,8 @@ class Ui_TetgenViewerMain(object):
         self._surfaceLatticeButton.toggled['bool'].connect(TetgenViewerMain.show_surface_lattice) # type: ignore
         self._hideButton.clicked.connect(self._tetViewer.remove_current_tet) # type: ignore
         self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
+        self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
+        self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -187,6 +197,7 @@ class Ui_TetgenViewerMain(object):
         self._surfaceLatticeButton.setText(_translate("TetgenViewerMain", "Surface Lattice"))
         self._ctrTetButton.setText(_translate("TetgenViewerMain", "Centre Tet"))
         self._hideButton.setText(_translate("TetgenViewerMain", "Hide Tet"))
+        self._ctrMeshButton.setText(_translate("TetgenViewerMain", "Centre Mesh"))
         self.label_2.setText(_translate("TetgenViewerMain", "Rot Horizontal"))
         self.label_3.setText(_translate("TetgenViewerMain", "Rot Vertical    "))
         self.groupBox_2.setTitle(_translate("TetgenViewerMain", "Tetrahedra Data"))
