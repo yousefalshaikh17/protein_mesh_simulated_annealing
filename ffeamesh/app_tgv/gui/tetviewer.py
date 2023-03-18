@@ -157,6 +157,15 @@ class TetViewer(qw.QOpenGLWidget):
             gl.glTranslate(-self._current_tet_ctr.x,
                            -self._current_tet_ctr.y,
                            -self._current_tet_ctr.z)
+        elif self._surface_ctr is not None:
+            gl.glTranslate(self._surface_ctr[0],
+                           self._surface_ctr[1],
+                           self._surface_ctr[2])
+            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
+            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
+            gl.glTranslate(-self._surface_ctr[0],
+                           -self._surface_ctr[1],
+                           -self._surface_ctr[2])
 
         scale = ThreeStore(1.0, 1.0, 1.0)
         if self._current_tet is not None:
