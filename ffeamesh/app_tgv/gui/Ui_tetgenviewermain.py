@@ -162,7 +162,10 @@ class Ui_TetgenViewerMain(object):
         self._actionSaveImage.setObjectName("_actionSaveImage")
         self._actionSaveTetData = QtWidgets.QAction(TetgenViewerMain)
         self._actionSaveTetData.setObjectName("_actionSaveTetData")
+        self._actionGo = QtWidgets.QAction(TetgenViewerMain)
+        self._actionGo.setObjectName("_actionGo")
         self.menuFile.addAction(self._actionLoad)
+        self.menuFile.addAction(self._actionGo)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionSaveImage)
         self.menuFile.addAction(self._actionSaveTetData)
@@ -186,6 +189,7 @@ class Ui_TetgenViewerMain(object):
         self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
+        self._actionGo.triggered.connect(TetgenViewerMain.go) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -213,4 +217,5 @@ class Ui_TetgenViewerMain(object):
         self._actionExit.setText(_translate("TetgenViewerMain", "Exit"))
         self._actionSaveImage.setText(_translate("TetgenViewerMain", "Save image"))
         self._actionSaveTetData.setText(_translate("TetgenViewerMain", "Save tet data"))
+        self._actionGo.setText(_translate("TetgenViewerMain", "Go"))
 from ffeamesh.app_tgv.gui.tetviewer import TetViewer

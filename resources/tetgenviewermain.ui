@@ -299,6 +299,7 @@
      <string>File</string>
     </property>
     <addaction name="_actionLoad"/>
+    <addaction name="_actionGo"/>
     <addaction name="separator"/>
     <addaction name="_actionSaveImage"/>
     <addaction name="_actionSaveTetData"/>
@@ -326,6 +327,11 @@
   <action name="_actionSaveTetData">
    <property name="text">
     <string>Save tet data</string>
+   </property>
+  </action>
+  <action name="_actionGo">
+   <property name="text">
+    <string>Go</string>
    </property>
   </action>
  </widget>
@@ -575,6 +581,22 @@
     <hint type="destinationlabel">
      <x>165</x>
      <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionGo</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>go()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>183</y>
     </hint>
    </hints>
   </connection>
