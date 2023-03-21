@@ -58,7 +58,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._tetViewer.reset_rot_input.connect(self.reset_sliders)
 
         ## current source directory
-        self._current_source = pathlib.Path("C:\\Users\\jhp11\\Work\\ffea-meshing\\docs\\molly_params\\tutorial")
+        self._current_source = None
 
         if config_args.input is None:
             return
