@@ -58,7 +58,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._tetViewer.reset_rot_input.connect(self.reset_sliders)
 
         ## current source directory
-        self._current_source = None
+        self._current_source = pathlib.Path("C:\\Users\\jhp11\\Work\\ffea-meshing\\docs\\molly_params\\tutorial")
 
         if config_args.input is None:
             return
@@ -269,24 +269,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         qw.QMessageBox.information(self,
                                    "TeggenView Save",
                                    f"Data written to {name}")
-
-    @qc.pyqtSlot()
-    def go(self):
-        """
-        multiple imgaes
-        """
-        import time
-        #self.load_tetgen_files(pathlib.Path("model_gen_0"))
-        for index in range(0, 99, 2):
-            name = f"model_gen_{index}"
-            print(name)
-            self.load_tetgen_files(pathlib.Path(name))
-            self._tetViewer.show_faces(self._model.get_surface().get_nodes(),
-                                       self._model.get_surface().get_faces())
-            self._tetViewer.show_surface_lattice(self._model.get_surface().get_nodes(),
-                                                 self._model.get_surface().get_faces(),
-                                                 self._model.get_surface().get_surface_ctr())
-            self._tetViewer.grab().save(name+".png")
 
     @qc.pyqtSlot()
     def save_image(self):

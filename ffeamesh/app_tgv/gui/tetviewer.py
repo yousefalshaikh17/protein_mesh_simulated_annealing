@@ -145,35 +145,32 @@ class TetViewer(qw.QOpenGLWidget):
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
-        gl.glTranslate(-225.356187869341, -169.8044962956355, -1535.0)
-        gl.glTranslate(226.75618786934095, 174.0044962956355, 180.1371079664964)
-        gl.glRotate(61, 0.0, 1.0, 0.0)
-        gl.glTranslate(-226.75618786934095, -174.0044962956355, -180.1371079664964)
+        # gl.glTranslate(-225.356187869341, -169.8044962956355, -1535.0)
+        # gl.glTranslate(226.75618786934095, 174.0044962956355, 180.1371079664964)
+        # gl.glRotate(61, 0.0, 1.0, 0.0)
+        # gl.glTranslate(-226.75618786934095, -174.0044962956355, -180.1371079664964)
 
-        # # location of tet as input by user
-        # gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
-        # print("===\n", -self._shift.x, -self._shift.y, self._shift.z)
+        # location of tet as input by user
+        gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
 
-        # if self._current_tet is not None:
-        #     gl.glTranslate(self._current_tet_ctr.x,
-        #                    self._current_tet_ctr.y,
-        #                    self._current_tet_ctr.z)
-        #     gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-        #     gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-        #     gl.glTranslate(-self._current_tet_ctr.x,
-        #                    -self._current_tet_ctr.y,
-        #                    -self._current_tet_ctr.z)
-        #     print(f"Setup: ({self._current_tet_ctr.x}, {self._current_tet_ctr.y}, {self._current_tet_ctr.z}) ({self._rotations.x}, {self._rotations.y})")
-        # elif self._surface_ctr is not None:
-        #     gl.glTranslate(self._surface_ctr[0],
-        #                    self._surface_ctr[1],
-        #                    self._surface_ctr[2])
-        #     gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-        #     gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-        #     gl.glTranslate(-self._surface_ctr[0],
-        #                    -self._surface_ctr[1],
-        #                    -self._surface_ctr[2])
-        #     print(f"Setup: ({self._surface_ctr[0]}, {self._surface_ctr[1]}, {self._surface_ctr[2]}) ({self._rotations.x}, {self._rotations.y})")
+        if self._current_tet is not None:
+            gl.glTranslate(self._current_tet_ctr.x,
+                           self._current_tet_ctr.y,
+                           self._current_tet_ctr.z)
+            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
+            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
+            gl.glTranslate(-self._current_tet_ctr.x,
+                           -self._current_tet_ctr.y,
+                           -self._current_tet_ctr.z)
+        elif self._surface_ctr is not None:
+            gl.glTranslate(self._surface_ctr[0],
+                           self._surface_ctr[1],
+                           self._surface_ctr[2])
+            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
+            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
+            gl.glTranslate(-self._surface_ctr[0],
+                           -self._surface_ctr[1],
+                           -self._surface_ctr[2])
 
         scale = ThreeStore(1.0, 1.0, 1.0)
         if self._current_tet is not None:
