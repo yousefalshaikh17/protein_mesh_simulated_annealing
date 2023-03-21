@@ -97,6 +97,7 @@ class TetViewer(qw.QOpenGLWidget):
         self._mouse_position = None
 
         self._clear_colour = None
+        self._text_colour = None
         self.set_background()
 
     def initializeGL(self):
@@ -181,6 +182,20 @@ class TetViewer(qw.QOpenGLWidget):
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
+
+        painter = qg.QPainter(self)
+        pen = qg.QPen()
+        pen.setWidth(1)
+        pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
+        painter.setPen(pen)
+        font = qg.QFont()
+        font.setFamily('Arial')
+        font.setBold(True)
+        font.setPointSize(7)
+        painter.setFont(font)
+
+        painter.drawText(1, self.height()-1, '@University of Leeds 2023')
+        painter.end()
 
     def draw_triangles(self, scale):
         """
@@ -332,6 +347,7 @@ class TetViewer(qw.QOpenGLWidget):
         self._surface = None
         self._lattice = None
         self._clear_colour = None
+        self._text_colour = None
         self._perspective = True
         self.set_background()
 
@@ -431,10 +447,13 @@ class TetViewer(qw.QOpenGLWidget):
         """
         if text == "Black":
             self._clear_colour = ThreeStore(0.0, 0.0, 0.0)
+            self._text_colour = ThreeStore(255, 255, 255)
         elif text == "White":
             self._clear_colour = ThreeStore(1.0, 1.0, 1.0)
+            self._text_colour = ThreeStore(77, 102, 128)
         elif text == "Gray":
             self._clear_colour = ThreeStore(0.3, 0.4, 0.5)
+            self._text_colour = ThreeStore(255, 255, 255)
 
     def change_background(self, text):
         """
