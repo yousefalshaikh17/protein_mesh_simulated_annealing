@@ -183,19 +183,19 @@ class TetViewer(qw.QOpenGLWidget):
 
         gl.glPopMatrix()    # restore the previous modelview matrix
 
-        painter = qg.QPainter(self)
-        pen = qg.QPen()
-        pen.setWidth(1)
-        pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
-        painter.setPen(pen)
-        font = qg.QFont()
-        font.setFamily('Arial')
-        font.setBold(True)
-        font.setPointSize(7)
-        painter.setFont(font)
+        # painter = qg.QPainter(self)
+        # pen = qg.QPen()
+        # pen.setWidth(1)
+        # pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
+        # painter.setPen(pen)
+        # font = qg.QFont()
+        # font.setFamily('Arial')
+        # font.setBold(True)
+        # font.setPointSize(7)
+        # painter.setFont(font)
 
-        painter.drawText(1, self.height()-1, '@University of Leeds 2023')
-        painter.end()
+        # painter.drawText(1, self.height()-1, '@University of Leeds 2023')
+        # painter.end()
 
     def draw_triangles(self, scale):
         """
