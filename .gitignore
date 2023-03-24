@@ -62,3 +62,4 @@ docs/*
 
 *.csv
 ryan/*
+tmp/*
