@@ -58,7 +58,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._tetViewer.reset_rot_input.connect(self.reset_sliders)
 
         ## current source directory
-        self._current_source = None
+        self._current_source = "C:\\Users\\jhp11\\Work\\ffea-meshing\\docs"
 
         if config_args.input is None:
             return
@@ -315,8 +315,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             flag (bool): the new state
         """
         if flag:
-            self._tetViewer.show_faces(self._model.get_surface().get_nodes(),
-                                       self._model.get_surface().get_faces())
+            self._tetViewer.show_faces(self._model.get_surface())
             return
 
         self._tetViewer.hide_faces()
@@ -332,9 +331,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             return
 
         if flag:
-            self._tetViewer.show_surface_lattice(self._model.get_surface().get_nodes(),
-                                                 self._model.get_surface().get_faces(),
-                                                 self._model.get_surface().get_surface_ctr())
+            self._tetViewer.show_surface_lattice(self._model.get_surface())
             return
 
         self._tetViewer.hide_surface_lattice()

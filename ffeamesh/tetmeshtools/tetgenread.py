@@ -109,18 +109,18 @@ def read_face_file(input_file):
         row = [x for x in row if x != '']
         meta_data = ts.FaceMetaData(int(row[0]), int(row[1]))
 
-        faces = []
+        faces = {}
         for row in reader:
             row = [x for x in row if x != '']
-            faces.append(ts.Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4])))
+            faces[int(row[0])] = ts.Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4]))
 
         if len(faces) != meta_data.faces:
             req = meta_data.faces
             act = len(faces)
-            er_m = f"File {input_file} should have {req} points, but {act} were found!"
+            er_m = f"File {input_file} should have {req} faces, but {act} were found!"
             raise ValueError(er_m)
 
-    return meta_data, sorted(faces, key=operator.attrgetter('index'))
+    return meta_data, faces
 
 def read_tet_file(input_file):
     """

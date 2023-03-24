@@ -580,7 +580,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="_backgroundGroup"/>
   <buttongroup name="_viewGroup"/>
+  <buttongroup name="_backgroundGroup"/>
  </buttongroups>
 </ui>

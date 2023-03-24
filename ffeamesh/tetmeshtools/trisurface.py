@@ -131,6 +131,18 @@ class TriSurface():
 
         return surface_nodes
 
+    def get_triangle_verts(self, index):
+        """
+        get the node indices for a triangle
+        Args:
+            index (int): index number of triangle
+        Returns:
+            [int, int, int]
+        """
+        return [self._faces[index].vert0,
+                self._faces[index].vert1,
+                self._faces[index].vert2]
+
     def __str__(self):
         """to string"""
         return f"Surface: {len(self._faces)} triangles on {len(self._nodes)} nodes"

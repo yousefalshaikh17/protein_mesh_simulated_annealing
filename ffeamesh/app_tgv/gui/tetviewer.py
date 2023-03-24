@@ -97,6 +97,7 @@ class TetViewer(qw.QOpenGLWidget):
         self._mouse_position = None
 
         self._clear_colour = None
+        self._text_colour = None
         self.set_background()
 
     def initializeGL(self):
@@ -145,6 +146,11 @@ class TetViewer(qw.QOpenGLWidget):
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
+        # gl.glTranslate(-225.356187869341, -169.8044962956355, -1535.0)
+        # gl.glTranslate(226.75618786934095, 174.0044962956355, 180.1371079664964)
+        # gl.glRotate(61, 0.0, 1.0, 0.0)
+        # gl.glTranslate(-226.75618786934095, -174.0044962956355, -180.1371079664964)
+
         # location of tet as input by user
         gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
 
@@ -176,6 +182,20 @@ class TetViewer(qw.QOpenGLWidget):
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
+
+        # painter = qg.QPainter(self)
+        # pen = qg.QPen()
+        # pen.setWidth(1)
+        # pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
+        # painter.setPen(pen)
+        # font = qg.QFont()
+        # font.setFamily('Arial')
+        # font.setBold(True)
+        # font.setPointSize(7)
+        # painter.setFont(font)
+
+        # painter.drawText(1, self.height()-1, '@University of Leeds 2023')
+        # painter.end()
 
     def draw_triangles(self, scale):
         """
@@ -229,7 +249,6 @@ class TetViewer(qw.QOpenGLWidget):
                 gl.glVertex(node0.x, node0.y, node0.z)
                 gl.glVertex(node1.x, node1.y, node1.z)
                 gl.glVertex(node2.x, node2.y, node2.z)
-
 
         gl.glEnd()
 
@@ -328,6 +347,7 @@ class TetViewer(qw.QOpenGLWidget):
         self._surface = None
         self._lattice = None
         self._clear_colour = None
+        self._text_colour = None
         self._perspective = True
         self.set_background()
 
@@ -336,32 +356,33 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, nodes, faces):
+    def show_faces(self, surface):
         """
         show the faces
         Args:
-            nodes
-            faces
+            surface (Trisurface)
         """
         self._surface = {}
-        self._surface["nodes"] = nodes
-        for face in faces:
-            self._surface[face.index] = [face.vert0, face.vert1, face.vert2]
+        self._surface["nodes"] = surface.get_nodes()
+        # iterate the faces dictionary keys
+        for index in surface.get_faces():
+            self._surface[index] = surface.get_triangle_verts(index)
 
         self.update()
 
-    def show_surface_lattice(self, nodes, faces, surface_ctr):
+    def show_surface_lattice(self, surface):
         """
         show the faces
         Args:
-            nodes
-            faces
+            surface (Trisurface)
+            surface_ctr
         """
-        self._surface_ctr = surface_ctr
+        self._surface_ctr = surface.get_surface_ctr()
         self._lattice = {}
-        self._lattice["nodes"] = nodes
-        for face in faces:
-            self._lattice[face.index] = [face.vert0, face.vert1, face.vert2]
+        self._lattice["nodes"] = surface.get_nodes()
+        # iterate the faces dictionary keys
+        for index in surface.get_faces():
+            self._lattice[index] = surface.get_triangle_verts(index)
 
         self.update()
 
@@ -427,10 +448,13 @@ class TetViewer(qw.QOpenGLWidget):
         """
         if text == "Black":
             self._clear_colour = ThreeStore(0.0, 0.0, 0.0)
+            self._text_colour = ThreeStore(255, 255, 255)
         elif text == "White":
             self._clear_colour = ThreeStore(1.0, 1.0, 1.0)
+            self._text_colour = ThreeStore(77, 102, 128)
         elif text == "Gray":
             self._clear_colour = ThreeStore(0.3, 0.4, 0.5)
+            self._text_colour = ThreeStore(255, 255, 255)
 
     def change_background(self, text):
         """

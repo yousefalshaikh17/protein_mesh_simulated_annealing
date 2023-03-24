@@ -63,3 +63,7 @@ docs/*
 *.csv
 ryan/*
 tmp/*
+*.png
+*.1.node
+*.1.ele
+*.1.face
