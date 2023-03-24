@@ -356,32 +356,33 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, nodes, faces):
+    def show_faces(self, surface):
         """
         show the faces
         Args:
-            nodes
-            faces
+            surface (Trisurface)
         """
         self._surface = {}
-        self._surface["nodes"] = nodes
-        for face in faces:
-            self._surface[face.index] = [face.vert0, face.vert1, face.vert2]
+        self._surface["nodes"] = surface.get_nodes()
+        # iterate the faces dictionary keys
+        for index in surface.get_faces():
+            self._surface[index] = surface.get_triangle_verts(index)
 
         self.update()
 
-    def show_surface_lattice(self, nodes, faces, surface_ctr):
+    def show_surface_lattice(self, surface):
         """
         show the faces
         Args:
-            nodes
-            faces
+            surface (Trisurface)
+            surface_ctr
         """
-        self._surface_ctr = surface_ctr
+        self._surface_ctr = surface.get_surface_ctr()
         self._lattice = {}
-        self._lattice["nodes"] = nodes
-        for face in faces:
-            self._lattice[face.index] = [face.vert0, face.vert1, face.vert2]
+        self._lattice["nodes"] = surface.get_nodes()
+        # iterate the faces dictionary keys
+        for index in surface.get_faces():
+            self._lattice[index] = surface.get_triangle_verts(index)
 
         self.update()
 

@@ -315,8 +315,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             flag (bool): the new state
         """
         if flag:
-            self._tetViewer.show_faces(self._model.get_surface().get_nodes(),
-                                       self._model.get_surface().get_faces())
+            self._tetViewer.show_faces(self._model.get_surface())
             return
 
         self._tetViewer.hide_faces()
@@ -332,9 +331,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             return
 
         if flag:
-            self._tetViewer.show_surface_lattice(self._model.get_surface().get_nodes(),
-                                                 self._model.get_surface().get_faces(),
-                                                 self._model.get_surface().get_surface_ctr())
+            self._tetViewer.show_surface_lattice(self._model.get_surface())
             return
 
         self._tetViewer.hide_surface_lattice()
