@@ -303,6 +303,9 @@
     <addaction name="_actionSaveImage"/>
     <addaction name="_actionSaveTetData"/>
     <addaction name="separator"/>
+    <addaction name="_actionSaveSetup"/>
+    <addaction name="_actionLoadSetup"/>
+    <addaction name="separator"/>
     <addaction name="_actionExit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -326,6 +329,16 @@
   <action name="_actionSaveTetData">
    <property name="text">
     <string>Save tet data</string>
+   </property>
+  </action>
+  <action name="_actionSaveSetup">
+   <property name="text">
+    <string>Save setup</string>
+   </property>
+  </action>
+  <action name="_actionLoadSetup">
+   <property name="text">
+    <string>Load setup</string>
    </property>
   </action>
  </widget>
@@ -575,6 +588,38 @@
     <hint type="destinationlabel">
      <x>165</x>
      <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionSaveSetup</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>save_setup()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionLoadSetup</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>load_setup()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>183</y>
     </hint>
    </hints>
   </connection>

@@ -320,6 +320,23 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         self._tetViewer.hide_faces()
 
+    @qc.pyqtSlot()
+    def save_setup(self):
+        """
+        save the current setup
+        """
+        # test if there is a set up
+        # request outfile
+        print("Save")
+
+    @qc.pyqtSlot()
+    def load_setup(self):
+        """
+        load a setup file
+        """
+        # request infile
+        print("load")
+
     @qc.pyqtSlot(bool)
     def show_surface_lattice(self, flag):
         """

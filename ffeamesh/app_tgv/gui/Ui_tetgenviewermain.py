@@ -162,10 +162,17 @@ class Ui_TetgenViewerMain(object):
         self._actionSaveImage.setObjectName("_actionSaveImage")
         self._actionSaveTetData = QtWidgets.QAction(TetgenViewerMain)
         self._actionSaveTetData.setObjectName("_actionSaveTetData")
+        self._actionSaveSetup = QtWidgets.QAction(TetgenViewerMain)
+        self._actionSaveSetup.setObjectName("_actionSaveSetup")
+        self._actionLoadSetup = QtWidgets.QAction(TetgenViewerMain)
+        self._actionLoadSetup.setObjectName("_actionLoadSetup")
         self.menuFile.addAction(self._actionLoad)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionSaveImage)
         self.menuFile.addAction(self._actionSaveTetData)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self._actionSaveSetup)
+        self.menuFile.addAction(self._actionLoadSetup)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -186,6 +193,8 @@ class Ui_TetgenViewerMain(object):
         self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
+        self._actionSaveSetup.triggered.connect(TetgenViewerMain.save_setup) # type: ignore
+        self._actionLoadSetup.triggered.connect(TetgenViewerMain.load_setup) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -213,4 +222,6 @@ class Ui_TetgenViewerMain(object):
         self._actionExit.setText(_translate("TetgenViewerMain", "Exit"))
         self._actionSaveImage.setText(_translate("TetgenViewerMain", "Save image"))
         self._actionSaveTetData.setText(_translate("TetgenViewerMain", "Save tet data"))
+        self._actionSaveSetup.setText(_translate("TetgenViewerMain", "Save setup"))
+        self._actionLoadSetup.setText(_translate("TetgenViewerMain", "Load setup"))
 from ffeamesh.app_tgv.gui.tetviewer import TetViewer
