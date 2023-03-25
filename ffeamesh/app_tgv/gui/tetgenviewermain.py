@@ -330,10 +330,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             return
 
         if flag:
-            self._tetViewer.show_faces(self._model.get_surface())
+            self._tetViewer.show_faces(flag)
             return
-
-        self._tetViewer.hide_faces()
 
     @qc.pyqtSlot()
     def save_setup(self):
@@ -362,11 +360,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if self._model is None:
             return
 
-        if flag:
-            self._tetViewer.show_surface_lattice(self._model.get_surface())
-            return
-
-        self._tetViewer.hide_surface_lattice()
+        self._tetViewer.show_surface_lattice(flag)
 
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):

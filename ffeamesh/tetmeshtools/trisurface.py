@@ -43,7 +43,7 @@ class TriSurface():
         ## the vertices of the faces
         self._nodes = nodes
 
-        ## the connectivity
+        ## the connectivity dict{index => tetgenstruct.Face}
         self._faces = faces
 
     def get_faces(self):
@@ -142,6 +142,19 @@ class TriSurface():
         return [self._faces[index].vert0,
                 self._faces[index].vert1,
                 self._faces[index].vert2]
+
+    def get_triangle_nodes(self, index):
+        """
+        get the node for a triangle
+        Args:
+            index (int): index number of triangle
+        Returns:
+            [NodePoint, NodePoint, NodePoint]
+        """
+        face = self._faces[index]
+        return [self._nodes[face.vert0],
+                self._nodes[face.vert1],
+                self._nodes[face.vert2]]
 
     def __str__(self):
         """to string"""

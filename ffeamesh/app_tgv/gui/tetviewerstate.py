@@ -26,6 +26,10 @@ class TetViewerState():
         """
         self._surface_ctr = None
         self._current_tet_ctr = None
+
+        #TODO make private
+        self.current_tet_verts = None
+
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._clear_colour = None

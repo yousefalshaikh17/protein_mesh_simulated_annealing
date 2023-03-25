@@ -18,8 +18,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
-import collections
-
+import numpy as np
 from enum import Enum
 
 import PyQt5.QtWidgets as qw
@@ -70,8 +69,11 @@ class TetViewer(qw.QOpenGLWidget):
         ## storage for show surfaces
         self._model = None
 
-        ## the four vertices of the tet being viewed
-        self._current_tet = None
+        ## show/hide surface faces
+        self._show_faces = False
+
+        ## show/hide surface lattice
+        self._show_lattice = False
 
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
@@ -138,28 +140,28 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
         gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
 
-        scale = ThreeStore(1.0, 1.0, 1.0)
+        scale = (1.0, 1.0, 1.0)
         # if self._current_tet is not None:
         #     self.draw_selected_tet(scale)
-        # if self._lattice is not None:
-        #     self.draw_triangle_outline(scale)
-        # if self._surface is not None:
-        #     self.draw_triangles(scale)
+        if self._show_lattice:
+            self.draw_triangle_outline(scale)
+        if self._show_faces:
+            self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
 
     def draw_triangles(self, scale):
         """
         render the triangles
+        Args:
+            scale (tuple float)
         """
-        import numpy as np
-        nodes = self._surface["nodes"]
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
         gl.glBlendEquation(gl.GL_FUNC_ADD)
 
         gl.glPushMatrix()
-        gl.glScale(scale.x, scale.y, scale.z)
+        gl.glScale(scale[0], scale[1], scale[2])
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
         mat_specular = [1.0, 1.0, 1.0, 1.0]
@@ -184,22 +186,22 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glEnable(gl.GL_LIGHTING)
         gl.glEnable(gl.GL_LIGHT0)
         gl.glBegin(gl.GL_TRIANGLES)
-        for index, verts_indices in self._surface.items():
-            if index != "nodes":
-                node0 = nodes[verts_indices[0]]
-                node1 = nodes[verts_indices[1]]
-                node2 = nodes[verts_indices[2]]
 
-                edge0 = node0.to_edge_array(node1)
-                edge1 = node1.to_edge_array(node2)
-                normal = np.cross(edge0, edge1)
-                norm = np.linalg.norm(normal)
-                normal = normal/norm
+        surface = self._model.get_surface()
+        faces = surface.get_faces()
+        for index in faces:
+            nodes = surface.get_triangle_nodes(index)
 
-                gl.glNormal(normal[0], normal[1], normal[2])
-                gl.glVertex(node0.x, node0.y, node0.z)
-                gl.glVertex(node1.x, node1.y, node1.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
+            edge0 = nodes[0].to_edge_array(nodes[1])
+            edge1 = nodes[1].to_edge_array(nodes[2])
+            normal = np.cross(edge0, edge1)
+            norm = np.linalg.norm(normal)
+            normal = normal/norm
+
+            gl.glNormal(normal[0], normal[1], normal[2])
+            gl.glVertex(nodes[0].x, nodes[0].y, nodes[0].z)
+            gl.glVertex(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
 
         gl.glEnd()
 
@@ -213,27 +215,26 @@ class TetViewer(qw.QOpenGLWidget):
     def draw_triangle_outline(self, scale):
         """
         render the triangles outlines
+        Args:
+            scale (tuple float)
         """
-        nodes = self._lattice["nodes"]
-
         gl.glPushMatrix()
-        gl.glScale(scale.x, scale.y, scale.z)
+        gl.glScale(scale[0], scale[1], scale[2])
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
         gl.glColor(0.1, 0.0, 0.7, 1.0)
         gl.glLineWidth(self._state.get_edges_width())
         gl.glBegin(gl.GL_LINES)
-        for index, verts_indices in self._lattice.items():
-            if index != "nodes":
-                node0 = nodes[verts_indices[0]]
-                node1 = nodes[verts_indices[1]]
-                node2 = nodes[verts_indices[2]]
-                gl.glVertex3f(node0.x, node0.y, node0.z)
-                gl.glVertex3f(node1.x, node1.y, node1.z)
-                gl.glVertex(node1.x, node1.y, node1.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
-                gl.glVertex(node0.x, node0.y, node0.z)
+        surface = self._model.get_surface()
+        faces = surface.get_faces()
+        for index in faces:
+            nodes = surface.get_triangle_nodes(index)
+            gl.glVertex3f(nodes[0].x, nodes[0].y, nodes[0].z)
+            gl.glVertex3f(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
+            gl.glVertex(nodes[0].x, nodes[0].y, nodes[0].z)
         gl.glEnd()
 
         gl.glPopAttrib()
@@ -309,54 +310,23 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, surface):
+    def show_faces(self, flag):
         """
         show the faces
         Args:
-            surface (Trisurface)
+            flag (bool)
         """
-        self._surface = {}
-        self._surface["nodes"] = surface.get_nodes()
-        # iterate the faces dictionary keys
-        for index in surface.get_faces():
-            self._surface[index] = surface.get_triangle_verts(index)
-
+        self._show_faces = flag
         self.update()
 
-    def show_surface_lattice(self, surface):
+    def show_surface_lattice(self, flag):
         """
-        show the faces
+        show the faces edges
         Args:
-            surface (Trisurface)
-            surface_ctr
+            flag (bool)
         """
-        #TODO fix this
-        # self._surface_ctr = surface.get_surface_ctr()
-        # self._lattice = {}
-        # self._lattice["nodes"] = surface.get_nodes()
-        # # iterate the faces dictionary keys
-        # for index in surface.get_faces():
-        #     self._lattice[index] = surface.get_triangle_verts(index)
-
+        self._show_lattice = flag
         self.update()
-
-    def hide_faces(self):
-        """
-        stop showing faces
-        """
-        # TODO
-        pass
-        # self._surface = None
-        # self.update()
-
-    def hide_surface_lattice(self):
-        """
-        stop showing faces
-        """
-        # TODO
-        pass
-        # self._lattice = None
-        # self.update()
 
     def reset_view(self):
         """
