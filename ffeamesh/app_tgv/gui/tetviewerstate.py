@@ -21,12 +21,24 @@ class TetViewerState():
     storage for the current viewing state
     """
     def __init__(self):
+        """
+        initalize the state
+        """
         self._surface_ctr = None
         self._current_tet_ctr = None
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._clear_colour = None
         self._ctr_is_tet = True
+        self._shift = (0.0, 0.0, 0.0)
+
+    def reset(self):
+        """
+        reset the shift and rotation
+        """
+        self._euler_x = 0.0
+        self._euler_y = 0.0
+        self._shift = (0.0, 0.0, 0.0)
 
     def get_clear_color(self):
         """
@@ -128,3 +140,38 @@ class TetViewerState():
             angle: float in degrees
         """
         self._euler_y = angle
+
+    def get_shift(self):
+        """
+        get the current shift
+        Returns
+            tuple float: (x, y, z)
+        """
+        return self._shift
+
+    def set_shift_xy(self, x, y):
+        """
+        set xy componants of shift
+        Args:
+            x: float
+            y: float
+        """
+        self._shift = (x, y, self._shift[2])
+
+    def set_shift_z(self, z):
+        """
+        set z componants of shift
+        Args:
+            z: float
+        """
+        self._shift = (self._shift[0], self._shift[1], z)
+
+    def set_shift(self, x, y, z):
+        """
+        set the shift
+        Args:
+            x: float
+            y: float
+            z: float
+        """
+        self._shift = (x, y, z)
