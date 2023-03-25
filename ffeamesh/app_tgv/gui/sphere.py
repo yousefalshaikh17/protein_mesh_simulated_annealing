@@ -35,7 +35,7 @@ class Sphere():
             color = [0.0, 0.1, 0.9, 0.1]
         gl.glPushMatrix()
         gl.glTranslate(translate.x, translate.y, translate.z)
-        gl.glScale(scale.x, scale.y, scale.z)
+        gl.glScale(scale[0], scale[1], scale[2])
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
         gl.glEnable(gl.GL_NORMALIZE)
         gl.glColor4f(color[0], color[1], color[2], color[3])

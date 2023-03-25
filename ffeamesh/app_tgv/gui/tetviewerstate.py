@@ -15,6 +15,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+import ffeamesh.tetprops as tp
 
 class TetViewerState():
     """
@@ -26,9 +27,8 @@ class TetViewerState():
         """
         self._surface_ctr = None
         self._current_tet_ctr = None
-
-        #TODO make private
-        self.current_tet_verts = None
+        self._current_tet_nodes = None
+        self._display_current_tet = False
 
         self._euler_x = 0.0
         self._euler_y = 0.0
@@ -130,6 +130,19 @@ class TetViewerState():
         set the current ctr to be a surface
         """
         self._ctr_is_tet = False
+
+    def set_current_tet(self, tet):
+        """
+        set the current tet
+        """
+        self._current_tet_nodes = tet
+        self._current_tet_ctr = tp.find_centre(tet)
+
+    def get_current_tet(self):
+        """
+        get the current tet
+        """
+        return self._current_tet_nodes
 
     def set_tet_ctr(self, x, y, z):
         """
@@ -233,3 +246,19 @@ class TetViewerState():
             z: float
         """
         self._look_z = z
+
+    def set_display_current_tet(self, flag):
+        """
+        set the tet to be displayed
+        """
+        self._display_current_tet = flag
+
+    def display_current_tet(self):
+        """
+        display current tet, if there is one
+        """
+        if self._display_current_tet and self._current_tet_nodes is not None:
+            return True
+
+        return False
+

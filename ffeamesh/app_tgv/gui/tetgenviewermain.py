@@ -243,7 +243,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         row = indices[0].row()
         index = self._tetsTableWidget.item(row, 0)
 
-        self._tetViewer.display(self._model.get_tet(int(index.text())))
+        self._tetViewer.display_tet(int(index.text()))
 
     @qc.pyqtSlot()
     def save_tet_data(self):

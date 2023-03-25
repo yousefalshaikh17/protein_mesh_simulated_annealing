@@ -50,9 +50,17 @@ class TetModel():
 
         return vertices
 
-    def get_tet(self, index):
+    def get_tet_verts(self, index):
         """
-        getter for the indices of a tet
+        getter for the vertices of a tet
+        Args:
+            index (int)
+        """
+        return self._tets.get_tet_verts(index)
+
+    def get_tet_nodes(self, index):
+        """
+        getter for the nodes forming a tet
         """
         return self._tets.get_tet_verts(index)
 

@@ -29,10 +29,7 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
 from ffeamesh.app_tgv.gui.sphere import Sphere
-from ffeamesh.app_tgv.gui.threestore import ThreeStore
 from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
-
-import ffeamesh.tetprops as tp
 
 class MouseStates(Enum):
     """
@@ -141,8 +138,8 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
 
         scale = (1.0, 1.0, 1.0)
-        # if self._current_tet is not None:
-        #     self.draw_selected_tet(scale)
+        if self._state.display_current_tet():
+            self.draw_selected_tet(scale)
         if self._show_lattice:
             self.draw_triangle_outline(scale)
         if self._show_faces:
@@ -244,48 +241,44 @@ class TetViewer(qw.QOpenGLWidget):
         """
         draw the user selecte tet
         """
-        one = self._current_tet[0]
-        two = self._current_tet[1]
-        three = self._current_tet[2]
-        four = self._current_tet[3]
+        current_tet = self._state.get_current_tet()
 
-        self._sphere.draw(one, scale)
-        self._sphere.draw(two, scale)
-        self._sphere.draw(three, scale)
-        self._sphere.draw(four, scale)
+        self._sphere.draw(current_tet[0], scale)
+        self._sphere.draw(current_tet[1], scale)
+        self._sphere.draw(current_tet[2], scale)
+        self._sphere.draw(current_tet[3], scale)
 
         gl.glLineWidth(10.0)
         gl.glBegin(gl.GL_LINES)
         gl.glColor3f(0.0, 1.0, 0.0)
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(two.x, two.y, two.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
 
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(three.x, three.y, three.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
 
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
-        gl.glVertex3f(two.x, two.y, two.z)
-        gl.glVertex3f(three.x, three.y, three.z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
 
-        gl.glVertex3f(two.x, two.y, two.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
-        gl.glVertex3f(three.x, three.y, three.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
         gl.glEnd()
 
-    def display(self, tet):
+    def display_tet(self, tet_index):
         """
         display a tet
         Args:
-            tet [Tetrahedron4]: the tets node points
+            tet_indes (int): the tet's index
         """
-        self._current_tet = tet
-        ctr = tp.find_centre(self._current_tet)
-        self._current_tet_ctr = ThreeStore(ctr[0], ctr[1], ctr[2])
+        self._state.set_current_tet(self._model.get_tet_nodes(tet_index))
+        self._state.set_display_current_tet(True)
 
         self.reset_view()
         self.update()
