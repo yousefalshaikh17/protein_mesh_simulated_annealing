@@ -32,6 +32,7 @@ class TetViewerState():
         self._ctr_is_tet = True
         self._shift = (0.0, 0.0, 0.0)
         self._look_z = -1500.0
+        self._edges_width = 1
         self._perspective = True
 
     def reset(self):
@@ -41,6 +42,22 @@ class TetViewerState():
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._shift = (0.0, 0.0, 0.0)
+
+    def set_edges_width(self, value):
+        """
+        setter for the screen width of the lines in the edges
+        Args:
+            value (int): line width in pixels
+        """
+        self._edges_width = value
+
+    def get_edges_width(self):
+        """
+        getter for the screen width of the lines in the edges
+        Returns:
+            int: line width in pixels
+        """
+        return self._edges_width
 
     def set_perspective(self, flag):
         """

@@ -82,12 +82,10 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
                 index += 1
                 nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
 
-            faces = []
+            faces = {}
             for index, face in enumerate(surface):
                 index += 1
-                faces.append(ts.Face(index, face[0], face[1], face[2], -1))
-
-            faces = sorted(faces, key=operator.attrgetter('index'))
+                faces[index] = ts.Face(index, face[0], face[1], face[2], -1)
 
             tets = {}
             for index, tet in enumerate(volume):
@@ -103,7 +101,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.reset_view()
             self._current_source = file_path.parent
             self._tetViewer.set_model(self._model)
-            self.enable_controls(True)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -133,7 +130,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.reset_view()
             self._current_source = root_name.parent
             self._tetViewer.set_model(self._model)
-            self.enable_controls(True)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -161,7 +157,19 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._surfaceButton.setChecked(False)
         self._surfaceButton.blockSignals(old_state)
 
-        self._tetViewer.reset_all()
+        old_state = self._rotXSlider.blockSignals(True)
+        self._rotXSlider.setSliderPosition(0)
+        self._rotXSlider.blockSignals(old_state)
+
+        old_state = self._rotYSlider.blockSignals(True)
+        self._rotYSlider.setSliderPosition(0)
+        self._rotYSlider.blockSignals(old_state)
+
+        old_state = self._thicknessBox.blockSignals(True)
+        self._thicknessBox.setValue(1)
+        self._thicknessBox.blockSignals(old_state)
+
+        #self._tetViewer.reset_view()
 
     def list_tets(self, tet_props):
         """
@@ -198,15 +206,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._tetsTableWidget.setItem(row, 4, item)
 
         self._tetsTableWidget.blockSignals(old_state)
-
-    def enable_controls(self, flag):
-        """
-        enable/disable controls
-        Arg:
-            flag (bool): if True enable else disable
-        """
-        print(f"enabled {flag}")
-        self._controlsGroup.setEnabled(True)
 
     @qc.pyqtSlot()
     def get_and_load_files(self):
@@ -327,6 +326,9 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             flag (bool): the new state
         """
+        if self._model is None:
+            return
+
         if flag:
             self._tetViewer.show_faces(self._model.get_surface())
             return
