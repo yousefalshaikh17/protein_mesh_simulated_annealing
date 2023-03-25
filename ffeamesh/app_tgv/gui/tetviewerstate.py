@@ -31,6 +31,8 @@ class TetViewerState():
         self._clear_colour = None
         self._ctr_is_tet = True
         self._shift = (0.0, 0.0, 0.0)
+        self._look_z = -1500.0
+        self._perspective = True
 
     def reset(self):
         """
@@ -39,6 +41,25 @@ class TetViewerState():
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._shift = (0.0, 0.0, 0.0)
+
+    def set_perspective(self, flag):
+        """
+        set the perspective flag
+        Args:
+            flag: bool
+        """
+        if not isinstance(flag, bool):
+            raise ValueError("attempt to set TetViewState._perspectiv to non-bool")
+
+        self._perspective = flag
+
+    def perspective_view(self):
+        """
+        get the perspective flag if True use perspective
+        Args:
+            flag: bool
+        """
+        return self._perspective
 
     def get_clear_color(self):
         """
@@ -64,7 +85,7 @@ class TetViewerState():
         Returns:
             tuple(float): (x, y, z)
         """
-        if self._ctr_is_tet:
+        if self._ctr_is_tet and self._current_tet_ctr is not None:
             return self._current_tet_ctr
 
         return self._surface_ctr
@@ -175,3 +196,19 @@ class TetViewerState():
             z: float
         """
         self._shift = (x, y, z)
+
+    def get_look_z(self):
+        """
+        get the z componant of the look-from
+        Returns
+            float
+        """
+        return self._look_z
+
+    def set_look_z(self, z):
+        """
+        set the z componant of the look-from
+        Args:
+            z: float
+        """
+        self._look_z = z

@@ -32,7 +32,10 @@
          <widget class="TetViewer" name="_tetViewer" native="true"/>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="_controlsGroup">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="title">
            <string>View Controls</string>
           </property>
@@ -44,6 +47,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <widget class="QCheckBox" name="_surfaceButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Show surface</string>
                </property>
@@ -51,6 +57,9 @@
              </item>
              <item>
               <widget class="QCheckBox" name="_surfaceLatticeButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Surface Lattice</string>
                </property>
@@ -58,6 +67,9 @@
              </item>
              <item>
               <widget class="QSpinBox" name="_thicknessBox">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="minimum">
                 <number>1</number>
                </property>
@@ -85,6 +97,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QPushButton" name="_ctrTetButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Centre Tet</string>
                </property>
@@ -92,6 +107,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="_hideButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Hide Tet</string>
                </property>
@@ -112,6 +130,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="_ctrMeshButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Centre Mesh</string>
                </property>
@@ -130,6 +151,9 @@
              </item>
              <item>
               <widget class="QSlider" name="_rotXSlider">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximum">
                 <number>360</number>
                </property>
@@ -157,6 +181,9 @@
              </item>
              <item>
               <widget class="QSlider" name="_rotYSlider">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximum">
                 <number>360</number>
                </property>
@@ -205,6 +232,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <widget class="QGroupBox" name="groupBox_3">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="title">
              <string>Background</string>
             </property>

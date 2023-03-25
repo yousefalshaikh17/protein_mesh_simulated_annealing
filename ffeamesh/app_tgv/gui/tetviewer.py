@@ -18,6 +18,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
+import collections
+
 from enum import Enum
 
 import PyQt5.QtWidgets as qw
@@ -29,6 +31,7 @@ import OpenGL.GLU as glu
 
 from ffeamesh.app_tgv.gui.sphere import Sphere
 from ffeamesh.app_tgv.gui.threestore import ThreeStore
+from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
 
 import ffeamesh.tetprops as tp
 
@@ -51,44 +54,24 @@ class TetViewer(qw.QOpenGLWidget):
     """
 
     ## notify that rotation user input needs to be reset
-    reset_rot_input = qc.pyqtSignal()
+    reset_input = qc.pyqtSignal()
 
     def __init__(self, parent=None):
         """initalize the window"""
         self.parent = parent
         qw.QOpenGLWidget.__init__(self, parent)
 
-        ## euler angles
-        self._rotations =ThreeStore(0.0, 0.0, 0.0)
-
-        ## look from point
-        self._look_z = -1500.0
-
-        ## perspective view
-        self._perspective = True
-
-        self._shift = ThreeStore(0.0, 0.0, 0.0)
+        ## the state
+        self._state = TetViewerState()
 
         ## the sphere
         self._sphere = Sphere()
 
         ## storage for show surfaces
-        self._surface = None
-
-        ## storage for show lattice
-        self._lattice = None
-
-        ## flag to indicat a reset event
-        self._reset = False
+        self._model = None
 
         ## the four vertices of the tet being viewed
         self._current_tet = None
-
-        ## centre of the tet being viewed
-        self._current_tet_ctr = None
-
-        ## centre of the surface
-        self._surface_ctr = None
 
         ## pixel thickness of edges
         self._edges_width = 1
@@ -96,8 +79,6 @@ class TetViewer(qw.QOpenGLWidget):
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
 
-        self._clear_colour = None
-        self._text_colour = None
         self.set_background()
 
     def initializeGL(self):
@@ -125,7 +106,7 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glLoadIdentity()
         aspect = width / float(height)
 
-        if self._perspective:
+        if self._state.perspective_view():
             glu.gluPerspective(45.0, aspect, 1.0, 3000.0)
         else:
             gl.glOrtho(-500.0, 500.0, -500.0, 500.0, 15.0, 3000.0)
@@ -137,41 +118,28 @@ class TetViewer(qw.QOpenGLWidget):
         """
         render the contents callback
         """
-        gl.glClearColor(self._clear_colour.x, self._clear_colour.y, self._clear_colour.z, 1)
+        c_color = self._state.get_clear_color()
+        gl.glClearColor(c_color[0], c_color[1], c_color[2], 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+        if self._model is None:
+            return
 
         gl.glPushMatrix()    # push the current matrix to the current stack
 
-        glu.gluLookAt(0.0, 0.0, self._look_z,
+        glu.gluLookAt(0.0, 0.0, self._state.get_look_z(),
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
-        # gl.glTranslate(-225.356187869341, -169.8044962956355, -1535.0)
-        # gl.glTranslate(226.75618786934095, 174.0044962956355, 180.1371079664964)
-        # gl.glRotate(61, 0.0, 1.0, 0.0)
-        # gl.glTranslate(-226.75618786934095, -174.0044962956355, -180.1371079664964)
-
         # location of tet as input by user
-        gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
+        shift = self._state.get_shift()
+        gl.glTranslate(-shift[0], -shift[1], shift[2])
 
-        if self._current_tet is not None:
-            gl.glTranslate(self._current_tet_ctr.x,
-                           self._current_tet_ctr.y,
-                           self._current_tet_ctr.z)
-            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-            gl.glTranslate(-self._current_tet_ctr.x,
-                           -self._current_tet_ctr.y,
-                           -self._current_tet_ctr.z)
-        elif self._surface_ctr is not None:
-            gl.glTranslate(self._surface_ctr[0],
-                           self._surface_ctr[1],
-                           self._surface_ctr[2])
-            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-            gl.glTranslate(-self._surface_ctr[0],
-                           -self._surface_ctr[1],
-                           -self._surface_ctr[2])
+        ctr = self._state.get_current_ctr()
+        gl.glTranslate(ctr[0], ctr[1], ctr[2])
+        gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
+        gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
+        gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
 
         scale = ThreeStore(1.0, 1.0, 1.0)
         if self._current_tet is not None:
@@ -182,20 +150,6 @@ class TetViewer(qw.QOpenGLWidget):
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
-
-        # painter = qg.QPainter(self)
-        # pen = qg.QPen()
-        # pen.setWidth(1)
-        # pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
-        # painter.setPen(pen)
-        # font = qg.QFont()
-        # font.setFamily('Arial')
-        # font.setBold(True)
-        # font.setPointSize(7)
-        # painter.setFont(font)
-
-        # painter.drawText(1, self.height()-1, '@University of Leeds 2023')
-        # painter.end()
 
     def draw_triangles(self, scale):
         """
@@ -342,13 +296,11 @@ class TetViewer(qw.QOpenGLWidget):
         """
         reset back to empty
         """
+        self._state.reset()
         self._current_tet = None
         self._current_tet_ctr = None
         self._surface = None
         self._lattice = None
-        self._clear_colour = None
-        self._text_colour = None
-        self._perspective = True
         self.set_background()
 
         if self.isValid():
@@ -377,6 +329,7 @@ class TetViewer(qw.QOpenGLWidget):
             surface (Trisurface)
             surface_ctr
         """
+        #TODO fix this
         self._surface_ctr = surface.get_surface_ctr()
         self._lattice = {}
         self._lattice["nodes"] = surface.get_nodes()
@@ -404,12 +357,8 @@ class TetViewer(qw.QOpenGLWidget):
         """
         reset view parameters
         """
-        self._rotations.x = 0.0
-        self._rotations.y = 0.0
-        self._rotations.z = 0.0
-
-        self._reset = True
-        self.reset_rot_input.emit()
+        self._state.reset()
+        self.reset_input.emit()
 
     def shift(self, mouse_position):
         """
@@ -418,8 +367,7 @@ class TetViewer(qw.QOpenGLWidget):
         del_x = self._mouse_position.x() - mouse_position.x()
         del_y = mouse_position.y() - self._mouse_position.y()
 
-        self._shift.x -= float(del_x)/5.0
-        self._shift.y += float(del_y)/5.0
+        self._state.set_shift_xy(float(del_x)/5.0, float(del_y)/5.0)
 
         self._mouse_position = mouse_position
 
@@ -429,16 +377,17 @@ class TetViewer(qw.QOpenGLWidget):
         """
         move camera 'in-out'
         """
-        if not self._perspective:
+        if not self._state.perspective_view():
             return
 
         del_y = mouse_position.y() - self._mouse_position.y()
 
-        new_z = self._shift.z - float(del_y)
+        shift = self._state.get_shift()
+        new_z = shift[2] - float(del_y)
 
         self._mouse_position = mouse_position
-        if new_z > -2000.0: #-1490.0:
-            self._shift.z = new_z
+        if new_z > -2000.0:
+            self._state.set_shift_z(new_z)
 
         self.update()
 
@@ -447,14 +396,11 @@ class TetViewer(qw.QOpenGLWidget):
         set the background colour
         """
         if text == "Black":
-            self._clear_colour = ThreeStore(0.0, 0.0, 0.0)
-            self._text_colour = ThreeStore(255, 255, 255)
+            self._state.set_clear_color(0.0, 0.0, 0.0)
         elif text == "White":
-            self._clear_colour = ThreeStore(1.0, 1.0, 1.0)
-            self._text_colour = ThreeStore(77, 102, 128)
+            self._state.set_clear_color(1.0, 1.0, 1.0)
         elif text == "Gray":
-            self._clear_colour = ThreeStore(0.3, 0.4, 0.5)
-            self._text_colour = ThreeStore(255, 255, 255)
+            self._state.set_clear_color(0.3, 0.4, 0.5)
 
     def change_background(self, text):
         """
@@ -470,14 +416,24 @@ class TetViewer(qw.QOpenGLWidget):
         set the background colour
         """
         if text == "Perspective":
-            self._perspective = True
+            self._state.set_perspective(True)
         else:
-            self._perspective = False
+            self._state.set_perspective(False)
 
         self.makeCurrent()
         self.set_projection(self.width(), self.height())
 
         self.update()
+
+    def set_model(self, model):
+        """
+        set the current model
+        Args:
+            model (TetModel)
+        """
+        self._model = model
+        ctr = self._model.get_surface().get_surface_ctr()
+        self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
 
     @qc.pyqtSlot(int)
     def set_thickness(self, val):
@@ -492,7 +448,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         set rotation about x axis
         """
-        self._rotations.x = int(val)
+        self._state.set_euler_x(int(val))
         self.update()
 
     @qc.pyqtSlot(int)
@@ -500,7 +456,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         set rotation about y axis
         """
-        self._rotations.y = int(val)
+        self._state.set_euler_y(int(val))
         self.update()
 
     @qc.pyqtSlot(qg.QMouseEvent)

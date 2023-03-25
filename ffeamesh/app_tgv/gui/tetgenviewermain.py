@@ -55,7 +55,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._model = None
 
         ## connect up signals
-        self._tetViewer.reset_rot_input.connect(self.reset_sliders)
+        self._tetViewer.reset_input.connect(self.reset_view)
 
         ## current source directory
         self._current_source = "C:\\Users\\jhp11\\Work\\ffea-meshing\\docs"
@@ -102,6 +102,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.list_tets(tet_props)
             self.reset_view()
             self._current_source = file_path.parent
+            self._tetViewer.set_model(self._model)
+            self.enable_controls(True)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -130,6 +132,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.list_tets(tet_props)
             self.reset_view()
             self._current_source = root_name.parent
+            self._tetViewer.set_model(self._model)
+            self.enable_controls(True)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -194,6 +198,15 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._tetsTableWidget.setItem(row, 4, item)
 
         self._tetsTableWidget.blockSignals(old_state)
+
+    def enable_controls(self, flag):
+        """
+        enable/disable controls
+        Arg:
+            flag (bool): if True enable else disable
+        """
+        print(f"enabled {flag}")
+        self._controlsGroup.setEnabled(True)
 
     @qc.pyqtSlot()
     def get_and_load_files(self):
