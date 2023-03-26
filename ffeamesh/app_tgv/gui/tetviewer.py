@@ -31,6 +31,9 @@ import OpenGL.GLU as glu
 from ffeamesh.app_tgv.gui.sphere import Sphere
 from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
 
+#TODO get rid of 3 state variable faces lattice tet and use call to parent in paint
+#     replace Hide tet button with check box in parent
+
 class MouseStates(Enum):
     """
     possible states of the mouse input
@@ -491,14 +494,12 @@ class TetViewer(qw.QOpenGLWidget):
         # self.update()
 
     @qc.pyqtSlot()
-    def remove_current_tet(self):
+    def flip_current_tet(self):
         """
         stop displaying current tet
         """
-        # TODO
-        pass
-        # if self._current_tet_ctr is not None:
-        #     self._current_tet_ctr = None
-        #     self._current_tet     = None
-        #     self.reset_view()
-        #     self.update()
+        if self._state.display_current_tet():
+            self._state.set_display_current_tet(False)
+        else:
+            self._state.set_display_current_tet(True)
+        self.update()

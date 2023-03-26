@@ -199,7 +199,7 @@ class Ui_TetgenViewerMain(object):
         self._ctrTetButton.clicked.connect(self._tetViewer.centre_tet) # type: ignore
         self._surfaceButton.toggled['bool'].connect(TetgenViewerMain.show_surface) # type: ignore
         self._surfaceLatticeButton.toggled['bool'].connect(TetgenViewerMain.show_surface_lattice) # type: ignore
-        self._hideButton.clicked.connect(self._tetViewer.remove_current_tet) # type: ignore
+        self._hideButton.clicked.connect(self._tetViewer.flip_current_tet) # type: ignore
         self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
@@ -215,7 +215,7 @@ class Ui_TetgenViewerMain(object):
         self._surfaceButton.setText(_translate("TetgenViewerMain", "Show surface"))
         self._surfaceLatticeButton.setText(_translate("TetgenViewerMain", "Surface Lattice"))
         self._ctrTetButton.setText(_translate("TetgenViewerMain", "Centre Tet"))
-        self._hideButton.setText(_translate("TetgenViewerMain", "Hide Tet"))
+        self._hideButton.setText(_translate("TetgenViewerMain", "Flip Tet"))
         self._ctrMeshButton.setText(_translate("TetgenViewerMain", "Centre Mesh"))
         self.label_2.setText(_translate("TetgenViewerMain", "Rot Horizontal"))
         self.label_3.setText(_translate("TetgenViewerMain", "Rot Vertical    "))

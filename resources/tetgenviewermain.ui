@@ -111,7 +111,7 @@
                 <bool>true</bool>
                </property>
                <property name="text">
-                <string>Hide Tet</string>
+                <string>Flip Tet</string>
                </property>
               </widget>
              </item>
@@ -561,7 +561,7 @@
    <sender>_hideButton</sender>
    <signal>clicked()</signal>
    <receiver>_tetViewer</receiver>
-   <slot>remove_current_tet()</slot>
+   <slot>flip_current_tet()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>536</x>
