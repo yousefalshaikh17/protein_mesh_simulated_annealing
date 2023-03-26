@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TetgenViewerMain(object):
     def setupUi(self, TetgenViewerMain):
         TetgenViewerMain.setObjectName("TetgenViewerMain")
-        TetgenViewerMain.resize(656, 367)
+        TetgenViewerMain.resize(701, 367)
         TetgenViewerMain.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.centralwidget = QtWidgets.QWidget(TetgenViewerMain)
         self.centralwidget.setObjectName("centralwidget")
@@ -38,6 +38,11 @@ class Ui_TetgenViewerMain(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self._showTetBox = QtWidgets.QCheckBox(self._controlsGroup)
+        self._showTetBox.setCheckable(True)
+        self._showTetBox.setChecked(True)
+        self._showTetBox.setObjectName("_showTetBox")
+        self.horizontalLayout_4.addWidget(self._showTetBox)
         self._surfaceButton = QtWidgets.QCheckBox(self._controlsGroup)
         self._surfaceButton.setEnabled(True)
         self._surfaceButton.setObjectName("_surfaceButton")
@@ -61,10 +66,6 @@ class Ui_TetgenViewerMain(object):
         self._ctrTetButton.setEnabled(True)
         self._ctrTetButton.setObjectName("_ctrTetButton")
         self.horizontalLayout_3.addWidget(self._ctrTetButton)
-        self._hideButton = QtWidgets.QPushButton(self._controlsGroup)
-        self._hideButton.setEnabled(True)
-        self._hideButton.setObjectName("_hideButton")
-        self.horizontalLayout_3.addWidget(self._hideButton)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
         self._ctrMeshButton = QtWidgets.QPushButton(self._controlsGroup)
@@ -156,7 +157,7 @@ class Ui_TetgenViewerMain(object):
         self.verticalLayout_6.addWidget(self.splitter)
         TetgenViewerMain.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(TetgenViewerMain)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 656, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 701, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -199,12 +200,12 @@ class Ui_TetgenViewerMain(object):
         self._ctrTetButton.clicked.connect(self._tetViewer.centre_tet) # type: ignore
         self._surfaceButton.toggled['bool'].connect(TetgenViewerMain.show_surface) # type: ignore
         self._surfaceLatticeButton.toggled['bool'].connect(TetgenViewerMain.show_surface_lattice) # type: ignore
-        self._hideButton.clicked.connect(self._tetViewer.flip_current_tet) # type: ignore
         self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
         self._actionSaveSetup.triggered.connect(TetgenViewerMain.save_setup) # type: ignore
         self._actionLoadSetup.triggered.connect(TetgenViewerMain.load_setup) # type: ignore
+        self._showTetBox.toggled['bool'].connect(self._tetViewer.show_current_tet) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -212,10 +213,10 @@ class Ui_TetgenViewerMain(object):
         TetgenViewerMain.setWindowTitle(_translate("TetgenViewerMain", "TetgenViewer"))
         self.groupBox.setTitle(_translate("TetgenViewerMain", "Tetrahedra View"))
         self._controlsGroup.setTitle(_translate("TetgenViewerMain", "View Controls"))
+        self._showTetBox.setText(_translate("TetgenViewerMain", "Show Tet"))
         self._surfaceButton.setText(_translate("TetgenViewerMain", "Show surface"))
         self._surfaceLatticeButton.setText(_translate("TetgenViewerMain", "Surface Lattice"))
         self._ctrTetButton.setText(_translate("TetgenViewerMain", "Centre Tet"))
-        self._hideButton.setText(_translate("TetgenViewerMain", "Flip Tet"))
         self._ctrMeshButton.setText(_translate("TetgenViewerMain", "Centre Mesh"))
         self.label_2.setText(_translate("TetgenViewerMain", "Rot Horizontal"))
         self.label_3.setText(_translate("TetgenViewerMain", "Rot Vertical    "))

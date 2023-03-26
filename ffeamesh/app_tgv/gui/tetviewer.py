@@ -281,8 +281,6 @@ class TetViewer(qw.QOpenGLWidget):
             tet_indes (int): the tet's index
         """
         self._state.set_current_tet(self._model.get_tet_nodes(tet_index))
-        self._state.set_display_current_tet(True)
-
         self.reset_view()
         self.update()
 
@@ -493,13 +491,10 @@ class TetViewer(qw.QOpenGLWidget):
 
         # self.update()
 
-    @qc.pyqtSlot()
-    def flip_current_tet(self):
+    @qc.pyqtSlot(bool)
+    def show_current_tet(self, flag):
         """
         stop displaying current tet
         """
-        if self._state.display_current_tet():
-            self._state.set_display_current_tet(False)
-        else:
-            self._state.set_display_current_tet(True)
+        self._state.set_display_current_tet(flag)
         self.update()

@@ -28,7 +28,7 @@ class TetViewerState():
         self._surface_ctr = None
         self._current_tet_ctr = None
         self._current_tet_nodes = None
-        self._display_current_tet = False
+        self._display_current_tet = True
 
         self._euler_x = 0.0
         self._euler_y = 0.0

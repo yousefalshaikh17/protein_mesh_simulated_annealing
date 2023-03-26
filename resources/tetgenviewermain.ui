@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
+    <width>701</width>
     <height>367</height>
    </rect>
   </property>
@@ -45,6 +45,19 @@
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QCheckBox" name="_showTetBox">
+               <property name="text">
+                <string>Show Tet</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QCheckBox" name="_surfaceButton">
                <property name="enabled">
@@ -102,16 +115,6 @@
                </property>
                <property name="text">
                 <string>Centre Tet</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="_hideButton">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="text">
-                <string>Flip Tet</string>
                </property>
               </widget>
              </item>
@@ -320,7 +323,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>656</width>
+     <width>701</width>
      <height>22</height>
     </rect>
    </property>
@@ -558,22 +561,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>_hideButton</sender>
-   <signal>clicked()</signal>
-   <receiver>_tetViewer</receiver>
-   <slot>flip_current_tet()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>536</x>
-     <y>604</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>317</x>
-     <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>_viewGroup</sender>
    <signal>buttonToggled(QAbstractButton*,bool)</signal>
    <receiver>TetgenViewerMain</receiver>
@@ -653,9 +640,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>_showTetBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>show_current_tet(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="_viewGroup"/>
   <buttongroup name="_backgroundGroup"/>
+  <buttongroup name="_viewGroup"/>
  </buttongroups>
 </ui>
