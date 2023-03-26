@@ -329,9 +329,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if self._model is None:
             return
 
-        if flag:
-            self._tetViewer.show_faces(flag)
-            return
+        self._tetViewer.show_faces(flag)
 
     @qc.pyqtSlot()
     def save_setup(self):
