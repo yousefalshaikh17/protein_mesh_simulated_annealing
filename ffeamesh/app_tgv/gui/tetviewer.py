@@ -482,7 +482,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         callback for click of ctr tet button
         """
-        if self._model is not None:
+        if self._model is not None and self._state.get_current_tet() is not None:
             self._state.center_on_tet()
             self.update()
 
