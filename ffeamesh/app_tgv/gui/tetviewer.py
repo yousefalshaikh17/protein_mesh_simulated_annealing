@@ -134,6 +134,10 @@ class TetViewer(qw.QOpenGLWidget):
         shift = self._state.get_shift()
         gl.glTranslate(-shift[0], -shift[1], shift[2])
 
+        shift = self._state.get_shift()
+        gl.glTranslate(-shift[0], -shift[1], -shift[2])
+        print(f"shift {shift}")
+
         ctr = self._state.get_current_ctr()
         print(f"current ctr {ctr}")
         gl.glTranslate(ctr[0], ctr[1], ctr[2])
@@ -406,7 +410,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         self._model = model
         ctr = self._model.get_surface().get_surface_ctr()
-        self._state.set_surface_ctr(ctr[0], ctr[1])
+        self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
 
     @qc.pyqtSlot(int)
     def set_thickness(self, val):
