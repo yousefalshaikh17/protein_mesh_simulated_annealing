@@ -132,6 +132,7 @@ class TetViewer(qw.QOpenGLWidget):
 
         # location of tet as input by user
         shift = self._state.get_shift()
+        print(shift)
         gl.glTranslate(-shift[0], -shift[1], shift[2])
 
         ctr = self._state.get_current_ctr()
@@ -333,10 +334,13 @@ class TetViewer(qw.QOpenGLWidget):
         """
         move camera 'up-down'
         """
+        old_shift = self._state.get_shift()
         del_x = self._mouse_position.x() - mouse_position.x()
         del_y = mouse_position.y() - self._mouse_position.y()
+        new_x = old_shift[0] - float(del_x)/5.0
+        new_y = old_shift[1] + float(del_y)/5.0
 
-        self._state.set_shift_xy(float(del_x)/5.0, float(del_y)/5.0)
+        self._state.set_shift_xy(new_x, new_y)
 
         self._mouse_position = mouse_position
 
