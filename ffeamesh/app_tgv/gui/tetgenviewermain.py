@@ -20,7 +20,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = c-extension-no-member
 import pathlib
 import csv
-import operator
 import numpy as np
 
 import PyQt5.QtWidgets as qw
@@ -58,7 +57,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._tetViewer.reset_input.connect(self.reset_view)
 
         ## current source directory
-        self._current_source = "C:\\Users\\jhp11\\Work\\ffea-meshing\\docs"
+        self._current_source = pathlib.Path.home()
 
         if config_args.input is None:
             return
