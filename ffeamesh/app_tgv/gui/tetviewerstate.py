@@ -18,7 +18,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import ffeamesh.tetprops as tp
 
 ## z for centring
-CTR_Z = -1350.0
+CTR_Z = 1350.0
 
 class TetViewerState():
     """
@@ -115,13 +115,19 @@ class TetViewerState():
         """
         set the current ctr to be a tet
         """
-        self._current_ctr = (self._current_tet_ctr[0], self._current_tet_ctr[1], CTR_Z)
+        self._current_ctr = self._current_tet_ctr
+        self._shift = (self._current_tet_ctr[0],
+                       self._current_tet_ctr[1],
+                       CTR_Z)
 
     def center_on_surface(self):
         """
         set the current ctr to be a surface
         """
-        self._current_ctr = (self._surface_ctr[0], self._surface_ctr[1], CTR_Z)
+        self._current_ctr = self._surface_ctr
+        self._shift = (self._surface_ctr[0],
+                       self._surface_ctr[1],
+                       CTR_Z)
 
     def set_current_tet(self, tet):
         """

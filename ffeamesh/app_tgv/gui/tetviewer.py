@@ -132,14 +132,9 @@ class TetViewer(qw.QOpenGLWidget):
 
         # location of tet as input by user
         shift = self._state.get_shift()
-        gl.glTranslate(-shift[0], -shift[1], shift[2])
-
-        shift = self._state.get_shift()
         gl.glTranslate(-shift[0], -shift[1], -shift[2])
-        print(f"shift {shift}")
 
         ctr = self._state.get_current_ctr()
-        print(f"current ctr {ctr}")
         gl.glTranslate(ctr[0], ctr[1], ctr[2])
         gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
         gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
