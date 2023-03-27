@@ -146,11 +146,6 @@ class TetViewer(qw.QOpenGLWidget):
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
-        # gl.glTranslate(-225.356187869341, -169.8044962956355, -1535.0)
-        # gl.glTranslate(226.75618786934095, 174.0044962956355, 180.1371079664964)
-        # gl.glRotate(61, 0.0, 1.0, 0.0)
-        # gl.glTranslate(-226.75618786934095, -174.0044962956355, -180.1371079664964)
-
         # location of tet as input by user
         gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
 
@@ -182,20 +177,6 @@ class TetViewer(qw.QOpenGLWidget):
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
-
-        # painter = qg.QPainter(self)
-        # pen = qg.QPen()
-        # pen.setWidth(1)
-        # pen.setColor(qg.QColor(self._text_colour.x, self._text_colour.y, self._text_colour.z, 100))
-        # painter.setPen(pen)
-        # font = qg.QFont()
-        # font.setFamily('Arial')
-        # font.setBold(True)
-        # font.setPointSize(7)
-        # painter.setFont(font)
-
-        # painter.drawText(1, self.height()-1, '@University of Leeds 2023')
-        # painter.end()
 
     def draw_triangles(self, scale):
         """
