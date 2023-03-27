@@ -15,6 +15,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+import json
+
 import ffeamesh.tetprops as tp
 
 ## z for centring
@@ -158,7 +160,6 @@ class TetViewerState():
             y: float
             z: float
         """
-        print("set surface")
         self._surface_ctr = (x, y, z)
         self.center_on_surface()
 
@@ -259,3 +260,50 @@ class TetViewerState():
             return True
 
         return False
+
+    def save_setup(self, file_path):
+        """
+        save the view
+        Args:
+            file_path (pathlib.Path)
+        """
+        state = json.dumps(self, cls=EncodeViewState)
+        with file_path.open('w', encoding='utf-8') as file:
+            print(state, file=file)
+
+    def load_setup(self, file_path):
+        """
+        load an object from a JSON string
+        Args:
+            obj (TetViewerState): object to be loded
+            file_path (pathlib.Path): file holding json data
+        """
+        data = None
+        with file_path.open('r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        shift = data["shift"]
+        self.set_shift(shift[0], shift[1], shift[2])
+        self.set_euler_x(data["euler_x"])
+        self.set_euler_y(data["euler_y"])
+
+class EncodeViewState(json.JSONEncoder):
+    """
+    json encoding object
+    """
+    def default(self, o):
+        """
+        encoding function converts object to dict
+        Args:
+            o (TetViewerState): object to be encoded
+        Returns:
+            dict: holding json data
+        Raises:
+            TypeError if obj is not TetViewerState
+        """
+        if not isinstance(o, TetViewerState):
+            raise TypeError(f"object is not viewstate.ViewState: was {type(o)}")
+
+        return {'shift': o.get_shift(),
+                'euler_x': o.get_euler_x(),
+                'euler_y': o.get_euler_y()}

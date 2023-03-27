@@ -336,17 +336,46 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         """
         save the current setup
         """
-        # test if there is a set up
-        # request outfile
-        print("Save")
+        if self._model is None:
+            qw.QMessageBox.information(self,
+                                       "Error",
+                                       "You must load a mesh to have a setup")
+            return
+
+        path = str(pathlib.Path.home())
+        name, _ = qw.QFileDialog.getSaveFileName(self,
+                                                 "Enter file",
+                                                 path,
+                                                 "json (*.json)")
+
+        if name is None or name == '':
+            return
+
+        file_path = pathlib.Path(name)
+        self._tetViewer.save_setup(file_path)
 
     @qc.pyqtSlot()
     def load_setup(self):
         """
         load a setup file
         """
-        # request infile
-        print("load")
+        if self._model is None:
+            qw.QMessageBox.information(self,
+                                       "Error",
+                                       "You must load a mesh to have a setup")
+            return
+
+        path = str(pathlib.Path.home())
+        name, _ = qw.QFileDialog.getOpenFileName(self,
+                                                 "Enter file",
+                                                 path,
+                                                 "json (*.json)")
+
+        if name is None or name == '':
+            return
+
+        file_path = pathlib.Path(name)
+        self._tetViewer.load_setup(file_path)
 
     @qc.pyqtSlot(bool)
     def show_surface_lattice(self, flag):

@@ -319,8 +319,24 @@ class TetViewer(qw.QOpenGLWidget):
         """
         reset view parameters
         """
-        print("reset view")
         self._state.reset()
+
+    def save_setup(self, file_path):
+        """
+        save the view setup
+        Args:
+            file_path (pathlib.Path)
+        """
+        self._state.save_setup(file_path)
+
+    def load_setup(self, file_path):
+        """
+        load a view setup
+        Args:
+            file_path (pathlib.Path)
+        """
+        self._state.load_setup(file_path)
+        self.update()
 
     def shift(self, mouse_position):
         """
