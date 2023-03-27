@@ -284,13 +284,6 @@ class TetViewer(qw.QOpenGLWidget):
         self.reset_view()
         self.update()
 
-    def reset_view(self):
-        """
-        reset the view to initial
-        """
-        print("reset view")
-        self._state.reset()
-
     def reset_all(self):
         """
         reset back to empty
@@ -326,8 +319,8 @@ class TetViewer(qw.QOpenGLWidget):
         """
         reset view parameters
         """
+        print("reset view")
         self._state.reset()
-        #self.reset_input.emit()
 
     def shift(self, mouse_position):
         """
@@ -406,6 +399,8 @@ class TetViewer(qw.QOpenGLWidget):
         self._model = model
         ctr = self._model.get_surface().get_surface_ctr()
         self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
+        self._state.center_on_surface()
+        self._state.clear_current_tet()
 
     @qc.pyqtSlot(int)
     def set_thickness(self, val):

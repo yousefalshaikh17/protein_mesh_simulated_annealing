@@ -137,6 +137,13 @@ class TetViewerState():
         tmp = tp.find_centre(tet)
         self._current_tet_ctr = (tmp[0], tmp[1], tmp[2])
 
+    def clear_current_tet(self):
+        """
+        remove the current tet
+        """
+        self._current_tet_nodes = None
+        self._current_tet_ctr = None
+
     def get_current_tet(self):
         """
         get the current tet

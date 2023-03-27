@@ -100,6 +100,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.list_tets(tet_props)
             self.reset_view()
             self._current_source = file_path.parent
+            self._tetViewer.reset_view()
             self._tetViewer.set_model(self._model)
 
         except ValueError as error:
@@ -169,7 +170,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._thicknessBox.setValue(1)
         self._thicknessBox.blockSignals(old_state)
 
-        #self._tetViewer.reset_view()
+        self._tetViewer.reset_view()
 
     def list_tets(self, tet_props):
         """
