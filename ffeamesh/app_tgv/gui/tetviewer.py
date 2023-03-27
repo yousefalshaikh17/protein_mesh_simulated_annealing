@@ -132,10 +132,10 @@ class TetViewer(qw.QOpenGLWidget):
 
         # location of tet as input by user
         shift = self._state.get_shift()
-        print(shift)
         gl.glTranslate(-shift[0], -shift[1], shift[2])
 
         ctr = self._state.get_current_ctr()
+        print(f"current ctr {ctr}")
         gl.glTranslate(ctr[0], ctr[1], ctr[2])
         gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
         gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
@@ -406,7 +406,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         self._model = model
         ctr = self._model.get_surface().get_surface_ctr()
-        self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
+        self._state.set_surface_ctr(ctr[0], ctr[1])
 
     @qc.pyqtSlot(int)
     def set_thickness(self, val):
@@ -473,27 +473,18 @@ class TetViewer(qw.QOpenGLWidget):
         """
         callback for click of ctr mesh button
         """
-        # TODO
-        pass
-        # if self._surface_ctr is not None:
-        #     self._shift.x = self._surface_ctr[0]
-        #     self._shift.y = self._surface_ctr[1]
-        #     self._shift.z = -1350.0
-        #     self.update()
+        if self._model is not None:
+            self._state.center_on_surface()
+            self.update()
 
     @qc.pyqtSlot()
     def centre_tet(self):
         """
         callback for click of ctr tet button
         """
-        #TODO
-        pass
-        # if self._current_tet_ctr is not None:
-        #     self._shift.x = self._current_tet_ctr.x
-        #     self._shift.y = self._current_tet_ctr.y
-        #     self._shift.z = -1350.0
-
-        # self.update()
+        if self._model is not None:
+            self._state.center_on_tet()
+            self.update()
 
     @qc.pyqtSlot(bool)
     def show_current_tet(self, flag):
