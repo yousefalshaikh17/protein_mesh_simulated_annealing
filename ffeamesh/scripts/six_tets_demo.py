@@ -28,17 +28,10 @@
 import pathlib
 import numpy as np
 import vtk.util.numpy_support
+import argparse
+
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import vtk_write
-
-class Shift():
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def apply(self, coord):
-        return [coord[0]+self.x, coord[1]+self.y, coord[1]+self.z]
 
 """
       Vertex Indices:
@@ -54,6 +47,7 @@ class Shift():
 """
 
 def unit_cube_coords():
+    """vertices of unit cube"""
     return [[0.0, 0.0, 0.0],
             [1.0, 0.0, 0.0],
             [1.0, 1.0, 0.0],
@@ -70,7 +64,6 @@ def unit_cube_coords():
             [2.0, 0.0, 1.0],
             [2.0, 1.0, 1.0],
             [1.0, 1.0, 1.0]]
-
 
 def cube_5tet_indices():
     """
@@ -107,9 +100,34 @@ def cube_6tet_indices():
             [8, 14, 15, 12],
             [8, 14, 12, 13]]
 
+def get_args():
+    """
+    get the command line options
+    """
+    parser = argparse.ArgumentParser("make a pair of voxels")
+
+    parser.add_argument("-5",
+                        "--five_tets",
+                        action='store_true',
+                        help="if set decomp into 5 tets")
+
+    return parser.parse_args()
+
 def main():
+    """run the script"""
+    args = get_args()
+
+    connectivity = None
+    file_name = "cube"
+    if args.five_tets:
+        connectivity = cube_5tet_indices()
+        file_name += f"_{5}tets.vkt"
+    else:
+        connectivity = cube_6tet_indices()
+        file_name += f"_{6}tets.vkt"
+
     points_np = np.array(unit_cube_coords())
-    cells_con = vtk_u.make_vtk_tet_connectivity(cube_6tet_indices())
+    cells_con = vtk_u.make_vtk_tet_connectivity(connectivity)
 
     # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()
@@ -119,7 +137,7 @@ def main():
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
     # write vtk file
-    vtk_write.vtk_output(grid, pathlib.Path("single_cube.vtk"))
+    vtk_write.vtk_output(grid, pathlib.Path(file_name))
 
 if __name__ == '__main__':
     main()
