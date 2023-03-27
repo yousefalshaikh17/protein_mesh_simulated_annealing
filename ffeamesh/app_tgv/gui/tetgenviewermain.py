@@ -82,12 +82,10 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
                 index += 1
                 nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
 
-            faces = []
+            faces = {}
             for index, face in enumerate(surface):
                 index += 1
-                faces.append(ts.Face(index, face[0], face[1], face[2], -1))
-
-            faces = sorted(faces, key=operator.attrgetter('index'))
+                faces[index] = ts.Face(index, face[0], face[1], face[2], -1)
 
             tets = {}
             for index, tet in enumerate(volume):
