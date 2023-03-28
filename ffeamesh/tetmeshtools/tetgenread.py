@@ -24,9 +24,55 @@
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 import csv
-import operator
+import ffeamesh.tetmeshtools.tetgenread as tr
+import ffeamesh.tetmeshtools.tetgenstructs as ts
+import ffeamesh.tetmeshtools.trisurface as trs
+import ffeamesh.tetmeshtools.tetmesh as tm
+import ffeamesh.tetmeshtools.tetmodel as tmod
 
 import ffeamesh.tetmeshtools.tetgenstructs as ts
+
+def make_model_from_tetgen(file_root):
+    """
+    read tetgen .1.node, .1.face, .1.ele files and construct a mesh model
+    Args:
+        mesh_file (pathlib.Path): root name of source files
+    Returns
+        (TetModel)
+    Throws:
+        ValueError if bad file
+    """
+    tetgen_files = make_and_test_tetgen_files(file_root)
+
+    _, nodes = tr.read_node_file(tetgen_files[0])
+    _, faces = tr.read_face_file(tetgen_files[1])
+    _, tets  = tr.read_tet_file(tetgen_files[2])
+
+    surface = trs.TriSurface(nodes, faces)
+    mesh    = tm.TetMesh(nodes, tets)
+
+    return tmod.TetModel(surface, mesh)
+
+def make_and_test_tetgen_files(root):
+    """
+    make the names of the tetgen files from the name root
+    Args:
+        root (pathlib.Path): name root
+    Returns
+        [pathlib.Path]: <name>.1.ele, <name>.1.node, <name>.1.face
+    Throws:
+        ValueError: if a file does not exist
+    """
+    files = []
+    files.append(root.with_suffix(".1.node"))
+    files.append(root.with_suffix(".1.face"))
+    files.append(root.with_suffix(".1.ele"))
+
+    for file in files:
+        if not file.exists():
+            raise ValueError(f"File {file} does not exist!")
+
+    return files
 
 def make_decomment(comment):
     """

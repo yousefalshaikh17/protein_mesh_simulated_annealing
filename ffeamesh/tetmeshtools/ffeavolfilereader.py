@@ -24,6 +24,42 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+import ffeamesh.tetmeshtools.tetgenstructs as ts
+import ffeamesh.tetmeshtools.trisurface as trs
+import ffeamesh.tetmeshtools.tetmesh as tm
+import ffeamesh.tetmeshtools.tetmodel as tmod
+
+def make_model_from_ffea(mesh_file):
+    """
+    read a ffea .vol file and construct a mesh model
+    Args:
+        mesh_file (pathlib.Path): the source file
+    Returns
+        (TetModel)
+    Throws:
+        ValueError if bad file
+    """
+    points, surface, volume = read_file(mesh_file)
+
+    nodes = {}
+    for index, point in enumerate(points):
+        index += 1
+        nodes[index] = ts.NodePoint(index, point[0], point[1], point[2])
+
+    faces = {}
+    for index, face in enumerate(surface):
+        index += 1
+        faces[index] = ts.Face(index, face[0], face[1], face[2], -1)
+
+    tets = {}
+    for index, tet in enumerate(volume):
+        index += 1
+        tets[index] = ts.Tetrahedron4(index, tet[0], tet[1], tet[2], tet[3], None)
+
+    surface = trs.TriSurface(nodes, faces)
+    mesh    = tm.TetMesh(nodes, tets)
+
+    return tmod.TetModel(surface, mesh)
 
 def get_data_start_end_indices(lines, keyword):
     """
