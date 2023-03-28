@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
+    <width>701</width>
     <height>367</height>
    </rect>
   </property>
@@ -32,7 +32,10 @@
          <widget class="TetViewer" name="_tetViewer" native="true"/>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="_controlsGroup">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="title">
            <string>View Controls</string>
           </property>
@@ -43,7 +46,23 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
+              <widget class="QCheckBox" name="_showTetBox">
+               <property name="text">
+                <string>Show Tet</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="_surfaceButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Show surface</string>
                </property>
@@ -51,6 +70,9 @@
              </item>
              <item>
               <widget class="QCheckBox" name="_surfaceLatticeButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Surface Lattice</string>
                </property>
@@ -58,6 +80,9 @@
              </item>
              <item>
               <widget class="QSpinBox" name="_thicknessBox">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="minimum">
                 <number>1</number>
                </property>
@@ -85,15 +110,11 @@
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QPushButton" name="_ctrTetButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Centre Tet</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="_hideButton">
-               <property name="text">
-                <string>Hide Tet</string>
                </property>
               </widget>
              </item>
@@ -112,6 +133,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="_ctrMeshButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
                 <string>Centre Mesh</string>
                </property>
@@ -130,6 +154,9 @@
              </item>
              <item>
               <widget class="QSlider" name="_rotXSlider">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximum">
                 <number>360</number>
                </property>
@@ -157,6 +184,9 @@
              </item>
              <item>
               <widget class="QSlider" name="_rotYSlider">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximum">
                 <number>360</number>
                </property>
@@ -205,6 +235,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <widget class="QGroupBox" name="groupBox_3">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="title">
              <string>Background</string>
             </property>
@@ -290,7 +323,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>656</width>
+     <width>701</width>
      <height>22</height>
     </rect>
    </property>
@@ -302,6 +335,9 @@
     <addaction name="separator"/>
     <addaction name="_actionSaveImage"/>
     <addaction name="_actionSaveTetData"/>
+    <addaction name="separator"/>
+    <addaction name="_actionSaveSetup"/>
+    <addaction name="_actionLoadSetup"/>
     <addaction name="separator"/>
     <addaction name="_actionExit"/>
    </widget>
@@ -326,6 +362,16 @@
   <action name="_actionSaveTetData">
    <property name="text">
     <string>Save tet data</string>
+   </property>
+  </action>
+  <action name="_actionSaveSetup">
+   <property name="text">
+    <string>Save setup</string>
+   </property>
+  </action>
+  <action name="_actionLoadSetup">
+   <property name="text">
+    <string>Load setup</string>
    </property>
   </action>
  </widget>
@@ -515,22 +561,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>_hideButton</sender>
-   <signal>clicked()</signal>
-   <receiver>_tetViewer</receiver>
-   <slot>remove_current_tet()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>536</x>
-     <y>604</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>317</x>
-     <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>_viewGroup</sender>
    <signal>buttonToggled(QAbstractButton*,bool)</signal>
    <receiver>TetgenViewerMain</receiver>
@@ -578,9 +608,57 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>_actionSaveSetup</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>save_setup()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionLoadSetup</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>load_setup()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_showTetBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>show_current_tet(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="_viewGroup"/>
   <buttongroup name="_backgroundGroup"/>
+  <buttongroup name="_viewGroup"/>
  </buttongroups>
 </ui>

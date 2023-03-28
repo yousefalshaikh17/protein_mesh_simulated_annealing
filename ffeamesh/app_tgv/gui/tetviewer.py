@@ -18,6 +18,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
+import numpy as np
 from enum import Enum
 import numpy as np
 
@@ -29,9 +30,10 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
 from ffeamesh.app_tgv.gui.sphere import Sphere
-from ffeamesh.app_tgv.gui.threestore import ThreeStore
+from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
 
-import ffeamesh.tetprops as tp
+#TODO get rid of 3 state variable faces lattice tet and use call to parent in paint
+#     replace Hide tet button with check box in parent
 
 class MouseStates(Enum):
     """
@@ -52,53 +54,31 @@ class TetViewer(qw.QOpenGLWidget):
     """
 
     ## notify that rotation user input needs to be reset
-    reset_rot_input = qc.pyqtSignal()
+    reset_input = qc.pyqtSignal()
 
     def __init__(self, parent=None):
         """initalize the window"""
         self.parent = parent
         qw.QOpenGLWidget.__init__(self, parent)
 
-        ## euler angles
-        self._rotations =ThreeStore(0.0, 0.0, 0.0)
-
-        ## look from point
-        self._look_z = -1500.0
-
-        ## perspective view
-        self._perspective = True
-
-        self._shift = ThreeStore(0.0, 0.0, 0.0)
+        ## the state
+        self._state = TetViewerState()
 
         ## the sphere
         self._sphere = Sphere()
 
         ## storage for show surfaces
-        self._surface = None
+        self._model = None
 
-        ## storage for show lattice
-        self._lattice = None
+        ## show/hide surface faces
+        self._show_faces = False
 
-        ## flag to indicat a reset event
-        self._reset = False
-
-        ## the four vertices of the tet being viewed
-        self._current_tet = None
-
-        ## centre of the tet being viewed
-        self._current_tet_ctr = None
-
-        ## centre of the surface
-        self._surface_ctr = None
-
-        ## pixel thickness of edges
-        self._edges_width = 1
+        ## show/hide surface lattice
+        self._show_lattice = False
 
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
 
-        self._clear_colour = None
-        self._text_colour = None
         self.set_background()
 
     def initializeGL(self):
@@ -126,7 +106,7 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glLoadIdentity()
         aspect = width / float(height)
 
-        if self._perspective:
+        if self._state.perspective_view():
             glu.gluPerspective(45.0, aspect, 1.0, 3000.0)
         else:
             gl.glOrtho(-500.0, 500.0, -500.0, 500.0, 15.0, 3000.0)
@@ -138,44 +118,35 @@ class TetViewer(qw.QOpenGLWidget):
         """
         render the contents callback
         """
-        gl.glClearColor(self._clear_colour.x, self._clear_colour.y, self._clear_colour.z, 1)
+        c_color = self._state.get_clear_color()
+        gl.glClearColor(c_color[0], c_color[1], c_color[2], 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+        if self._model is None:
+            return
 
         gl.glPushMatrix()    # push the current matrix to the current stack
 
-        glu.gluLookAt(0.0, 0.0, self._look_z,
+        glu.gluLookAt(0.0, 0.0, self._state.get_look_z(),
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
-        # location of tet as input by user
-        gl.glTranslate(-self._shift.x, -self._shift.y, self._shift.z)
-        print(f"shift ({-self._shift.x}, {-self._shift.y}, {self._shift.z})")
+        # general shift as input by user
+        shift = self._state.get_shift()
+        gl.glTranslate(-shift[0], -shift[1], -shift[2])
 
-        if self._current_tet is not None:
-            gl.glTranslate(self._current_tet_ctr.x,
-                           self._current_tet_ctr.y,
-                           self._current_tet_ctr.z)
-            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-            gl.glTranslate(-self._current_tet_ctr.x,
-                           -self._current_tet_ctr.y,
-                           -self._current_tet_ctr.z)
-        elif self._surface_ctr is not None:
-            gl.glTranslate(self._surface_ctr[0],
-                           self._surface_ctr[1],
-                           self._surface_ctr[2])
-            gl.glRotate(self._rotations.x, 1.0, 0.0, 0.0)
-            gl.glRotate(self._rotations.y, 0.0, 1.0, 0.0)
-            gl.glTranslate(-self._surface_ctr[0],
-                           -self._surface_ctr[1],
-                           -self._surface_ctr[2])
+        ctr = self._state.get_current_ctr()
+        gl.glTranslate(ctr[0], ctr[1], ctr[2])
+        gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
+        gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
+        gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
 
-        scale = ThreeStore(1.0, 1.0, 1.0)
-        if self._current_tet is not None:
+        scale = (1.0, 1.0, 1.0)
+        if self._state.display_current_tet():
             self.draw_selected_tet(scale)
-        if self._lattice is not None:
+        if self._show_lattice:
             self.draw_triangle_outline(scale)
-        if self._surface is not None:
+        if self._show_faces:
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
@@ -183,14 +154,15 @@ class TetViewer(qw.QOpenGLWidget):
     def draw_triangles(self, scale):
         """
         render the triangles
+        Args:
+            scale (tuple float)
         """
-        nodes = self._surface["nodes"]
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
         gl.glBlendEquation(gl.GL_FUNC_ADD)
 
         gl.glPushMatrix()
-        gl.glScale(scale.x, scale.y, scale.z)
+        gl.glScale(scale[0], scale[1], scale[2])
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
         mat_specular = [1.0, 1.0, 1.0, 1.0]
@@ -215,22 +187,22 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glEnable(gl.GL_LIGHTING)
         gl.glEnable(gl.GL_LIGHT0)
         gl.glBegin(gl.GL_TRIANGLES)
-        for index, verts_indices in self._surface.items():
-            if index != "nodes":
-                node0 = nodes[verts_indices[0]]
-                node1 = nodes[verts_indices[1]]
-                node2 = nodes[verts_indices[2]]
 
-                edge0 = node0.to_edge_array(node1)
-                edge1 = node1.to_edge_array(node2)
-                normal = np.cross(edge0, edge1)
-                norm = np.linalg.norm(normal)
-                normal = normal/norm
+        surface = self._model.get_surface()
+        faces = surface.get_faces()
+        for index in faces:
+            nodes = surface.get_triangle_nodes(index)
 
-                gl.glNormal(normal[0], normal[1], normal[2])
-                gl.glVertex(node0.x, node0.y, node0.z)
-                gl.glVertex(node1.x, node1.y, node1.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
+            edge0 = nodes[0].to_edge_array(nodes[1])
+            edge1 = nodes[1].to_edge_array(nodes[2])
+            normal = np.cross(edge0, edge1)
+            norm = np.linalg.norm(normal)
+            normal = normal/norm
+
+            gl.glNormal(normal[0], normal[1], normal[2])
+            gl.glVertex(nodes[0].x, nodes[0].y, nodes[0].z)
+            gl.glVertex(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
 
         gl.glEnd()
 
@@ -244,27 +216,26 @@ class TetViewer(qw.QOpenGLWidget):
     def draw_triangle_outline(self, scale):
         """
         render the triangles outlines
+        Args:
+            scale (tuple float)
         """
-        nodes = self._lattice["nodes"]
-
         gl.glPushMatrix()
-        gl.glScale(scale.x, scale.y, scale.z)
+        gl.glScale(scale[0], scale[1], scale[2])
         gl.glPushAttrib(gl.GL_COLOR_BUFFER_BIT)
 
         gl.glColor(0.1, 0.0, 0.7, 1.0)
-        gl.glLineWidth(self._edges_width)
+        gl.glLineWidth(self._state.get_edges_width())
         gl.glBegin(gl.GL_LINES)
-        for index, verts_indices in self._lattice.items():
-            if index != "nodes":
-                node0 = nodes[verts_indices[0]]
-                node1 = nodes[verts_indices[1]]
-                node2 = nodes[verts_indices[2]]
-                gl.glVertex3f(node0.x, node0.y, node0.z)
-                gl.glVertex3f(node1.x, node1.y, node1.z)
-                gl.glVertex(node1.x, node1.y, node1.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
-                gl.glVertex(node2.x, node2.y, node2.z)
-                gl.glVertex(node0.x, node0.y, node0.z)
+        surface = self._model.get_surface()
+        faces = surface.get_faces()
+        for index in faces:
+            nodes = surface.get_triangle_nodes(index)
+            gl.glVertex3f(nodes[0].x, nodes[0].y, nodes[0].z)
+            gl.glVertex3f(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[1].x, nodes[1].y, nodes[1].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
+            gl.glVertex(nodes[2].x, nodes[2].y, nodes[2].z)
+            gl.glVertex(nodes[0].x, nodes[0].y, nodes[0].z)
         gl.glEnd()
 
         gl.glPopAttrib()
@@ -274,49 +245,43 @@ class TetViewer(qw.QOpenGLWidget):
         """
         draw the user selecte tet
         """
-        one = self._current_tet[0]
-        two = self._current_tet[1]
-        three = self._current_tet[2]
-        four = self._current_tet[3]
+        current_tet = self._state.get_current_tet()
 
-        self._sphere.draw(one, scale)
-        self._sphere.draw(two, scale)
-        self._sphere.draw(three, scale)
-        self._sphere.draw(four, scale)
+        self._sphere.draw(current_tet[0], scale)
+        self._sphere.draw(current_tet[1], scale)
+        self._sphere.draw(current_tet[2], scale)
+        self._sphere.draw(current_tet[3], scale)
 
         gl.glLineWidth(10.0)
         gl.glBegin(gl.GL_LINES)
         gl.glColor3f(0.0, 1.0, 0.0)
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(two.x, two.y, two.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
 
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(three.x, three.y, three.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
 
-        gl.glVertex3f(one.x, one.y, one.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[0].x, current_tet[0].y, current_tet[0].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
-        gl.glVertex3f(two.x, two.y, two.z)
-        gl.glVertex3f(three.x, three.y, three.z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
 
-        gl.glVertex3f(two.x, two.y, two.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[1].x, current_tet[1].y, current_tet[1].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
-        gl.glVertex3f(three.x, three.y, three.z)
-        gl.glVertex3f(four.x, four.y, four.z)
+        gl.glVertex3f(current_tet[2].x, current_tet[2].y, current_tet[2].z)
+        gl.glVertex3f(current_tet[3].x, current_tet[3].y, current_tet[3].z)
 
         gl.glEnd()
 
-    def display(self, tet):
+    def display_tet(self, tet_index):
         """
         display a tet
         Args:
-            tet [Tetrahedron4]: the tets node points
+            tet_indes (int): the tet's index
         """
-        self._current_tet = tet
-        ctr = tp.find_centre(self._current_tet)
-        self._current_tet_ctr = ThreeStore(ctr[0], ctr[1], ctr[2])
-
+        self._state.set_current_tet(self._model.get_tet_nodes(tet_index))
         self.reset_view()
         self.update()
 
@@ -324,13 +289,8 @@ class TetViewer(qw.QOpenGLWidget):
         """
         reset back to empty
         """
-        self._current_tet = None
-        self._current_tet_ctr = None
-        self._surface = None
-        self._lattice = None
-        self._clear_colour = None
-        self._text_colour = None
-        self._perspective = True
+        self._state = TetViewerState()
+        self._model = None
         self.set_background()
 
         if self.isValid():
@@ -338,70 +298,58 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, surface):
+    def show_faces(self, flag):
         """
         show the faces
         Args:
-            surface (Trisurface)
+            flag (bool)
         """
-        self._surface = {}
-        self._surface["nodes"] = surface.get_nodes()
-        # iterate the faces dictionary keys
-        for index in surface.get_faces():
-            self._surface[index] = surface.get_triangle_verts(index)
-
+        self._show_faces = flag
         self.update()
 
-    def show_surface_lattice(self, surface):
+    def show_surface_lattice(self, flag):
         """
-        show the faces
+        show the faces edges
         Args:
-            surface (Trisurface)
-            surface_ctr
+            flag (bool)
         """
-        self._surface_ctr = surface.get_surface_ctr()
-        self._lattice = {}
-        self._lattice["nodes"] = surface.get_nodes()
-        # iterate the faces dictionary keys
-        for index in surface.get_faces():
-            self._lattice[index] = surface.get_triangle_verts(index)
-
-        self.update()
-
-    def hide_faces(self):
-        """
-        stop showing faces
-        """
-        self._surface = None
-        self.update()
-
-    def hide_surface_lattice(self):
-        """
-        stop showing faces
-        """
-        self._lattice = None
+        self._show_lattice = flag
         self.update()
 
     def reset_view(self):
         """
         reset view parameters
         """
-        self._rotations.x = 0.0
-        self._rotations.y = 0.0
-        self._rotations.z = 0.0
+        self._state.reset()
 
-        self._reset = True
-        self.reset_rot_input.emit()
+    def save_setup(self, file_path):
+        """
+        save the view setup
+        Args:
+            file_path (pathlib.Path)
+        """
+        self._state.save_setup(file_path)
+
+    def load_setup(self, file_path):
+        """
+        load a view setup
+        Args:
+            file_path (pathlib.Path)
+        """
+        self._state.load_setup(file_path)
+        self.update()
 
     def shift(self, mouse_position):
         """
         move camera 'up-down'
         """
+        old_shift = self._state.get_shift()
         del_x = self._mouse_position.x() - mouse_position.x()
         del_y = mouse_position.y() - self._mouse_position.y()
+        new_x = old_shift[0] - float(del_x)/5.0
+        new_y = old_shift[1] + float(del_y)/5.0
 
-        self._shift.x -= float(del_x)/5.0
-        self._shift.y += float(del_y)/5.0
+        self._state.set_shift_xy(new_x, new_y)
 
         self._mouse_position = mouse_position
 
@@ -411,16 +359,17 @@ class TetViewer(qw.QOpenGLWidget):
         """
         move camera 'in-out'
         """
-        if not self._perspective:
+        if not self._state.perspective_view():
             return
 
         del_y = mouse_position.y() - self._mouse_position.y()
 
-        new_z = self._shift.z - float(del_y)
+        shift = self._state.get_shift()
+        new_z = shift[2] - float(del_y)
 
         self._mouse_position = mouse_position
-        if new_z > -2000.0: #-1490.0:
-            self._shift.z = new_z
+        if new_z > -2000.0:
+            self._state.set_shift_z(new_z)
 
         self.update()
 
@@ -429,14 +378,11 @@ class TetViewer(qw.QOpenGLWidget):
         set the background colour
         """
         if text == "Black":
-            self._clear_colour = ThreeStore(0.0, 0.0, 0.0)
-            self._text_colour = ThreeStore(255, 255, 255)
+            self._state.set_clear_color(0.0, 0.0, 0.0)
         elif text == "White":
-            self._clear_colour = ThreeStore(1.0, 1.0, 1.0)
-            self._text_colour = ThreeStore(77, 102, 128)
+            self._state.set_clear_color(1.0, 1.0, 1.0)
         elif text == "Gray":
-            self._clear_colour = ThreeStore(0.3, 0.4, 0.5)
-            self._text_colour = ThreeStore(255, 255, 255)
+            self._state.set_clear_color(0.3, 0.4, 0.5)
 
     def change_background(self, text):
         """
@@ -452,21 +398,33 @@ class TetViewer(qw.QOpenGLWidget):
         set the background colour
         """
         if text == "Perspective":
-            self._perspective = True
+            self._state.set_perspective(True)
         else:
-            self._perspective = False
+            self._state.set_perspective(False)
 
         self.makeCurrent()
         self.set_projection(self.width(), self.height())
 
         self.update()
 
+    def set_model(self, model):
+        """
+        set the current model
+        Args:
+            model (TetModel)
+        """
+        self._model = model
+        ctr = self._model.get_surface().get_surface_ctr()
+        self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
+        self._state.center_on_surface()
+        self._state.clear_current_tet()
+
     @qc.pyqtSlot(int)
     def set_thickness(self, val):
         """
         set thickness of surface triangle edges
         """
-        self._edges_width = val
+        self._state.set_edges_width(val)
         self.update()
 
     @qc.pyqtSlot(int)
@@ -474,7 +432,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         set rotation about x axis
         """
-        self._rotations.x = int(val)
+        self._state.set_euler_x(float(val))
         self.update()
 
     @qc.pyqtSlot(int)
@@ -482,7 +440,7 @@ class TetViewer(qw.QOpenGLWidget):
         """
         set rotation about y axis
         """
-        self._rotations.y = int(val)
+        self._state.set_euler_y(float(val))
         self.update()
 
     @qc.pyqtSlot(qg.QMouseEvent)
@@ -526,10 +484,8 @@ class TetViewer(qw.QOpenGLWidget):
         """
         callback for click of ctr mesh button
         """
-        if self._surface_ctr is not None:
-            self._shift.x = self._surface_ctr[0]
-            self._shift.y = self._surface_ctr[1]
-            self._shift.z = -1350.0
+        if self._model is not None:
+            self._state.center_on_surface()
             self.update()
 
     @qc.pyqtSlot()
@@ -537,20 +493,14 @@ class TetViewer(qw.QOpenGLWidget):
         """
         callback for click of ctr tet button
         """
-        if self._current_tet_ctr is not None:
-            self._shift.x = self._current_tet_ctr.x
-            self._shift.y = self._current_tet_ctr.y
-            self._shift.z = -1350.0
+        if self._model is not None and self._state.get_current_tet() is not None:
+            self._state.center_on_tet()
+            self.update()
 
-        self.update()
-
-    @qc.pyqtSlot()
-    def remove_current_tet(self):
+    @qc.pyqtSlot(bool)
+    def show_current_tet(self, flag):
         """
         stop displaying current tet
         """
-        if self._current_tet_ctr is not None:
-            self._current_tet_ctr = None
-            self._current_tet     = None
-            self.reset_view()
-            self.update()
+        self._state.set_display_current_tet(flag)
+        self.update()

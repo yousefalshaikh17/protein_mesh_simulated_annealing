@@ -54,10 +54,10 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._model = None
 
         ## connect up signals
-        self._tetViewer.reset_rot_input.connect(self.reset_sliders)
+        self._tetViewer.reset_input.connect(self.reset_view)
 
         ## current source directory
-        self._current_source = "C:\\Users\\jhp11\\Work\\ffea-meshing\\docs"
+        self._current_source = pathlib.Path.home()
 
         if config_args.input is None:
             return
@@ -99,6 +99,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.list_tets(tet_props)
             self.reset_view()
             self._current_source = file_path.parent
+            self._tetViewer.reset_view()
+            self._tetViewer.set_model(self._model)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -127,6 +129,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.list_tets(tet_props)
             self.reset_view()
             self._current_source = root_name.parent
+            self._tetViewer.set_model(self._model)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -154,7 +157,19 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._surfaceButton.setChecked(False)
         self._surfaceButton.blockSignals(old_state)
 
-        self._tetViewer.reset_all()
+        old_state = self._rotXSlider.blockSignals(True)
+        self._rotXSlider.setSliderPosition(0)
+        self._rotXSlider.blockSignals(old_state)
+
+        old_state = self._rotYSlider.blockSignals(True)
+        self._rotYSlider.setSliderPosition(0)
+        self._rotYSlider.blockSignals(old_state)
+
+        old_state = self._thicknessBox.blockSignals(True)
+        self._thicknessBox.setValue(1)
+        self._thicknessBox.blockSignals(old_state)
+
+        self._tetViewer.reset_view()
 
     def list_tets(self, tet_props):
         """
@@ -228,7 +243,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         row = indices[0].row()
         index = self._tetsTableWidget.item(row, 0)
 
-        self._tetViewer.display(self._model.get_tet(int(index.text())))
+        self._tetViewer.display_tet(int(index.text()))
 
     @qc.pyqtSlot()
     def save_tet_data(self):
@@ -311,11 +326,56 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             flag (bool): the new state
         """
-        if flag:
-            self._tetViewer.show_faces(self._model.get_surface())
+        if self._model is None:
             return
 
-        self._tetViewer.hide_faces()
+        self._tetViewer.show_faces(flag)
+
+    @qc.pyqtSlot()
+    def save_setup(self):
+        """
+        save the current setup
+        """
+        if self._model is None:
+            qw.QMessageBox.information(self,
+                                       "Error",
+                                       "You must load a mesh to have a setup")
+            return
+
+        path = str(pathlib.Path.home())
+        name, _ = qw.QFileDialog.getSaveFileName(self,
+                                                 "Enter file",
+                                                 path,
+                                                 "json (*.json)")
+
+        if name is None or name == '':
+            return
+
+        file_path = pathlib.Path(name)
+        self._tetViewer.save_setup(file_path)
+
+    @qc.pyqtSlot()
+    def load_setup(self):
+        """
+        load a setup file
+        """
+        if self._model is None:
+            qw.QMessageBox.information(self,
+                                       "Error",
+                                       "You must load a mesh to have a setup")
+            return
+
+        path = str(pathlib.Path.home())
+        name, _ = qw.QFileDialog.getOpenFileName(self,
+                                                 "Enter file",
+                                                 path,
+                                                 "json (*.json)")
+
+        if name is None or name == '':
+            return
+
+        file_path = pathlib.Path(name)
+        self._tetViewer.load_setup(file_path)
 
     @qc.pyqtSlot(bool)
     def show_surface_lattice(self, flag):
@@ -327,11 +387,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if self._model is None:
             return
 
-        if flag:
-            self._tetViewer.show_surface_lattice(self._model.get_surface())
-            return
-
-        self._tetViewer.hide_surface_lattice()
+        self._tetViewer.show_surface_lattice(flag)
 
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):
