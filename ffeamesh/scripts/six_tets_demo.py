@@ -26,9 +26,9 @@
 # set up linting
 # pylint: disable = import-error
 import pathlib
+import argparse
 import numpy as np
 import vtk.util.numpy_support
-import argparse
 
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import vtk_write

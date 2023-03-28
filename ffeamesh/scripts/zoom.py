@@ -31,7 +31,7 @@
  modified jonathan pickering 23Aug22
 """
 # set up linting conditions
-# pylint: disable = import-erro
+# pylint: disable = import-error
 
 import argparse
 import pathlib
@@ -79,11 +79,14 @@ def validate_args(args):
         return f"file {args.input} does not exist!"
 
     if args.resolution <= 0.0:
-        return f"resolution must be greater than zero!"
+        return f"resolution must be greater than zero! (was {args.resolution})"
 
     return None
 
 def main():
+    """
+    run the script
+    """
     args = get_args()
     message = validate_args(args)
 

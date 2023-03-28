@@ -19,6 +19,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
 from enum import Enum
+import numpy as np
 
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
@@ -151,7 +152,6 @@ class TetViewer(qw.QOpenGLWidget):
         print(f"shift ({-self._shift.x}, {-self._shift.y}, {self._shift.z})")
 
         if self._current_tet is not None:
-            print(f"tet: ({self._current_tet_ctr.x}, {self._current_tet_ctr.y}, {self._current_tet_ctr.z})")
             gl.glTranslate(self._current_tet_ctr.x,
                            self._current_tet_ctr.y,
                            self._current_tet_ctr.z)
@@ -184,7 +184,6 @@ class TetViewer(qw.QOpenGLWidget):
         """
         render the triangles
         """
-        import numpy as np
         nodes = self._surface["nodes"]
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_ONE, gl.GL_SRC_ALPHA)
