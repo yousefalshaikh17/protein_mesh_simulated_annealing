@@ -18,7 +18,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
-import numpy as np
 from enum import Enum
 import numpy as np
 
@@ -32,8 +31,7 @@ import OpenGL.GLU as glu
 from ffeamesh.app_tgv.gui.sphere import Sphere
 from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
 
-#TODO get rid of 3 state variable faces lattice tet and use call to parent in paint
-#     replace Hide tet button with check box in parent
+#TODO use call to parent in paint in place of checkbox linked variables
 
 class MouseStates(Enum):
     """
