@@ -171,13 +171,27 @@ def get_tet_props(node_points, tets):
 
     return tet_props
 
-def edges_to_area_ratio(nodes):
+def area_of_triangle(nodes, signed=True):
     """
-    find the ratio of the square of the total edge length to the area
+    find the area of a triangle
     Args:
         nodes (NodePoint): the three vertices
     Returns
-        (numpy.float64): L^2/A
+        (numpy.float64)
+    """
+    sides = []
+    sides.append(nodes[0].to_edge_array(nodes[1]))
+    sides.append(nodes[1].to_edge_array(nodes[2]))
+
+    # area is half the size of the cross product
+    if signed:
+        return np.linalg.norm(np.cross(sides[0], sides[1]))/2.0
+
+    return np.cross(sides[0], sides[1])/2.0
+
+def edges_to_area_ratio(nodes):
+    """
+    find the ratio of the square of the total edge length to the area: L^2/A
     """
     sides = []
     sides.append(nodes[0].to_edge_array(nodes[1]))

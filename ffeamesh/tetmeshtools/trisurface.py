@@ -27,6 +27,7 @@
 import numpy as np
 
 from ffeamesh.tetmeshtools.linesegment import LineSegment
+import ffeamesh.tetprops as tp
 
 class TriSurface():
     """
@@ -155,6 +156,18 @@ class TriSurface():
         return [self._nodes[face.vert0],
                 self._nodes[face.vert1],
                 self._nodes[face.vert2]]
+
+    def surface_area(self):
+        """
+        get the total area of the surface
+        """
+        total = 0.0
+
+        for index in self._faces:
+            face_nodes = self.get_triangle_nodes(index)
+            total += tp.area_of_triangle(face_nodes)
+
+        return total
 
     def __str__(self):
         """to string"""
