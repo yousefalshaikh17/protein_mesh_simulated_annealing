@@ -18,133 +18,29 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 import sys
-import pathlib
-import argparse
 
 import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.optimizemesh.costfunction as cf
 import ffeamesh.optimizemesh.simanneal as sa
-
-def handel_input_file(filename):
-    """
-    check input file and and convert to pathlib.Path
-    Args:
-        filename (str): input file
-    Returns
-        pathlib.Path
-    """
-    if filename.endswith(".vol"):
-        return pathlib.Path(filename)
-
-    tetgen_suffix = [".1.ele", ".1.node", ".1.face"]
-    if filename.endswith(tetgen_suffix[0]):
-        filename = filename.strip(tetgen_suffix[0])
-    elif filename.endswith(tetgen_suffix[1]):
-        filename = filename.strip(tetgen_suffix[1])
-    elif filename.endswith(tetgen_suffix[2]):
-        filename = filename.strip(tetgen_suffix[2])
-
-    return pathlib.Path(filename)
-
-def positive_int(text):
-    """convert text to int and test >0"""
-    value = int(text)
-    if value > 0:
-        return value
-
-    raise ValueError(f"{text} is not >0")
-
-def positive_float(text):
-    """convert text to int and test >=0"""
-    value = float(text)
-    if value >= 0.0:
-        return value
-
-    raise ValueError(f"{text} is not >=0")
-
-def probability(text):
-    """convert text to a probabilty"""
-    value = float(text)
-    if 1.0 >= value >= 0.0:
-        return value
-
-    raise ValueError(f"probability {text} not in range [1.0, 0.0]")
-
-def parse_weights(text0, text1):
-    print(f"PW {text0} {text1}")
-    raise ValueError("W")
-
-def get_args():
-    """
-    get command line arguments
-    """
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("-d",
-                        "--debug",
-                        type=sa.DebugLevel,
-                        default='none',
-                        help="set debug level")
-
-    parser.add_argument("-c",
-                        "--cooling",
-                        type=sa.CoolingFunction,
-                        required=True,
-                        choices=list(sa.CoolingFunction),
-                        help="simulated anneal selection cooling function")
-
-    parser.add_argument("-m",
-                       "--mesh_file",
-                       type=handel_input_file,
-                       required=True,
-                       help="name root of tetgen files, or ffea .vol file")
-
-    parser.add_argument("-o",
-                       "--out_file_root",
-                       type=str,
-                       required=False,
-                       help="name root of output tetgen files")
-
-    parser.add_argument("-p",
-                       "--mutate_prob",
-                       type=probability,
-                       default=0.1,
-                       help="probability that a node will be mutated")
-
-    parser.add_argument("-x",
-                       "--max_mutate",
-                       type=positive_float,
-                       default=0.1,
-                       help="maximum size of mutation on a single axis")
-
-    parser.add_argument("-a",
-                       "--all_xyz_mutate",
-                       action='store_true',
-                       help="if true mutation applied to all three axis, else rnd selection")
-
-    parser.add_argument("-w",
-                        "--weights",
-                        type=float,
-                        nargs='+',
-                        help="enter weights")
-
-    return parser.parse_args()
+import ffeamesh.scripts.simannealcomline as cl
 
 def main():
     """run the script"""
-    args = get_args()
+    args = cl.get_args()
 
     weights = None
     if args.weights is not None:
-        print(args.weights)
-        if len(args.weights) != 5:
-            print(f"Wrong number of cost function weights {len(args.weights)}, should be five", file=sys.stderr)
+        length = len(args.weights)
+        if length != 5:
+            print(f"Wrong number of cost function weights: {length}, should be five",
+                  file=sys.stderr)
             sys.exit(1)
 
         tmp = [x>=0.0 for x in args.weights]
         if not all(tmp):
-            print(f"At least one cost function weight was negative, {args.weights}", file=sys.stderr)
+            print(f"At least one cost function weight was negative, {args.weights}",
+                  file=sys.stderr)
             sys.exit(1)
 
         weights = cf.CostFeatures(inv_vol_dispersity = args.weights[0],
