@@ -25,35 +25,32 @@ import ffeamesh.optimizemesh.costfunction as cf
 import ffeamesh.optimizemesh.simanneal as sa
 import ffeamesh.scripts.simannealcomline as cl
 
+def make_weights(weights_vec):
+    """
+    """
+    length = len(weights_vec)
+    if length != 5:
+        print(f"Wrong number of cost function weights: {length}, should be five",
+                file=sys.stderr)
+        sys.exit(1)
+
+    tmp = [x>=0.0 for x in weights_vec]
+    if not all(tmp):
+        print(f"At least one cost function weight was negative, {weights_vec}",
+                file=sys.stderr)
+        sys.exit(1)
+
+    return  cf.CostFeatures(inv_vol_dispersity = weights_vec[0],
+                            shape_tets = weights_vec[1],
+                            faces_shape = weights_vec[2],
+                            total_shape = weights_vec[3],
+                            isovalue_fit = weights_vec[4])
+
 def main():
     """run the script"""
-    args = cl.get_args()
+    args = cl.get_preprocess_args()
 
-    weights = None
-    if args.weights is not None:
-        length = len(args.weights)
-        if length != 5:
-            print(f"Wrong number of cost function weights: {length}, should be five",
-                  file=sys.stderr)
-            sys.exit(1)
-
-        tmp = [x>=0.0 for x in args.weights]
-        if not all(tmp):
-            print(f"At least one cost function weight was negative, {args.weights}",
-                  file=sys.stderr)
-            sys.exit(1)
-
-        weights = cf.CostFeatures(inv_vol_dispersity = args.weights[0],
-                                  shape_tets = args.weights[1],
-                                  faces_shape = args.weights[2],
-                                  total_shape = args.weights[3],
-                                  isovalue_fit = args.weights[4])
-    else:
-        weights = cf.CostFeatures(inv_vol_dispersity = 1.0,
-                                  shape_tets = 1.0,
-                                  faces_shape = 1.0,
-                                  total_shape = 1.0,
-                                  isovalue_fit = 0.0)
+    weights = make_weights(args.weights)
 
     try:
         model = None
@@ -64,16 +61,14 @@ def main():
 
         mutate = sa.MutateParams(args.mutate_prob, args.max_mutate, args.all_xyz_mutate)
 
-        sa.simulated_anneal(args.cooling,
-                            model,
-                            weights,
-                            mutate,
-                            args.debug,
-                            args.out_file_root)
+        sa.random_walk(model,
+                       weights,
+                       mutate,
+                       args.steps,
+                       args.debug)
 
     except (ValueError, IOError) as err:
         print(f"Error: {err}")
-        return
 
 if __name__ == "__main__":
     main()

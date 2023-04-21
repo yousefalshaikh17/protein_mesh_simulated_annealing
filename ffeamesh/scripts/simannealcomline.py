@@ -122,3 +122,59 @@ def get_args():
                         help="enter weights")
 
     return parser.parse_args()
+
+def get_preprocess_args():
+    """
+    get command line arguments
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-d",
+                        "--debug",
+                        type=sa.DebugLevel,
+                        default='none',
+                        help="set debug level")
+
+    parser.add_argument("-m",
+                       "--mesh_file",
+                       type=handel_input_file,
+                       required=True,
+                       help="name root of tetgen files, or ffea .vol file")
+
+    parser.add_argument("-o",
+                       "--out_file_root",
+                       type=str,
+                       required=False,
+                       help="name root of output tetgen files")
+
+    parser.add_argument("-p",
+                       "--mutate_prob",
+                       type=probability,
+                       default=0.1,
+                       help="probability that a node will be mutated")
+
+    parser.add_argument("-x",
+                       "--max_mutate",
+                       type=positive_float,
+                       default=0.1,
+                       help="maximum size of mutation on a single axis")
+
+    parser.add_argument("-a",
+                       "--all_xyz_mutate",
+                       action='store_true',
+                       help="if true mutation applied to all three axis, else rnd selection")
+
+    parser.add_argument("-w",
+                        "--weights",
+                        type=float,
+                        nargs='+',
+                        required=True,
+                        help="enter weights")
+
+    parser.add_argument("-s",
+                       "--steps",
+                       type=positive_int,
+                       default=100,
+                       help="number of steps of random walk")
+
+    return parser.parse_args()
