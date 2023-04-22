@@ -51,7 +51,7 @@ def make_model_from_tetgen(file_root):
     surface = trs.TriSurface(nodes, faces)
     mesh    = tm.TetMesh(nodes, tets)
 
-    return tmod.TetModel(surface, mesh)
+    return tmod.TetModel(surface, mesh, file_root)
 
 def make_and_test_tetgen_files(root):
     """

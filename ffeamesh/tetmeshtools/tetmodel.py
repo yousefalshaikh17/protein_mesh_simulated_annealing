@@ -10,9 +10,21 @@ class TetModel():
     """
     class holding a complete tetgen mesh
     """
-    def __init__(self, surface, tets):
+    def __init__(self, surface, tets, source=None):
+        ## the surface object
         self._surface = surface
+
+        ## the 3d model
         self._tets = tets
+
+        ## data source
+        self._source = source
+
+    def get_source(self):
+        """
+        getter for the source
+        """
+        return self._source
 
     def get_surface_array3f(self):
         """

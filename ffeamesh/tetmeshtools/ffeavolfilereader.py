@@ -59,7 +59,7 @@ def make_model_from_ffea(mesh_file):
     surface = trs.TriSurface(nodes, faces)
     mesh    = tm.TetMesh(nodes, tets)
 
-    return tmod.TetModel(surface, mesh)
+    return tmod.TetModel(surface, mesh, mesh_file)
 
 def get_data_start_end_indices(lines, keyword):
     """
