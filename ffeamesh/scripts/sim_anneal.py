@@ -53,7 +53,7 @@ def main():
 
     weights = None
     if args.weights is not None:
-        weights = cl.unpack_weights(args.weights)
+        weights = unpack_weights(args.weights)
     else:
         weights = cf.CostFeatures(inv_vol_dispersity = 1.0,
                                   shape_tets = 1.0,
@@ -73,6 +73,7 @@ def main():
         sa.simulated_anneal(args.cooling,
                             model,
                             weights,
+                            args.isovalue,
                             mutate,
                             args.debug,
                             args.out_file_root)

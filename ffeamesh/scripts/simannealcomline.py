@@ -121,6 +121,12 @@ def get_args():
                         nargs='+',
                         help="enter weights")
 
+    parser.add_argument("-v",
+                        "--isovalue",
+                        type=float,
+                        required=True,
+                        help="isovalue defining surface in mrc file.")
+
     return parser.parse_args()
 
 def get_preprocess_args():
@@ -176,5 +182,11 @@ def get_preprocess_args():
                        type=positive_int,
                        default=100,
                        help="number of steps of random walk")
+
+    parser.add_argument("-v",
+                        "--isovalue",
+                        type=float,
+                        required=True,
+                        help="isovalue defining surface in mrc file.")
 
     return parser.parse_args()

@@ -63,6 +63,7 @@ def main():
 
         sa.random_walk(model,
                        weights,
+                       args.isovalue,
                        mutate,
                        args.steps,
                        args.debug)
