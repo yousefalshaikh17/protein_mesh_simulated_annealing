@@ -15,13 +15,6 @@ class TestType(enum.Enum):
     INTERPX = "interpx"
     INTERPY = "interpy"
     INTERPZ = "interpz"
-    SECTION = "section"
-
-def cross_section(image):
-    """
-    make big array and visualize
-    """
-    print("sec")
 
 def test_range(image):
     """
