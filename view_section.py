@@ -6,16 +6,15 @@ from PIL import Image
 
 import ffeamesh.mrclininterpolate as mli
 
-def display_cross_section(image, args):
+def display_cross_section(image, xsize, ysize, z, file_name):
     """
     display a section of the file
     Args:
         mrc (mrcfile): image to analyse
         args (argparse.namespace): options
     """
-    x_range = np.linspace(image.offset_x, image.inner_size_x, args.xsize)
-    y_range = np.linspace(image.offset_y, image.inner_size_y, args.xsize)
-    z = args.zcoord
+    x_range = np.linspace(image.offset_x, image.inner_size_x, xsize)
+    y_range = np.linspace(image.offset_y, image.inner_size_y, ysize)
 
     slice = np.zeros((len(x_range), len(y_range)))
 
@@ -23,9 +22,9 @@ def display_cross_section(image, args):
         for j, y in enumerate(y_range):
             slice[i, j] = image.density_at(x, y, z)
 
-    show_image(slice)
+    show_image(slice, file_name)
 
-def show_image(slice_array):
+def show_image(slice_array, file_name):
     image_array = np.zeros(slice_array.shape, dtype=np.uint8)
 
     for i in range(image_array.shape[0]):
@@ -36,6 +35,7 @@ def show_image(slice_array):
     img = Image.fromarray(image_array, "L")
     # Display the Numpy array as Image
     img.show()
+    img.save(file_name)
 
 def get_args():
     """
@@ -75,7 +75,11 @@ def main():
     """
     args = get_args()
     with mrcfile.open(args.input, mode='r+') as mrc:
-        display_cross_section(mli.MRCImage(mrc), args)
+        image = mli.MRCImage(mrc)
+        for i in range(10, 90, 10):
+            z = float(i)
+            file_name = f"zcord_{i}.png"
+            display_cross_section(image, args.xsize, args.ysize, z, file_name)
 
 if __name__ == "__main__":
     main()

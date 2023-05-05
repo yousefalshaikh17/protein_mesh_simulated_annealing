@@ -76,83 +76,86 @@ def test_range(image):
         else:
             print("FAIL: z too high unknown exception")
 
-def test_x(image):
+def test_x(image, tolerance):
     """
     test interpolation on x axis
     Args:
         image (DensityTable)
+        tolerance (float): epsilon for test
     """
     value = image.density_at(102.5, 102.5, 102.5)
     target = image.data_at(20, 20, 20)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target})")
     else:
         print(f"TEST x fail: was {value} should be {target})")
 
     value = image.density_at(107.5, 102.5, 102.5)
     target = image.data_at(21, 20, 20)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target}")
     else:
         print(f"TEST x fail: was {value} should be {target}")
 
     value = image.density_at(105.0, 102.5, 102.5)
     target = image.data_at(21, 20, 20)*0.5 + image.data_at(20, 20, 20)*0.5
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target})")
     else:
         print(f"TEST x fail: was {value} should be {target}")
 
-def test_y(image):
+def test_y(image, tolerance):
     """
     test interpolation on y axis
     Args:
         image (DensityTable)
+        tolerance (float): epsilon for test
     """
     value = image.density_at(102.5, 102.5, 102.5)
     target = image.data_at(20, 20, 20)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target})")
     else:
         print(f"TEST y fail: was {value} should be {target})")
 
     value = image.density_at(102.5, 107.5, 102.5)
     target = image.data_at(20, 21, 20)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target}")
     else:
         print(f"TEST y fail: was {value} should be {target}")
 
     value = image.density_at(102.5, 105.0, 102.5)
     target = image.data_at(20, 21, 20)*0.5 + image.data_at(20, 20, 20)*0.5
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target})")
     else:
         print(f"TEST y fail: was {value} should be {target}")
 
-def test_z(image):
+def test_z(image, tolerance):
     """
     test interpolation on z axis
     Args:
         image (DensityTable)
+        tolerance (float): epsilon for test
     """
     value = image.density_at(102.5, 102.5, 102.5)
     target = image.data_at(20, 20, 20)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target})")
     else:
         print(f"TEST z fail: was {value} should be {target})")
 
     value = image.density_at(102.5, 102.5, 107.5)
     target = image.data_at(20, 20, 21)
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target}")
     else:
         print(f"TEST z fail: was {value} should be {target}")
 
     value = image.density_at(102.5, 102.5, 105.0)
     target = image.data_at(20, 20, 21)*0.5 + image.data_at(20, 20, 20)*0.5
-    if math.isclose(value, target, abs_tol=0.001):
+    if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target})")
     else:
         print(f"TEST z fail: was {value} should be {target}")
@@ -165,22 +168,21 @@ def test_mrc(mrc, test):
         test (TestType): test option
     """
     image = mli.MRCImage(mrc)
+    tolerance = 0.00000000000001
 
     if test == TestType.ALL:
         test_range(image)
-        test_x(image)
-        test_y(image)
-        test_z(image)
+        test_x(image, tolerance)
+        test_y(image, tolerance)
+        test_z(image, tolerance)
     elif test == TestType.RANGE:
-        test_range(image)
+        test_range(image, tolerance)
     elif test == TestType.INTERPX:
-        test_x(image)
+        test_x(image, tolerance)
     elif test == TestType.INTERPY:
-        test_y(image)
+        test_y(image, tolerance)
     elif test == TestType.INTERPZ:
-        test_z(image)
-    elif test == TestType.SECTION:
-        cross_section(image)
+        test_z(image, tolerance)
     else:
         print(f"Error unknown test {test}")
 
