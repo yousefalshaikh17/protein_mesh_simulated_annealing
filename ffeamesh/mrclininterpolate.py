@@ -23,11 +23,10 @@
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
-import numpy as np
+# set up linting
+# pylint: disable = import-error
 import collections
-import mrcfile
-
-import ffeamesh.mrc_utility as mu
+import numpy as np
 
 ## container for the index of cell and fractional coords inside cell
 InnerCoords = collections.namedtuple("InnerCoords", ["x_index",
@@ -77,42 +76,42 @@ class MRCImage():
         ## the mrc file
         self._file = mrc
 
-        self.dx = mrc.header.cella.x/mrc.header.mx
-        self.dy = mrc.header.cella.y/mrc.header.my
-        self.dz = mrc.header.cella.z/mrc.header.mz
+        self.delta_x = mrc.header.cella.x/mrc.header.mx
+        self.delta_y = mrc.header.cella.y/mrc.header.my
+        self.delta_z = mrc.header.cella.z/mrc.header.mz
 
-        self.offset_x = self.dx/2.0
-        self.offset_y = self.dy/2.0
-        self.offset_z = self.dz/2.0
+        self.offset_x = self.delta_x/2.0
+        self.offset_y = self.delta_y/2.0
+        self.offset_z = self.delta_z/2.0
 
-        self.inner_size_x = self.dx*(self._file.header.nx-1)
-        self.inner_size_y = self.dy*(self._file.header.ny-1)
-        self.inner_size_z = self.dz*(self._file.header.nz-1)
+        self.inner_size_x = self.delta_x*(self._file.header.nx-1)
+        self.inner_size_y = self.delta_y*(self._file.header.ny-1)
+        self.inner_size_z = self.delta_z*(self._file.header.nz-1)
 
-    def test_inner_coords(self, x, y, z):
+    def test_inner_coords(self, x_coord, y_coord, z_coord):
         """"
         ensure offset coordinates are in inner array range
         Args:
-            x (float): inner x coordinate
-            y (float): inner y coordinate
-            z (float): inner z coordinate
+            x_coord (float): inner x coordinate
+            y_coord (float): inner y coordinate
+            z_coord (float): inner z coordinate
         Raise
             ValueError if out of range
         """
         message = "coordinate below intercept calculation range"
-        if x < 0.0:
+        if x_coord < 0.0:
             raise ValueError(f"x {message}")
-        if y < 0.0:
+        if y_coord < 0.0:
             raise ValueError(f"y {message}")
-        if z < 0.0:
+        if z_coord < 0.0:
             raise ValueError(f"z {message}")
 
         message = "coordinate above intercept calculation range"
-        if x >= self.inner_size_x:
+        if x_coord >= self.inner_size_x:
             raise ValueError(f"x {message}")
-        if y >= self.inner_size_y:
+        if y_coord >= self.inner_size_y:
             raise ValueError(f"y {message}")
-        if z >= self.inner_size_z:
+        if z_coord >= self.inner_size_z:
             raise ValueError(f"z {message}")
 
     def to_coords(self, image_x, image_y, image_z):
@@ -131,9 +130,9 @@ class MRCImage():
 
         self.test_inner_coords(offset_x, offset_y, offset_z)
 
-        x_frac, x_index = np.modf(offset_x/self.dx)
-        y_frac, y_index = np.modf(offset_y/self.dy)
-        z_frac, z_index = np.modf(offset_z/self.dz)
+        x_frac, x_index = np.modf(offset_x/self.delta_x)
+        y_frac, y_index = np.modf(offset_y/self.delta_y)
+        z_frac, z_index = np.modf(offset_z/self.delta_z)
 
         return make_inner_coords(round(x_index), x_frac,
                                  round(y_index), y_frac,
