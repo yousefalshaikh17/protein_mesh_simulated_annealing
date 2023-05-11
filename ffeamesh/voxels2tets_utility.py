@@ -53,7 +53,7 @@ def make_fractional_to_cartesian_conversion_function(mrc):
     Args:
         mrc (mrcfile): the mrc file
     Returns
-        function: fractional (i, j, k) (flaot) => cartesian (x, y, z) (float)
+        function: fractional (i, j, k) (float) => cartesian (x, y, z) (float)
     """
     # get cell sizes
     x_res = mrc.header.cella.x/np.float32(mrc.header.mx)
@@ -80,7 +80,7 @@ def make_fractional_to_cartesian_conversion_function(mrc):
         z_cart = (z_frac * z_res) + z_trans
 
         return cu.CoordTransform(cu.Coordinate(x_frac, y_frac, z_frac),
-                              cu.Coordinate(x_cart, y_cart, z_cart))
+                                 cu.Coordinate(x_cart, y_cart, z_cart))
 
     return fractional_to_cartesian_coordinates
 

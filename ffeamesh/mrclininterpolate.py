@@ -28,6 +28,8 @@
 import collections
 import numpy as np
 
+import ffeamesh.voxels2tets_utility as v2t
+
 ## container for the index of cell and fractional coords inside cell
 InnerCoords = collections.namedtuple("InnerCoords", ["x_index",
                                                      "x_frac",
@@ -76,6 +78,11 @@ class MRCImage():
         ## the mrc file
         self._file = mrc
 
+        # get coordinate origin
+        self.x_origin = np.float32(mrc.header.origin['x'])
+        self.y_origin = np.float32(mrc.header.origin['y'])
+        self.z_origin = np.float32(mrc.header.origin['z'])
+
         self.delta_x = mrc.header.cella.x/mrc.header.mx
         self.delta_y = mrc.header.cella.y/mrc.header.my
         self.delta_z = mrc.header.cella.z/mrc.header.mz
@@ -88,6 +95,14 @@ class MRCImage():
         self.inner_size_y = self.delta_y*(self._file.header.ny-1)
         self.inner_size_z = self.delta_z*(self._file.header.nz-1)
 
+        self.low_limit_x = self.x_origin + self.offset_x
+        self.low_limit_y = self.y_origin + self.offset_y
+        self.low_limit_z = self.z_origin + self.offset_z
+
+        self.high_limit_x = self.low_limit_x + self.inner_size_x
+        self.high_limit_y = self.low_limit_y + self.inner_size_y
+        self.high_limit_z = self.low_limit_z + self.inner_size_z
+
     def test_inner_coords(self, x_coord, y_coord, z_coord):
         """"
         ensure offset coordinates are in inner array range
@@ -99,19 +114,19 @@ class MRCImage():
             ValueError if out of range
         """
         message = "coordinate below intercept calculation range"
-        if x_coord < 0.0:
+        if x_coord < self.low_limit_x:
             raise ValueError(f"x {message}")
-        if y_coord < 0.0:
+        if y_coord < self.low_limit_y:
             raise ValueError(f"y {message}")
-        if z_coord < 0.0:
+        if z_coord < self.low_limit_z:
             raise ValueError(f"z {message}")
 
         message = "coordinate above intercept calculation range"
-        if x_coord >= self.inner_size_x:
+        if x_coord >= self.high_limit_x:
             raise ValueError(f"x {message}")
-        if y_coord >= self.inner_size_y:
+        if y_coord >= self.high_limit_y:
             raise ValueError(f"y {message}")
-        if z_coord >= self.inner_size_z:
+        if z_coord >= self.high_limit_z:
             raise ValueError(f"z {message}")
 
     def to_coords(self, image_x, image_y, image_z):
@@ -124,11 +139,10 @@ class MRCImage():
         Returns
             InnerCoords: the array index and frac
         """
-        offset_x = image_x - self.offset_x
-        offset_y = image_y - self.offset_y
-        offset_z = image_z - self.offset_z
-
-        self.test_inner_coords(offset_x, offset_y, offset_z)
+        self.test_inner_coords(image_x, image_y, image_z)
+        offset_x = image_x - self.x_origin
+        offset_y = image_y - self.y_origin
+        offset_z = image_z - self.z_origin
 
         x_frac, x_index = np.modf(offset_x/self.delta_x)
         y_frac, y_index = np.modf(offset_y/self.delta_y)

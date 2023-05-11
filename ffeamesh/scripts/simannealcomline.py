@@ -127,6 +127,12 @@ def get_args():
                         required=True,
                         help="isovalue defining surface in mrc file.")
 
+    parser.add_argument("-f",
+                        "--mrc_file",
+                        type=pathlib.Path,
+                        required=True,
+                        help="mrc image file on which isosurface is defined")
+
     return parser.parse_args()
 
 def get_preprocess_args():
@@ -188,5 +194,11 @@ def get_preprocess_args():
                         type=float,
                         required=True,
                         help="isovalue defining surface in mrc file.")
+
+    parser.add_argument("-f",
+                        "--mrc_file",
+                        type=pathlib.Path,
+                        required=True,
+                        help="mrc image file on which isosurface is defined")
 
     return parser.parse_args()

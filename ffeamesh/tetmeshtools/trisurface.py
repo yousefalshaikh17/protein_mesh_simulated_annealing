@@ -118,7 +118,7 @@ class TriSurface():
 
     def get_surface_nodes(self):
         """
-        getter for the nodes that appear in the
+        getter for the nodes that appear in the surface
         Returns:
             dict index => node: the nodes used in the surface
         """

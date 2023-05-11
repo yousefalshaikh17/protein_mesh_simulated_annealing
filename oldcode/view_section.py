@@ -46,8 +46,14 @@ def display_cross_section(image, xsize, zsize, y_coord, isovalue, file_name):
         isovalue (float): the target isovalue
         file_name (str): the root name of the output file
     """
-    x_range = np.linspace(image.offset_x, image.inner_size_x, xsize)
-    z_range = np.linspace(image.offset_z, image.inner_size_z, zsize)
+    x_range = np.linspace(image.low_limit_x,
+                          image.high_limit_x-image.offset_x*2,
+                          xsize)
+    z_range = np.linspace(image.low_limit_z,
+                          (image.high_limit_z-image.offset_z*2),
+                          zsize)
+
+    y_coord += image.low_limit_y
 
     image_slice = np.zeros((len(x_range), len(z_range)))
 
