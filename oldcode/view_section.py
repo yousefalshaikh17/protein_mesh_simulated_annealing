@@ -59,7 +59,7 @@ def display_cross_section(image, xsize, zsize, y_coord, isovalue, file_name):
 
     for i, x_coord in enumerate(x_range):
         for j, z_coord in enumerate(z_range):
-            image_slice[i, j] = image.density_at(x_coord, y_coord, z_coord)
+            image_slice[i, j], _ = image.density_or_distance_at(x_coord, y_coord, z_coord)
 
     show_image(image_slice, isovalue, file_name)
 

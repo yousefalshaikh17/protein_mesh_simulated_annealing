@@ -146,12 +146,11 @@ class MRCImage():
         """
         flag = self.test_inner_coords(image_x, image_y, image_z)
         if flag != 0:
-            return 0.0
+            return flag
 
         true_x = image_x - self.x_origin
         true_y = image_y - self.y_origin
         true_z = image_z - self.z_origin
-
 
         x_frac, x_index = np.modf(true_x/self.delta_x)
         y_frac, y_index = np.modf(true_y/self.delta_y)

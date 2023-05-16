@@ -50,59 +50,46 @@ def test_range(image):
     Args:
         image (DummyMRC): the source
     """
+    tolerance = 0.00001
     origin = (-117.703995, 172.448, -120.83199)
-    try:
-        image.density_at(origin[0], origin[1]+10.0, origin[2]+10.0)
-        print("FAIL: x too low no exception")
-    except ValueError as err:
-        if str(err) == "x coordinate below intercept calculation range":
-            print("PASS: x too low")
-        else:
-            print(f"FAIL: x too low unknown exception: {str(err)}")
-    try:
-        image.density_at(origin[0]+500.0, origin[1]+10.0, origin[2]+10.0)
-        print("FAIL: x too high no exception")
-    except ValueError as err:
-        if str(err) == "x coordinate above intercept calculation range":
-            print("PASS: x too high")
-        else:
-            print(f"FAIL: x too high unknown exception {err}")
 
-    try:
-        image.density_at(origin[0]+10.0, origin[1]+0.0, origin[2]+10.0)
-        print("FAIL: y too low no exception")
-    except ValueError as err:
-        if str(err) == "y coordinate below intercept calculation range":
-            print("PASS: y too low")
-        else:
-            print("FAIL: y too low unknown exception")
+    _, dist = image.density_or_distance_at(origin[0], origin[1]+10.0, origin[2]+10.0)
+    if math.isclose(dist, 6.25, abs_tol=tolerance):
+        print("PASS: x too low")
+    else:
+        print(f"FAIL: x too low ")
 
-    try:
-        image.density_at(origin[0]+10.0, origin[1]+500.0, origin[2]+10.0)
-        print("FAIL: y too high no exception")
-    except ValueError as err:
-        if str(err) == "y coordinate above intercept calculation range":
-            print("PASS: y too high")
-        else:
-            print("FAIL: y too high unknown exception")
+    _, dist = image.density_or_distance_at(origin[0]+500.0, origin[1]+10.0, origin[2]+10.0)
+    if math.isclose(dist, 56.24999, abs_tol=tolerance):
+        print("PASS: x too high")
+    else:
+        print(f"FAIL: x too high ")
 
-    try:
-        image.density_at(origin[0]+10.0, origin[1]+10.0, origin[2]+0.0)
-        print("FAIL: z too low no exception")
-    except ValueError as err:
-        if str(err) == "z coordinate below intercept calculation range":
-            print("PASS: z too low")
-        else:
-            print("FAIL: z too low unknown exception")
+    _, dist = image.density_or_distance_at(origin[0]+10.0, origin[1]+0.0, origin[2]+10.0)
+    if math.isclose(dist, 6.25, abs_tol=tolerance):
+        print("PASS: y too low")
+    else:
+        print("FAIL: y too low")
 
-    try:
-        image.density_at(origin[0]+10.0, origin[1]+10.0, origin[2]+500.0)
-        print("FAIL: z too high no exception")
-    except ValueError as err:
-        if str(err) == "z coordinate above intercept calculation range":
-            print("PASS: z too high")
-        else:
-            print("FAIL: z too high unknown exception")
+
+    _, dist = image.density_or_distance_at(origin[0]+10.0, origin[1]+500.0, origin[2]+10.0)
+    if math.isclose(dist, 31506.250693, abs_tol=tolerance):
+        print("PASS: y too high")
+    else:
+        print("FAIL: y too high unknown exception")
+
+
+    _, dist = image.density_or_distance_at(origin[0]+10.0, origin[1]+10.0, origin[2]+0.0)
+    if math.isclose(dist, 6.25, abs_tol=tolerance):
+        print("PASS: z too low")
+    else:
+        print("FAIL: z too low ")
+
+    _, dist = image.density_or_distance_at(origin[0]+10.0, origin[1]+10.0, origin[2]+500.0)
+    if math.isclose(dist, 20306.25088, abs_tol=tolerance):
+        print("PASS: z too high")
+    else:
+        print("FAIL: z too high")
 
 def test_x(image, tolerance):
     """
@@ -112,21 +99,21 @@ def test_x(image, tolerance):
         tolerance (float): epsilon for test
     """
     origin = (-117.703995, 172.448, -120.83199)
-    value = image.density_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
     target = image.data_at(20, 20, 20)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target})")
     else:
         print(f"TEST x fail: was {value} should be {target})")
 
-    value = image.density_at(origin[0]+105.0, origin[1]+100.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+105.0, origin[1]+100.0, origin[2]+100.0)
     target = image.data_at(21, 20, 20)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target}")
     else:
         print(f"TEST x fail: was {value} should be {target}")
 
-    value = image.density_at(origin[0]+102.5, origin[1]+100.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+102.5, origin[1]+100.0, origin[2]+100.0)
     target = image.data_at(21, 20, 20)*0.5 + image.data_at(20, 20, 20)*0.5
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST x pass (target {target})")
@@ -141,21 +128,21 @@ def test_y(image, tolerance):
         tolerance (float): epsilon for test
     """
     origin = (-117.703995, 172.448, -120.83199)
-    value = image.density_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
     target = image.data_at(20, 20, 20)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target})")
     else:
         print(f"TEST y fail: was {value} should be {target})")
 
-    value = image.density_at(origin[0]+100.0, origin[1]+105.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+105.0, origin[2]+100.0)
     target = image.data_at(20, 21, 20)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target}")
     else:
         print(f"TEST y fail: was {value} should be {target}")
 
-    value = image.density_at(origin[0]+100.0, origin[1]+102.5, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+102.5, origin[2]+100.0)
     target = image.data_at(20, 21, 20)*0.5 + image.data_at(20, 20, 20)*0.5
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST y pass (target {target})")
@@ -170,21 +157,21 @@ def test_z(image, tolerance):
         tolerance (float): epsilon for test
     """
     origin = (-117.703995, 172.448, -120.83199)
-    value = image.density_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+100.0, origin[2]+100.0)
     target = image.data_at(20, 20, 20)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target})")
     else:
         print(f"TEST z fail: was {value} should be {target})")
 
-    value = image.density_at(origin[0]+100.0, origin[1]+100.0, origin[2]+105.0)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+100.0, origin[2]+105.0)
     target = image.data_at(20, 20, 21)
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target}")
     else:
         print(f"TEST z fail: was {value} should be {target}")
 
-    value = image.density_at(origin[0]+100.0, origin[1]+100.0, origin[2]+102.5)
+    value, _ = image.density_or_distance_at(origin[0]+100.0, origin[1]+100.0, origin[2]+102.5)
     target = image.data_at(20, 20, 21)*0.5 + image.data_at(20, 20, 20)*0.5
     if math.isclose(value, target, abs_tol=tolerance):
         print(f"TEST z pass (target {target})")
