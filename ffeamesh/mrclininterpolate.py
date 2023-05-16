@@ -113,21 +113,23 @@ class MRCImage():
         Raise
             ValueError if out of range
         """
-        message = "coordinate below intercept calculation range"
+        # binary flag
+        flag = 0
         if x_coord < self.low_limit_x:
-            raise ValueError(f"x {message}")
+            flag += 1
         if y_coord < self.low_limit_y:
-            raise ValueError(f"y {message}")
+            flag += 2
         if z_coord < self.low_limit_z:
-            raise ValueError(f"z {message}")
+            flag += 4
 
-        message = "coordinate above intercept calculation range"
         if x_coord >= self.high_limit_x:
-            raise ValueError(f"x {message}")
+            flag += 8
         if y_coord >= self.high_limit_y:
-            raise ValueError(f"y {message}")
+            flag += 16
         if z_coord >= self.high_limit_z:
-            raise ValueError(f"z {message}")
+            flag += 32
+
+        return flag
 
     def to_coords(self, image_x, image_y, image_z):
         """
@@ -137,16 +139,23 @@ class MRCImage():
             image_y (float): image y coordinate
             image_z (float): image z coordinate
         Returns
-            InnerCoords: the array index and frac
+            if (x, y, z) in image
+                InnerCoords: the array index and frac
+            else
+                float distance from image cuboid
         """
-        self.test_inner_coords(image_x, image_y, image_z)
-        offset_x = image_x - self.x_origin
-        offset_y = image_y - self.y_origin
-        offset_z = image_z - self.z_origin
+        flag = self.test_inner_coords(image_x, image_y, image_z)
+        if flag != 0:
+            return 0.0
 
-        x_frac, x_index = np.modf(offset_x/self.delta_x)
-        y_frac, y_index = np.modf(offset_y/self.delta_y)
-        z_frac, z_index = np.modf(offset_z/self.delta_z)
+        true_x = image_x - self.x_origin
+        true_y = image_y - self.y_origin
+        true_z = image_z - self.z_origin
+
+
+        x_frac, x_index = np.modf(true_x/self.delta_x)
+        y_frac, y_index = np.modf(true_y/self.delta_y)
+        z_frac, z_index = np.modf(true_z/self.delta_z)
 
         return make_inner_coords(round(x_index), x_frac,
                                  round(y_index), y_frac,
@@ -180,7 +189,7 @@ class MRCImage():
 
         return value
 
-    def density_at(self, image_x, image_y, image_z):
+    def density_or_distance_at(self, image_x, image_y, image_z):
         """
         return the interpolated density at image point
         Args:
@@ -188,12 +197,16 @@ class MRCImage():
             image_y (float): y image coordinate
             image_z (float): z image coordinate
         Retruns
-            float: interpolated density
-        Raises:
-            ValueError if x, y or z out of range
+            (float, float): interpolated density and distance from image squared
         """
         coords = self.to_coords(image_x, image_y, image_z)
-        return self.linear_interp(coords)
+
+        if isinstance(coords, int):
+            dist2 = self.dist_to_image_squared(coords, image_x, image_y, image_z)
+            return 0.0, dist2
+
+        density = self.linear_interp(coords)
+        return density, 0.0
 
     def data_at(self, voxel_x, voxel_y, voxel_z):
         """
@@ -206,3 +219,36 @@ class MRCImage():
             float
         """
         return self._file.data[voxel_z, voxel_y, voxel_x]
+
+    def dist_to_image_squared(self, region_flag, image_x, image_y, image_z):
+        """
+        return the square of the distance from the point to the image cuboid
+        Args:
+            region_flag (int): binary flag
+            image_x (float): x coordinate in image coordinates
+            image_y (float): y coordinate in image coordinates
+            image_z (float): z coordinate in image coordinates
+        returns:
+            (float)
+        """
+        x = 0.0
+        y = 0.0
+        z = 0.0
+
+        # lower limits
+        if region_flag & 1:
+            x = image_x - self.low_limit_x
+        if region_flag & 2:
+            y = image_y - self.low_limit_y
+        if region_flag & 4:
+            z = image_z - self.low_limit_z
+
+        # high limits
+        if region_flag & 8:
+            x = image_x - self.high_limit_x
+        if region_flag & 16:
+            y = image_y - self.high_limit_y
+        if region_flag & 32:
+            z = image_z - self.high_limit_z
+
+        return x*x + y*y + z*z

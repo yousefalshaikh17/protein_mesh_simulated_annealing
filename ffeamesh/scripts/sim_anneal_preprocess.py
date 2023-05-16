@@ -30,7 +30,7 @@ def make_weights(weights_vec):
     """
     length = len(weights_vec)
     if length != 5:
-        print(f"Wrong number of cost function weights: {length}, should be five",
+        print(f"Wrong number of cost function weights: {length}, should be six",
                 file=sys.stderr)
         sys.exit(1)
 
@@ -44,7 +44,8 @@ def make_weights(weights_vec):
                             shape_tets = weights_vec[1],
                             faces_shape = weights_vec[2],
                             total_shape = weights_vec[3],
-                            isovalue_fit = weights_vec[4])
+                            isovalue_fit = weights_vec[4],
+                            dist_to_image2= weights_vec[5])
 
 def main():
     """run the script"""
