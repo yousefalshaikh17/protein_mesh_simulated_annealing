@@ -86,7 +86,9 @@ def main():
             else:
                 debug_file = None
 
-            sa.simulated_anneal(args.cooling,
+            sa.simulated_anneal(sa.CoolingParams(args.start_temp,
+                                                 args.stop_temp,
+                                                 args.cooling),
                                 model,
                                 weights,
                                 args.isovalue,

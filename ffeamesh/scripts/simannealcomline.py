@@ -133,6 +133,19 @@ def get_args():
                         required=True,
                         help="mrc image file on which isosurface is defined")
 
+
+    parser.add_argument("-start",
+                        "--start_temp",
+                        type=positive_float,
+                        required=True,
+                        help="start temerature for cooling schedule")
+
+    parser.add_argument("-stop",
+                        "--stop_temp",
+                        type=positive_float,
+                        required=True,
+                        help="stop temerature for cooling schedule")
+
     return parser.parse_args()
 
 def get_preprocess_args():
