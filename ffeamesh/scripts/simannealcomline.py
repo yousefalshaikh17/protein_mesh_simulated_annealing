@@ -75,9 +75,9 @@ def get_args():
 
     parser.add_argument("-d",
                         "--debug",
-                        type=sa.DebugLevel,
-                        default='none',
-                        help="set debug level")
+                        type=pathlib.Path,
+                        required=False,
+                        help="save run data to debug file")
 
     parser.add_argument("-c",
                         "--cooling",
@@ -140,12 +140,6 @@ def get_preprocess_args():
     get command line arguments
     """
     parser = argparse.ArgumentParser()
-
-    parser.add_argument("-d",
-                        "--debug",
-                        type=sa.DebugLevel,
-                        default='none',
-                        help="set debug level")
 
     parser.add_argument("-m",
                        "--mesh_file",

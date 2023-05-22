@@ -12,6 +12,8 @@ Outputs:
     isosurface match {make image using paraview}
 """
 import argparse
+import os
+import itertools
 import numpy as np
 
 #python .\ffeamesh\scripts\sim_anneal.py
@@ -39,7 +41,6 @@ def parse_max(text):
         raise ValueError()
 
     return value
-
 
 def get_args():
     """
@@ -72,14 +73,33 @@ def get_args():
 
 def main():
     args = get_args()
-    path = ".\docs\molly_params\tutorial\thick_myosin\six_tets\myosin_thick.1"
-    all_xyz_mutate = True
-    debug = "low"
+    path = ".\\docs\\molly_params\\tutorial\\thick_myosin\\six_tets\\myosin_thick.1"
+    mrc_path = ".\\data\\map_equilibrium_mystructrigor_15A_0p00202.mrc"
     isovalue = 0.01
     cooling = "linear"
 
     probs = np.linspace(0.1, 0.9, 9)
     maxs = np.linspace(0.1, 5.0, 10)
-    print(maxs)
+
+    weights = ""
+    for number in args.weights:
+        weights+=f"{str(number)} "
+
+    count = itertools.count(0)
+    for prob in probs:
+        for max in maxs:
+            s = "python .\\ffeamesh\\scripts\\sim_anneal.py "
+            s += f"-m {path} "
+            s += f"-p {prob} "
+            s += f"-x {max} "
+            s += "-a "
+            s += f"-d run_{next(count)}.csv "
+            s += f"-w {weights} "
+            s += f"-v {isovalue} "
+            s += f"-f {mrc_path} "
+            s += f"-c {cooling}"
+            print(s)
+            os.system(s)
+
 if __name__ == "__main__":
     main()

@@ -81,14 +81,22 @@ def main():
 
             mutate = sa.MutateParams(args.mutate_prob, args.max_mutate, args.all_xyz_mutate)
 
+            if args.debug is not None:
+                debug_file = args.debug.open('w')
+            else:
+                debug_file = None
+
             sa.simulated_anneal(args.cooling,
                                 model,
                                 weights,
                                 args.isovalue,
                                 mutate,
                                 image,
-                                args.debug,
+                                debug_file,
                                 args.out_file_root)
+
+            if debug_file is not None:
+                debug_file.close()
 
         except (ValueError, IOError) as err:
             print(f"Error: {err}", file=sys.stderr)
