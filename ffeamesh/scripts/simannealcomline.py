@@ -71,7 +71,7 @@ def get_args():
     """
     get command line arguments
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""optimizes a tetrahedral mesh using simulated annealing""")
 
     parser.add_argument("-d",
                         "--debug",

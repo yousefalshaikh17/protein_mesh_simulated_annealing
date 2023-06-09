@@ -44,6 +44,8 @@ class Voxtest(Enum):
     TEST1 = "test1"
     TEST2 = "test2"
     TEST3 = "test3"
+    SPHERE = "sphere"
+    DBELL = "dbell"
 
 def get_args():
     """
@@ -96,6 +98,7 @@ def voxel_test(voxtest):
             (numpy.ndarray data=np.float32), (CellProps) data plus cell size & angles
     """
     mrc_data = None
+    cell_size = 5.0
 
     if voxtest == Voxtest.TEST0:
         vox_data = [[[1,2],[3,4]],[[2,3],[4,5]]] # List nested as z > y > x
@@ -116,9 +119,91 @@ def voxel_test(voxtest):
         vox_data = [[[1]]]
         mrc_data = np.tile(vox_data,1).astype(np.float32)
 
-    props = CellProps(CellSize(20.0, 20.0, 20.0), CellAngles(90.0, 90.0, 90.0))
+    elif voxtest == Voxtest.SPHERE:
+        mrc_data = make_sphere(cell_size)
+        print(mrc_data)
+
+    elif voxtest == Voxtest.DBELL:
+        mrc_data = make_dbell(cell_size)
+        print(mrc_data)
+
+    props = CellProps(CellSize(cell_size, cell_size, cell_size),
+                      CellAngles(90.0, 90.0, 90.0))
 
     return mrc_data, props
+
+def make_dbell(cell_size, count = 20):
+    """
+    make the array for a sphere
+    Args:
+        cell_size (float): cell dimension
+        count (int): number of cells on each dimension
+    Returns
+        np array
+    """
+    vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
+
+    frac_centre = (count * cell_size)/10.0
+    centre = frac_centre*5
+
+    half_size = cell_size/2.0
+
+    fill_sphere(count, (centre, centre, 3*frac_centre), cell_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, 7*frac_centre), cell_size, half_size, vox_data)
+
+    return vox_data
+
+def make_sphere(cell_size, count = 20):
+    """
+    make the array for a sphere
+    Args:
+        cell_size (float): cell dimension
+        count (int): number of cells on each dimension
+    Returns
+        np array
+    """
+    vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
+
+    centre = (count * cell_size)/2.0
+    half_size = cell_size/2.0
+
+    fill_sphere(count, (centre, centre, centre), cell_size, half_size, vox_data)
+
+    return vox_data
+
+def fill_sphere(count, centre, cell_size, half_size, vox_data):
+    """
+    fill an array with spherical data densities
+    Args:
+        count (int): number of cells on each dimension
+        centre ((float)):
+        cell_size (float):
+        half_size (float):
+        vox_data (np.array(float)):
+    Returns
+        np.array
+    """
+    for i in range(count):
+        dz = np.float32(i)*cell_size + half_size
+        dz = centre[2] - dz
+        for j in range(count):
+            dy = np.float32(j)*cell_size + half_size
+            dy = centre[1] - dy
+            for k in range(count):
+                dx = np.float32(k)*cell_size + half_size
+                dx = centre[0] - dx
+                radius = np.sqrt(dx*dx + dy*dy + dz*dz)
+
+                if radius < cell_size:
+                    vox_data[i, j, k] += 1.0
+                elif radius < cell_size*2:
+                    vox_data[i, j, k] += 0.75
+                elif radius < cell_size*3:
+                    vox_data[i, j, k] += 0.5
+                elif radius < cell_size*4:
+                    vox_data[i, j, k] += 0.25
+                elif radius < cell_size*5:
+                    vox_data[i, j, k] += 0.125
 
 def main():
     """
