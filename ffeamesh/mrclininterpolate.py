@@ -204,6 +204,7 @@ class MRCImage():
             dist2 = self.dist_to_image_squared(coords, image_x, image_y, image_z)
             return 0.0, dist2
 
+        print(f"d at {coords.z_index}, {coords.y_index}, {coords.x_index}")
         density = self.linear_interp(coords)
         return density, 0.0
 
