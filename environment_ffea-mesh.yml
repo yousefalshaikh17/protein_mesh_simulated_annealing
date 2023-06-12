@@ -1,4 +1,4 @@
-name: ffea-mesh-iso
+name: ffea-mesh
 channels:
   - defaults
   - conda-forge
@@ -13,4 +13,3 @@ dependencies:
   - pyopengl
   - pyqt
   - pyrr
-  - pillow
