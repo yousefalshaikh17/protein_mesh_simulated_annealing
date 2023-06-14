@@ -32,8 +32,8 @@ def unpack_weights(weights_list):
     check weights list and assign to data struct
     """
 
-    if len(weights_list) != 5:
-        print(f"Wrong number of cost function weights {len(weights_list)}, should be five",
+    if len(weights_list) != 6:
+        print(f"Wrong number of cost function weights {len(weights_list)}, should be six",
                file=sys.stderr)
         sys.exit(1)
 
@@ -47,7 +47,8 @@ def unpack_weights(weights_list):
                             shape_tets = weights_list[1],
                             faces_shape = weights_list[2],
                             total_shape = weights_list[3],
-                            isovalue_fit = weights_list[4])
+                            isovalue_fit = weights_list[4],
+                            dist_to_image2 = weights_list[5])
 
 def main():
     """run the script"""
@@ -61,7 +62,8 @@ def main():
                                   shape_tets = 1.0,
                                   faces_shape = 1.0,
                                   total_shape = 1.0,
-                                  isovalue_fit = 0.0)
+                                  isovalue_fit = 1.0,
+                                  dist_to_image2 = 1.0)
 
     if not args.mrc_file.exists():
         print(f"Error MRC file {args.mrc_file} does not exist.")
@@ -79,14 +81,24 @@ def main():
 
             mutate = sa.MutateParams(args.mutate_prob, args.max_mutate, args.all_xyz_mutate)
 
-            sa.simulated_anneal(args.cooling,
+            if args.debug is not None:
+                debug_file = args.debug.open('w')
+            else:
+                debug_file = None
+
+            sa.simulated_anneal(sa.CoolingParams(args.start_temp,
+                                                 args.stop_temp,
+                                                 args.cooling),
                                 model,
                                 weights,
                                 args.isovalue,
                                 mutate,
                                 image,
-                                args.debug,
+                                debug_file,
                                 args.out_file_root)
+
+            if debug_file is not None:
+                debug_file.close()
 
         except (ValueError, IOError) as err:
             print(f"Error: {err}", file=sys.stderr)

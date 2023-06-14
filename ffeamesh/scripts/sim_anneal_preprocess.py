@@ -18,19 +18,21 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 import sys
+import mrcfile
 
 import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.optimizemesh.costfunction as cf
 import ffeamesh.optimizemesh.simanneal as sa
 import ffeamesh.scripts.simannealcomline as cl
+import ffeamesh.mrclininterpolate as mi
 
 def make_weights(weights_vec):
     """
     """
     length = len(weights_vec)
-    if length != 5:
-        print(f"Wrong number of cost function weights: {length}, should be five",
+    if length != 6:
+        print(f"Wrong number of cost function weights: {length}, should be six",
                 file=sys.stderr)
         sys.exit(1)
 
@@ -44,7 +46,8 @@ def make_weights(weights_vec):
                             shape_tets = weights_vec[1],
                             faces_shape = weights_vec[2],
                             total_shape = weights_vec[3],
-                            isovalue_fit = weights_vec[4])
+                            isovalue_fit = weights_vec[4],
+                            dist_to_image2= weights_vec[5])
 
 def main():
     """run the script"""
@@ -52,24 +55,32 @@ def main():
 
     weights = make_weights(args.weights)
 
-    try:
-        model = None
-        if args.mesh_file.suffix == ".vol":
-            model = fr.make_model_from_ffea(args.mesh_file)
-        else:
-            model = tr.make_model_from_tetgen(args.mesh_file)
+    if not args.mrc_file.exists():
+        print(f"Error MRC file {args.mrc_file} does not exist.")
+        return
 
-        mutate = sa.MutateParams(args.mutate_prob, args.max_mutate, args.all_xyz_mutate)
+    with mrcfile.open(args.mrc_file, mode='r+') as mrc:
+        image = mi.MRCImage(mrc)
 
-        sa.random_walk(model,
-                       weights,
-                       args.isovalue,
-                       mutate,
-                       args.steps,
-                       args.debug)
+        try:
+            model = None
+            if args.mesh_file.suffix == ".vol":
+                model = fr.make_model_from_ffea(args.mesh_file)
+            else:
+                model = tr.make_model_from_tetgen(args.mesh_file)
 
-    except (ValueError, IOError) as err:
-        print(f"Error: {err}")
+            mutate = sa.MutateParams(args.mutate_prob, args.max_mutate, args.all_xyz_mutate)
+
+            sa.random_walk(model,
+                        weights,
+                        args.isovalue,
+                        image,
+                        mutate,
+                        args.steps,
+                        args.debug)
+
+        except (ValueError, IOError) as err:
+            print(f"Error: {err}")
 
 if __name__ == "__main__":
     main()

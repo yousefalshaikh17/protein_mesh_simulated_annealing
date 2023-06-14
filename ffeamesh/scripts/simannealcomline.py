@@ -71,13 +71,13 @@ def get_args():
     """
     get command line arguments
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""optimizes a tetrahedral mesh using simulated annealing""")
 
     parser.add_argument("-d",
                         "--debug",
-                        type=sa.DebugLevel,
-                        default='none',
-                        help="set debug level")
+                        type=pathlib.Path,
+                        required=False,
+                        help="save run data to debug file")
 
     parser.add_argument("-c",
                         "--cooling",
@@ -133,6 +133,19 @@ def get_args():
                         required=True,
                         help="mrc image file on which isosurface is defined")
 
+
+    parser.add_argument("-start",
+                        "--start_temp",
+                        type=positive_float,
+                        required=True,
+                        help="start temerature for cooling schedule")
+
+    parser.add_argument("-stop",
+                        "--stop_temp",
+                        type=positive_float,
+                        required=True,
+                        help="stop temerature for cooling schedule")
+
     return parser.parse_args()
 
 def get_preprocess_args():
@@ -140,12 +153,6 @@ def get_preprocess_args():
     get command line arguments
     """
     parser = argparse.ArgumentParser()
-
-    parser.add_argument("-d",
-                        "--debug",
-                        type=sa.DebugLevel,
-                        default='none',
-                        help="set debug level")
 
     parser.add_argument("-m",
                        "--mesh_file",
