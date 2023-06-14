@@ -22,6 +22,8 @@
 
  @author: jonathan pickering, joanna leng 08 Feb 23
 """
+## TODO check if this object is actually used any more
+
 import numpy as np
 
 class Vector3(list):
