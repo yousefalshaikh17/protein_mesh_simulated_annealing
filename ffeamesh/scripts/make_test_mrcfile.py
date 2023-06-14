@@ -89,16 +89,18 @@ def validate_args(args):
 
     return None
 
-def voxel_test(voxtest):
+def voxel_test(voxtest, count = 20):
     """
     make data for built in tests
         Args:
             (Voxtest): enum specifing the selected test
+            count (int): number of cells on each dimension
         Returns:
             (numpy.ndarray data=np.float32), (CellProps) data plus cell size & angles
     """
     mrc_data = None
-    cell_size = 5.0
+    voxcell_size = 5.0
+    cell_size = voxcell_size * count
 
     if voxtest == Voxtest.TEST0:
         vox_data = [[[1,2],[3,4]],[[2,3],[4,5]]] # List nested as z > y > x
@@ -120,19 +122,17 @@ def voxel_test(voxtest):
         mrc_data = np.tile(vox_data,1).astype(np.float32)
 
     elif voxtest == Voxtest.SPHERE:
-        mrc_data = make_sphere(cell_size)
-        print(mrc_data)
+        mrc_data = make_sphere(voxcell_size, count)
 
     elif voxtest == Voxtest.DBELL:
-        mrc_data = make_dbell(cell_size)
-        print(mrc_data)
+        mrc_data = make_dbell(voxcell_size, count)
 
     props = CellProps(CellSize(cell_size, cell_size, cell_size),
                       CellAngles(90.0, 90.0, 90.0))
 
     return mrc_data, props
 
-def make_dbell(cell_size, count = 20):
+def make_dbell(cell_size, count):
     """
     make the array for a sphere
     Args:
@@ -153,7 +153,7 @@ def make_dbell(cell_size, count = 20):
 
     return vox_data
 
-def make_sphere(cell_size, count = 20):
+def make_sphere(cell_size, count):
     """
     make the array for a sphere
     Args:
