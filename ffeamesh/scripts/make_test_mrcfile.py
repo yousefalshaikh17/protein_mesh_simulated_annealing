@@ -89,7 +89,7 @@ def validate_args(args):
 
     return None
 
-def voxel_test(voxtest, count = 20):
+def voxel_test(voxtest, count = 10):
     """
     make data for built in tests
         Args:
@@ -99,8 +99,8 @@ def voxel_test(voxtest, count = 20):
             (numpy.ndarray data=np.float32), (CellProps) data plus cell size & angles
     """
     mrc_data = None
-    voxcell_size = 5.0
-    cell_size = voxcell_size * count
+    voxel_size = 5.0
+    cell_size = voxel_size * count
 
     if voxtest == Voxtest.TEST0:
         vox_data = [[[1,2],[3,4]],[[2,3],[4,5]]] # List nested as z > y > x
@@ -122,87 +122,87 @@ def voxel_test(voxtest, count = 20):
         mrc_data = np.tile(vox_data,1).astype(np.float32)
 
     elif voxtest == Voxtest.SPHERE:
-        mrc_data = make_sphere(voxcell_size, count)
+        mrc_data = make_sphere(voxel_size, count)
 
     elif voxtest == Voxtest.DBELL:
-        mrc_data = make_dbell(voxcell_size, count)
+        mrc_data = make_dbell(voxel_size, count)
 
     props = CellProps(CellSize(cell_size, cell_size, cell_size),
                       CellAngles(90.0, 90.0, 90.0))
 
     return mrc_data, props
 
-def make_dbell(cell_size, count):
+def make_dbell(voxel_size, count):
     """
     make the array for a sphere
     Args:
-        cell_size (float): cell dimension
+        voxel_size (float): voxel dimension
         count (int): number of cells on each dimension
     Returns
         np array
     """
     vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
 
-    frac_centre = (count * cell_size)/10.0
+    frac_centre = (count * voxel_size)/10.0
     centre = frac_centre*5
 
-    half_size = cell_size/2.0
+    half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, 3*frac_centre), cell_size, half_size, vox_data)
-    fill_sphere(count, (centre, centre, 7*frac_centre), cell_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, 3*frac_centre), voxel_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, 7*frac_centre), voxel_size, half_size, vox_data)
 
     return vox_data
 
-def make_sphere(cell_size, count):
+def make_sphere(voxel_size, count):
     """
     make the array for a sphere
     Args:
-        cell_size (float): cell dimension
+        voxel_size (float): cell dimension
         count (int): number of cells on each dimension
     Returns
         np array
     """
     vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
 
-    centre = (count * cell_size)/2.0
-    half_size = cell_size/2.0
+    centre = (count * voxel_size)/2.0
+    half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, centre), cell_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, centre), voxel_size, half_size, vox_data)
 
     return vox_data
 
-def fill_sphere(count, centre, cell_size, half_size, vox_data):
+def fill_sphere(count, centre, voxel_size, half_size, vox_data):
     """
     fill an array with spherical data densities
     Args:
         count (int): number of cells on each dimension
         centre ((float)):
-        cell_size (float):
+        voxel_size (float):
         half_size (float):
         vox_data (np.array(float)):
     Returns
         np.array
     """
     for i in range(count):
-        dz = np.float32(i)*cell_size + half_size
+        dz = np.float32(i)*voxel_size + half_size
         dz = centre[2] - dz
         for j in range(count):
-            dy = np.float32(j)*cell_size + half_size
+            dy = np.float32(j)*voxel_size + half_size
             dy = centre[1] - dy
             for k in range(count):
-                dx = np.float32(k)*cell_size + half_size
+                dx = np.float32(k)*voxel_size + half_size
                 dx = centre[0] - dx
                 radius = np.sqrt(dx*dx + dy*dy + dz*dz)
 
-                if radius < cell_size:
+                if radius < voxel_size*0.5:
                     vox_data[i, j, k] += 1.0
-                elif radius < cell_size*2:
+                elif radius < voxel_size:
                     vox_data[i, j, k] += 0.75
-                elif radius < cell_size*3:
+                elif radius < voxel_size*1.5:
                     vox_data[i, j, k] += 0.5
-                elif radius < cell_size*4:
+                elif radius < voxel_size*2:
                     vox_data[i, j, k] += 0.25
-                elif radius < cell_size*5:
+                elif radius < voxel_size*2.5:
                     vox_data[i, j, k] += 0.125
 
 def main():
@@ -217,11 +217,11 @@ def main():
         return
 
     if args.voxtest is not None:
-        test_image, cell_size = voxel_test(args.voxtest)
+        test_image, voxel_size = voxel_test(args.voxtest)
         label = str(args.voxtest)
         label += f" by {getpass.getuser()} on "
         label += datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
-        write_mrcfile(test_image, cell_size, args.output, label, args.overwrite)
+        write_mrcfile(test_image, voxel_size, args.output, label, args.overwrite)
         return
 
 if __name__ == "__main__":
