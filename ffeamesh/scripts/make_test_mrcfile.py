@@ -40,10 +40,7 @@ class Voxtest(Enum):
     """
     enumeration of the three built in tests
     """
-    TEST0 = "test0"
-    TEST1 = "test1"
-    TEST2 = "test2"
-    TEST3 = "test3"
+    CUBE = "cube"
     SPHERE = "sphere"
     DBELL = "dbell"
 
@@ -67,7 +64,7 @@ def get_args():
                         type=Voxtest,
                         required=True,
                         help="which test do you require",
-                        choices=list(Voxtest))
+                        choices=[el.value for el in Voxtest])
 
     parser.add_argument("-w",
                         "--overwrite",
@@ -102,24 +99,8 @@ def voxel_test(voxtest, count = 10):
     voxel_size = 5.0
     cell_size = voxel_size * count
 
-    if voxtest == Voxtest.TEST0:
-        vox_data = [[[1,2],[3,4]],[[2,3],[4,5]]] # List nested as z > y > x
-        mrc_data = np.tile(vox_data,1).astype(np.float32)
-
-    elif voxtest == Voxtest.TEST1:
-        vox_data = [[[2,3],[1,2]],[[1,2],[1,1]],[[2,3],[1,2]]]
-        mrc_data = np.tile(vox_data,1).astype(np.float32)
-
-    elif voxtest == Voxtest.TEST2:
-        vox_data = [[[3,3],[2,2],[2,2],[3,3]],
-                    [[2,2],[1,1],[1,1],[2,2]],
-                    [[2,2],[1,1],[1,1],[2,2]],
-                    [[3,3],[2,2],[2,2],[3,3]]]
-        mrc_data = np.tile(vox_data,1).astype(np.float32)
-
-    elif voxtest == Voxtest.TEST3:
-        vox_data = [[[1]]]
-        mrc_data = np.tile(vox_data,1).astype(np.float32)
+    if voxtest == Voxtest.CUBE:
+        mrc_data = make_sphere(voxel_size, count)
 
     elif voxtest == Voxtest.SPHERE:
         mrc_data = make_sphere(voxel_size, count)
@@ -131,6 +112,32 @@ def voxel_test(voxtest, count = 10):
                       CellAngles(90.0, 90.0, 90.0))
 
     return mrc_data, props
+
+def make_cube(voxel_size, count):
+    """
+    make the array for a cube
+    Args:
+        voxel_size (float): voxel dimension
+        count (int): number of cells on each dimension
+    Returns
+        np array
+    """
+    vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
+
+    half_count = count/2
+
+    fill_cube(vox_data, half_count, 2, 0.25)
+    fill_cube(vox_data, half_count, 1, 0.5)
+
+    vox_data[half_count, half_count, half_count] = 1.0
+
+    return vox_data
+
+def fill_cube(vox_data, half_count, offset, level):
+    for i in range(half_count-offset, half_count+offset):
+        for j in range(half_count-offset, half_count+offset):
+            for k in range(half_count-offset, half_count+offset):
+                vox_data[i, j, k] = level
 
 def make_dbell(voxel_size, count):
     """
