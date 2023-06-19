@@ -83,7 +83,7 @@ def get_args():
                         "--cooling",
                         type=sa.CoolingFunction,
                         required=True,
-                        choices=list(sa.CoolingFunction),
+                        choices=[el.value for el in sa.CoolingFunction],
                         help="simulated anneal selection cooling function")
 
     parser.add_argument("-m",

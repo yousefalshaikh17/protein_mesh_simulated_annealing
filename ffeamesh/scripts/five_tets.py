@@ -96,7 +96,7 @@ def get_args():
                         type=Method,
                         default=Method.PLAIN,
                         help="choice of method used to make tetrohedrons",
-                        choices=list(Method))
+                        choices=[el.value for el in Method])
 
     parser.add_argument("-V",
                         "--verbose",

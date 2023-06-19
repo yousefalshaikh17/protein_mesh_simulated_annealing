@@ -75,7 +75,7 @@ def get_args():
                         type=Algorithm,
                         default=Algorithm.ELLIPSOID,
                         help="choice of algorithm used in fft filtering",
-                        choices=list(Algorithm))
+                        choices=[el.value for el in Algorithm])
 
     return parser.parse_args()
 
