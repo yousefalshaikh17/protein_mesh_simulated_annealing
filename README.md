@@ -1,7 +1,95 @@
-Overview {#overview}
+FFEA Meshing {#ffea_meshing}
 ============
 
-ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) meshes.
+ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) tetrahrdral meshes.
+
+The tools include: 
+    * a visualization tool that allows the user to interactively explore the tetrahedral mesh and select the worst and best elements using a number of recognised criteria.
+    * rescale mrc files (used to collect cryo-em data)
+    * convert mrc data into tetrahedral meshes using a 5 or 6 fold marching tetrahedron algorithm which results in a blocky surface
+    * optimisation vis simulated annealing to smooth the surface. 
+
+This project was started in summer 2021.
+
+Version
+============
+This is version 1.0
+
+
+Copyright and License
+============
+
+The algorithm and software in this project were developed by the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
+
+Copyright 2020 FFEA team.
+
+Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.gnu.org/licenses/
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+DEVELOPED WITH:
+============
+
+This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 and Centos 8 systems.
+
+QUICK START:
+============
+
+Immediately below are a set of instructions that allow you to execute the cpt software quickly. There are no explanations of the steps here. Please look at the rest of the README file if you have any problems.
+
+This software uses Anaconda with Python 3.9 so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of ffea-meshing (the directory with the file README.md in it) and type the following the FIRST time you run the ffea-meshing software. Not all the instructions are required for later runs:
+
+`conda env create -f environment_ffea-mesh.yml`
+
+Next, activate the cpt Anaconda environment using the following command:
+
+`conda activate ffea-mesh`
+
+Now install the cpt tools into the cpt environment:
+
+`pip install --editable . -v`
+
+Execution of scripts is in this format.
+
+`average.py`
+
+And to get help on how to use a script:
+
+`average.py --help`
+
+If you want to use them to write your own python scripts you can now import them into a script.
+
+`import cpt`
+
+MANAGING THE ffea_mesh ENVIRONMENT:
+============
+
+The Anaconda environment, with all the necessary modules, can be set up using the environment_ffea-mesh.yml file.
+
+We advise you to get your conda installation up to date before you do this but this is not obligatory with the command:
+
+`conda update --all`
+
+To see what conda environments you have, run the command
+
+`conda env list`
+
+To create a new Anaconda environment for cpt, run the command
+
+`conda env create -f environment_ffea-mesh.yml`
+
+To start using the environment, run the command
+
+`conda activate ffea-mesh.yml`
+
+To stop using that enviroment:
+
+`conda deactivate`
+
+To remove the environment, if you no longer want to use ffea-mesh:
+
+`conda env remove --name ffea-mesh`
+
 
 
 Scripts {#scripts}
