@@ -49,13 +49,17 @@ Now install the cpt tools into the cpt environment:
 
 `pip install --editable . -v`
 
-Execution of scripts is in this format.
+Execution of the visualizer:
 
-`average.py`
+`tgv.py`
+
+Execution of a command line script is in this format when you download the mvc file called filename.
+
+` mrc_header_info.py -i filename`
 
 And to get help on how to use a script:
 
-`average.py --help`
+` mrc_header_info.py --help`
 
 If you want to use them to write your own python scripts you can now import them into a script.
 
