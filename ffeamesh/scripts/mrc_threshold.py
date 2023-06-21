@@ -1,4 +1,14 @@
+#!/usr/bin/env python3
 """
+ mrc_threshold.py
+ 
+  A script that reads a mrc file and set all voxels less than than the
+  thershold to zero, then outputs to a new file.
+  
+  
+  ----------------------
+ 
+ 
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -39,8 +49,8 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""read a mrc file and set all voxels less than than the
-        thershold to zero, then output to a new file""")
+    parser = argparse.ArgumentParser("""reads a mrc file and set all voxels less than than the
+        thershold to zero, then outputs to a new file""")
 
     parser.add_argument("-i",
                         "--input",

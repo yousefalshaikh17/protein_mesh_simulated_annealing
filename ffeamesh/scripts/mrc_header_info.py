@@ -1,4 +1,11 @@
+#!/usr/bin/env python3
 """
+ mrc_header_info.pylint
+ 
+ Script that makes simple mrc image files for use in testing.
+ 
+ ------------------------
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -35,7 +42,7 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser(description="""make simple mrc image files
+    parser = argparse.ArgumentParser(description="""makes simple mrc image files
         for use in testing""")
 
     parser.add_argument("-i",

@@ -30,7 +30,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 DEVELOPED WITH:
 ============
 
-This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 and Centos 8 systems.
+This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 
 QUICK START:
 ============

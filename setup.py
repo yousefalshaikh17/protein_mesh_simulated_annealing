@@ -28,7 +28,7 @@ File to compile c and prepare python for a pip install.
   To help us fund FFEA development, we humbly ask that you cite
   the research papers on the package.
 """
-from setuptools import setup, find_packages
+from setuptools import setup
 
 DISTUTILS_DEBUG=1
 
@@ -40,22 +40,26 @@ setup(
     url='http://ffea.bitbucket.com',
     license='GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007',
     packages=['ffeamesh'],
-    #packages=find_packages(),
     install_requires=[
         'argparse',
         'numpy',
         'vtk',
         'mrcfile'
     ],
-    scripts=['ffeamesh/scripts/five_tets.py',
-             'ffeamesh/scripts/six_tets.py',
-             'ffeamesh/scripts/six_tets_demo.py',
-             'ffeamesh/scripts/zoom.py',
-             'ffeamesh/scripts/fft_smooth.py',
-             'ffeamesh/scripts/make_test_mrcfile.py',
-             'ffeamesh/scripts/mrc_threshold.py',
-             'ffeamesh/scripts/mrc_crop.py',
-             'ffeamesh/scripts/mrc_header_info.py',
-             'ffeamesh/scripts/mrc_image_stats.py',
-             'tests/tetvolume.py',
-             'ffeamesh/app_tgv/tgv.py'])
+    entry_points={
+        'console_scripts': [
+            'five_tets = ffeamesh.scripts.five_tets:main',
+            'six_tets = ffeamesh.scripts.six_tets:main',
+            'six_tets_demo = ffeamesh.scripts.six_tets_demo:main',
+            'zoom = ffeamesh.scripts.zoom:main',
+            'fft_smooth = ffeamesh.scripts.fft_smooth:main',
+            'make_test_mrc_file = ffeamesh.scripts.make_test_mrcfile:main',
+            'mrc_threshold = ffeamesh.scripts.mrc_threshold:main',
+            'mrc_crop = ffeamesh.scripts.mrc_crop:main',
+            'mrc_header_info = ffeamesh.scripts.mrc_header_info:main',
+            'mrc_image_stats = ffeamesh.scripts.mrc_image_stats:main',
+            'tetvolume = tests.tetvolume:main',
+            'tgv = ffeamesh.app_tgv.tgv:main'
+        ]
+    }
+    )

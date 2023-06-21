@@ -1,4 +1,15 @@
+#!/usr/bin/env python
 """
+ zoom.py
+ 
+ DESCRIPTION
+ A script to coarsen a mesh (to 15 Å for example) in chimerax use:
+ vol resample #1 spacing 15 - this coarsens to 15 Å voxels
+ save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
+ 
+ -------------------------------------
+ 
+  
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -22,10 +33,7 @@
 
  Created on Mon Oct 25 11:50:39 2021
 
- DESCRIPTION
- to coarsen a mesh (to 15 Å for example) in chimerax use:
- vol resample #1 spacing 15 - this coarsens to 15 Å voxels
- save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
+ 
 
  @author: mollygravett
  modified jonathan pickering 23Aug22
@@ -45,7 +53,11 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""Coarsens a mesh (to 15 Å for example)
+                in chimerax use:
+                vol resample #1 spacing 15 - this coarsens to 15 Å voxels
+                save newmap.mrc model #2 - this saves your new coarsened
+                model as "newmap.mrc""" )
 
     parser.add_argument("-i",
                         "--input",

@@ -1,4 +1,11 @@
+#!/usr/bin/env python3
 """
+ mrc_crop.pylint
+
+ Script that crops 3D mrc image file data.
+
+-----------------
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -36,7 +43,7 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""crops 3D mrc image file data""")
 
     parser.add_argument("-i",
                         "--input",

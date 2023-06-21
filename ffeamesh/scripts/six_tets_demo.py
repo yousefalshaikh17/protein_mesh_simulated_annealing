@@ -1,4 +1,13 @@
+#!/usr/bin/env python
 """
+ six_tets_demo.py
+ 
+ Create a pair of voxel with either 5 or 6 tetrahedron per
+ voxel.
+ 
+ 
+---------------------------------
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,

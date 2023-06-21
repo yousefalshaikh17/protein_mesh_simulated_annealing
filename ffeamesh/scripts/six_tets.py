@@ -1,4 +1,15 @@
+#!/usr/bin/env python
 """
+ six_tets.pylint
+  
+ A script that processes MRC files and produces a regular
+ tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
+ This is written out in the tetgen .ele, .face, and .node file format for
+ later use in FFEA, and .vtk for mesh analysis.
+ 
+
+-----------------------------
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -20,7 +31,6 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
-Generating tetrahedral meshes from pixel data
 """
 # set up linting
 # pylint: disable = import-error

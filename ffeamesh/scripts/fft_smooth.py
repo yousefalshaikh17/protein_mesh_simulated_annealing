@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+ fft_smooth.pylint
+
+ A script that smoooths density data in a mrc file using a fft
+ (fourier transform) function.
+
+ ----------------------
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -49,7 +56,8 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""Smoooths density data in a mrc file
+                                  using a fft (fourier transform) function.""")
 
     parser.add_argument("-i",
                         "--input",
