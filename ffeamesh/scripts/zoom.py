@@ -2,11 +2,9 @@
 """
  zoom.py
  
- DESCRIPTION
- A script to coarsen a mesh (to 15 Å for example) in chimerax use:
- vol resample #1 spacing 15 - this coarsens to 15 Å voxels
- save newmap.mrc model #2 - this saves your new coarsened model as "newmap.mrc"
- 
+ A script to coarsen an MRC image file, which uses scipy ndimage zoom
+ to interpolate values for the merged voxels (from 5Å to 15Å for example).
+
  -------------------------------------
  
   
@@ -53,11 +51,8 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""Coarsens a mesh (to 15 Å for example)
-                in chimerax use:
-                vol resample #1 spacing 15 - this coarsens to 15 Å voxels
-                save newmap.mrc model #2 - this saves your new coarsened
-                model as "newmap.mrc""" )
+    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which uses scipy ndimage zoom 
+ to interpolate values for the merged voxels (from 5Å to 15Å for example).""" )
 
     parser.add_argument("-i",
                         "--input",
