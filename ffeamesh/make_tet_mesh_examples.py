@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 """
- six_tets_demo.py
- 
- Create a pair of voxel with either 5 or 6 tetrahedron per
- voxel.
- 
- 
+ make_tet_mesh_examples.py
+
+ make examples of the decomposition of cubes into tetrhedron meshs.
+
 ---------------------------------
 
  This file is part of the FFEA simulation package
