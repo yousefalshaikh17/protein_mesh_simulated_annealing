@@ -54,7 +54,11 @@ from ffeamesh import vtk_write
 """
 
 def unit_cube_coords():
-    """vertices of unit cube"""
+    """
+    vertices of unit cube
+    Returns:
+        ([[float]]): 3x16 the coordinates of the vertices of two cubes
+    """
     return [[0.0, 0.0, 0.0],
             [1.0, 0.0, 0.0],
             [1.0, 1.0, 0.0],
@@ -78,7 +82,7 @@ def cube_5tet_indices():
     Args:
         None
     Returns
-        lits(list) : five lists of four vertex indices representing the tets
+        [[int]] : connectivity of five tets in terms of cube vertices
     """
     return [[0, 4, 5, 7],
             [0, 1, 2, 5],
@@ -92,7 +96,7 @@ def cube_6tet_indices():
     Args:
         None
     Returns
-        lits(list) : five lists of four vertex indices representing the tets
+        [[int]] : connectivity of six tets in terms of vertices of two cubes
     """
     return [[0, 6, 5, 1],
             [0, 6, 1, 2],
@@ -110,13 +114,21 @@ def cube_6tet_indices():
 def get_args():
     """
     get the command line options
+    Returns
+        (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("make a pair of voxels")
+    parser = argparse.ArgumentParser("""Make a pair of voxels decomposed into tetrahedra and output in VTK format. 5 and 6 tetrahedra decompositions are available.""")
 
-    parser.add_argument("-5",
-                        "--five_tets",
-                        action='store_true',
-                        help="if set decomp into 5 tets")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-5",
+                       "--five_tets",
+                       action='store_true',
+                       help="if set decomp into 5 tets")
+
+    group.add_argument("-6",
+                       "--six_tets",
+                       action='store_true',
+                       help="if set decomp into 6 tets")
 
     return parser.parse_args()
 

@@ -50,7 +50,7 @@ setup(
         'console_scripts': [
             'five_tets = ffeamesh.scripts.five_tets:main',
             'six_tets = ffeamesh.scripts.six_tets:main',
-            'make_tet_mesh_examples = ffeamesh.scripts.make_tet_mesh_examples',
+            'make_tet_mesh_examples = ffeamesh.scripts.make_tet_mesh_examples:main',
             'zoom = ffeamesh.scripts.zoom:main',
             'fft_smooth = ffeamesh.scripts.fft_smooth:main',
             'make_test_mrc_file = ffeamesh.scripts.make_test_mrcfile:main',

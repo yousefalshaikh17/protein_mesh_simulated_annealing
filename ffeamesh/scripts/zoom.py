@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
  zoom.py
- 
+
  A script to coarsen an MRC image file, which uses scipy ndimage zoom
  to interpolate values for the merged voxels (from 5Å to 15Å for example).
 
  -------------------------------------
- 
-  
+
+
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -31,8 +31,6 @@
 
  Created on Mon Oct 25 11:50:39 2021
 
- 
-
  @author: mollygravett
  modified jonathan pickering 23Aug22
 """
@@ -48,10 +46,10 @@ from ffeamesh.mrc_zoom import refine_volume_data
 def get_args():
     """
     get the command line arguments
-        Returns
-            (argparse.namespace)
+    Returns
+        (argparse.namespace)
     """
-    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which uses scipy ndimage zoom 
+    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which uses scipy ndimage zoom
  to interpolate values for the merged voxels (from 5Å to 15Å for example).""" )
 
     parser.add_argument("-i",
