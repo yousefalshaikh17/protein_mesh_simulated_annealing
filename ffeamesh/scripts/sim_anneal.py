@@ -24,7 +24,7 @@ import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.ffeavolfilereader as fr
 import ffeamesh.optimizemesh.costfunction as cf
 import ffeamesh.optimizemesh.simanneal as sa
-import ffeamesh.scripts.simannealcomline as cl
+import ffeamesh.comlinesupport as cl
 import ffeamesh.mrclininterpolate as mi
 
 def unpack_weights(weights_list):

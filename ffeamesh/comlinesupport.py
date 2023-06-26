@@ -83,8 +83,7 @@ def get_args():
                         "--cooling",
                         type=sa.CoolingFunction,
                         required=True,
-                        choices=[el.value for el in sa.CoolingFunction],
-                        help="simulated anneal selection cooling function")
+                        help=f"simulated anneal selection cooling function {[el.value for el in sa.CoolingFunction]}")
 
     parser.add_argument("-m",
                        "--mesh_file",

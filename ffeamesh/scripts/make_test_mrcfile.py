@@ -69,8 +69,7 @@ def get_args():
                         "--voxtest",
                         type=Voxtest,
                         required=True,
-                        help="which test do you require",
-                        choices=[el.value for el in Voxtest])
+                        help=f"which test do you require, {[el.value for el in Voxtest]}")
 
     parser.add_argument("-w",
                         "--overwrite",

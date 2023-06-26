@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
  six_tets.pylint
-  
+
  A script that processes MRC files and produces a regular
  tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
  This is written out in the tetgen .ele, .face, and .node file format for
  later use in FFEA, and .vtk for mesh analysis.
- 
+
 
 -----------------------------
 
@@ -105,8 +105,7 @@ def get_args():
                         "--method",
                         type=Method,
                         default=Method.PLAIN,
-                        help="choice of method used to make tetrohedrons",
-                        choices=[el.value for el in Method])
+                        help=f"choice of method used to make tetrohedrons {[el.value for el in Method]}")
 
     parser.add_argument("-V",
                         "--verbose",
