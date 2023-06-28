@@ -19,8 +19,24 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = import-error
 import pathlib
 import argparse
+import csv
 
 import ffeamesh.optimizemesh.simanneal as sa
+
+class SimAnnealParameters():
+    def __init__(self):
+        self.debug = None
+        self.cooling = None
+        self.mesh_file = None
+        self.out_file_root = None
+        self.mutate_prob = None
+        self.max_mutate = None
+        self.all_xyz_mutate = None
+        self.weights = None
+        self.isovalue = None
+        self.mrc_file = None
+        self.start_temp = None
+        self.stop_temp = None
 
 def handel_input_file(filename):
     """
@@ -67,83 +83,151 @@ def probability(text):
 
     raise ValueError(f"probability {text} not in range [0.0, 0.1]")
 
+def parse_weights(text):
+    """convert text to weights"""
+    return [float(part) for part in text.split()]
+
+def params_from_str(params_dict):
+    """
+    convet paramters to their type
+    """
+    params = SimAnnealParameters()
+
+    for key in params_dict:
+        if key == "debug":
+            params.debug = pathlib.Path(params_dict[key])
+        elif key == "cooling":
+            params.cooling = sa.CoolingFunction(params_dict[key])
+        elif key == "mesh_file":
+            params.mesh_file = handel_input_file(params_dict[key])
+        elif key == "out_file_root":
+            params.out_file_root = params_dict[key]
+        elif key == "mutate_prob":
+            params.mutate_prob = probability(params_dict[key])
+        elif key == "max_mutate":
+            params.max_mutate = positive_float(params_dict[key])
+        elif key == "all_xyz_mutate":
+            params.all_xyz_mutate = bool(params_dict[key])
+        elif key == "weights":
+            params.weights = parse_weights(params_dict[key])
+        elif key == "isovalue":
+            params.isovalue = positive_float(params_dict[key])
+        elif key == "mrc_file":
+            params.mrc_file = pathlib.Path(params_dict[key])
+        elif key == "start_temp":
+            params.start_temp = positive_float(params_dict[key])
+        elif key == "stop_temp":
+            params.stop_temp = positive_float(params_dict[key])
+
+    return params
+
+def read_parameters(file):
+    """
+    get a dict of parameters from the
+    Args:
+        file (pathlib.Path): the parmeters file
+    Retruns
+        (dict): holding the parameters
+    """
+    params = {}
+    with file.open('r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='#')
+        for row in reader:
+            if len(row)>1:
+                params[row[0]] = row[1].strip()
+
+    return params_from_str(params)
+
 def get_args():
     """
     get command line arguments
     """
     parser = argparse.ArgumentParser("""optimizes a tetrahedral mesh using simulated annealing""")
+    subparser = parser.add_subparsers(required=True)
 
-    parser.add_argument("-d",
+    sp_raw = subparser.add_parser("raw",
+                                  help="input all parameter from command line")
+
+    sp_raw.add_argument("-d",
                         "--debug",
                         type=pathlib.Path,
                         required=False,
                         help="save run data to debug file")
 
-    parser.add_argument("-c",
+    sp_raw.add_argument("-c",
                         "--cooling",
                         type=sa.CoolingFunction,
                         required=True,
                         help=f"simulated anneal selection cooling function {[el.value for el in sa.CoolingFunction]}")
 
-    parser.add_argument("-m",
+    sp_raw.add_argument("-m",
                        "--mesh_file",
                        type=handel_input_file,
                        required=True,
                        help="name root of tetgen files, or ffea .vol file")
 
-    parser.add_argument("-o",
+    sp_raw.add_argument("-o",
                        "--out_file_root",
                        type=str,
                        required=False,
                        help="name root of output tetgen files")
 
-    parser.add_argument("-p",
+    sp_raw.add_argument("-p",
                        "--mutate_prob",
                        type=probability,
                        default=0.1,
                        help="probability that a node will be mutated")
 
-    parser.add_argument("-x",
+    sp_raw.add_argument("-x",
                        "--max_mutate",
                        type=positive_float,
                        default=0.1,
                        help="maximum size of mutation on a single axis")
 
-    parser.add_argument("-a",
+    sp_raw.add_argument("-a",
                        "--all_xyz_mutate",
                        action='store_true',
                        help="if true mutation applied to all three axis, else rnd selection")
 
-    parser.add_argument("-w",
+    sp_raw.add_argument("-w",
                         "--weights",
                         type=float,
                         nargs='+',
                         help="enter weights")
 
-    parser.add_argument("-v",
+    sp_raw.add_argument("-v",
                         "--isovalue",
                         type=float,
                         required=True,
                         help="isovalue defining surface in mrc file.")
 
-    parser.add_argument("-f",
+    sp_raw.add_argument("-f",
                         "--mrc_file",
                         type=pathlib.Path,
                         required=True,
                         help="mrc image file on which isosurface is defined")
 
-
-    parser.add_argument("-start",
+    sp_raw.add_argument("-start",
                         "--start_temp",
                         type=positive_float,
                         required=True,
                         help="start temerature for cooling schedule")
 
-    parser.add_argument("-stop",
+    sp_raw.add_argument("-stop",
                         "--stop_temp",
                         type=positive_float,
                         required=True,
                         help="stop temerature for cooling schedule")
+
+    sp_file = subparser.add_parser("file",
+                                   help="read parameters from a file")
+    sp_file.set_defaults(read_func=read_parameters)
+
+    sp_file.add_argument("-f",
+                         "--file",
+                         type=pathlib.Path,
+                         required=True,
+                         help="file of input parameters")
 
     return parser.parse_args()
 

@@ -53,6 +53,8 @@ def unpack_weights(weights_list):
 def main():
     """run the script"""
     args = cl.get_args()
+    if hasattr(args, "read_func"):
+        args = args.read_func(args.file)
 
     weights = None
     if args.weights is not None:
