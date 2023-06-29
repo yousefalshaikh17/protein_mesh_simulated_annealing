@@ -211,13 +211,13 @@ def get_args():
                         "--start_temp",
                         type=positive_float,
                         required=True,
-                        help="start temerature for cooling schedule")
+                        help="start temperature for cooling schedule")
 
     sp_raw.add_argument("-stop",
                         "--stop_temp",
                         type=positive_float,
                         required=True,
-                        help="stop temerature for cooling schedule")
+                        help="stop temperature for cooling schedule")
 
     sp_file = subparser.add_parser("file",
                                    help="read parameters from a file")
