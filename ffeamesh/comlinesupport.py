@@ -118,6 +118,8 @@ def params_from_str(params_dict):
             params.start_temp = positive_float(params_dict[key])
         elif key == "stop_temp":
             params.stop_temp = positive_float(params_dict[key])
+        elif key == "cooling_rate":
+            params.cooling_rate = positive_float(params_dict[key])
 
     return params
 
@@ -159,6 +161,12 @@ def get_args():
                         type=sa.CoolingFunction,
                         required=True,
                         help=f"simulated anneal selection cooling function {[el.value for el in sa.CoolingFunction]}")
+
+    sp_raw.add_argument("-r",
+                        "--cooling_rate",
+                        type=positive_float,
+                        required=True,
+                        help=f"cooling function rate (alpha) value")
 
     sp_raw.add_argument("-m",
                        "--mesh_file",

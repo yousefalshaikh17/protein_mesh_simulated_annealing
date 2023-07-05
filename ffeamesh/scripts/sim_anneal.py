@@ -90,7 +90,8 @@ def main():
 
             sa.simulated_anneal(sa.CoolingParams(args.start_temp,
                                                  args.stop_temp,
-                                                 args.cooling),
+                                                 args.cooling,
+                                                 args.cooling_rate),
                                 model,
                                 weights,
                                 args.isovalue,
