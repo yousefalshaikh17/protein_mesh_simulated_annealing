@@ -41,6 +41,7 @@ import getpass
 import numpy as np
 
 from ffeamesh.mrc_utility import (CellSize, CellAngles, CellProps, write_mrcfile)
+from ffeamesh.comlinesupport import (positive_int, positive_float)
 
 class Voxtest(Enum):
     """
@@ -71,6 +72,24 @@ def get_args():
                         required=True,
                         help=f"which test do you require, {[el.value for el in Voxtest]}")
 
+    parser.add_argument("-c",
+                        "--voxel_count",
+                        type=positive_int,
+                        default=10,
+                        help="the number of voxels per axis (total = n*n*n)")
+
+    parser.add_argument("-l",
+                        "--voxel_size",
+                        type=positive_float,
+                        default=5.0,
+                        help="size of voxel")
+
+    parser.add_argument("-s",
+                        "--object_size",
+                        type=positive_float,
+                        default=5.0,
+                        help="size of object")
+
     parser.add_argument("-w",
                         "--overwrite",
                         action="store_true",
@@ -91,27 +110,28 @@ def validate_args(args):
 
     return None
 
-def voxel_test(voxtest, count = 10):
+def voxel_test(voxtest, count, voxel_size, object_size):
     """
     make data for built in tests
         Args:
             (Voxtest): enum specifing the selected test
             count (int): number of cells on each dimension
+            voxel_size (float): size of voxel
+            object_size (float): size of object
         Returns:
             (numpy.ndarray data=np.float32), (CellProps) data plus cell size & angles
     """
     mrc_data = None
-    voxel_size = 5.0
     cell_size = voxel_size * count
 
     if voxtest == Voxtest.CUBE:
         mrc_data = make_sphere(voxel_size, count)
 
     elif voxtest == Voxtest.SPHERE:
-        mrc_data = make_sphere(voxel_size, count)
+        mrc_data = make_sphere(voxel_size, object_size, count)
 
     elif voxtest == Voxtest.DBELL:
-        mrc_data = make_dbell(voxel_size, count)
+        mrc_data = make_dbell(voxel_size, object_size, count)
 
     props = CellProps(CellSize(cell_size, cell_size, cell_size),
                       CellAngles(90.0, 90.0, 90.0))
@@ -144,7 +164,7 @@ def fill_cube(vox_data, half_count, offset, level):
             for k in range(half_count-offset, half_count+offset):
                 vox_data[i, j, k] = level
 
-def make_dbell(voxel_size, count):
+def make_dbell(voxel_size, object_size, count):
     """
     make the array for a sphere
     Args:
@@ -160,17 +180,18 @@ def make_dbell(voxel_size, count):
 
     half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, 3*frac_centre), voxel_size, half_size, vox_data)
-    fill_sphere(count, (centre, centre, 7*frac_centre), voxel_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, 3*frac_centre), object_size, voxel_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, 7*frac_centre), object_size, voxel_size, half_size, vox_data)
 
     return vox_data
 
-def make_sphere(voxel_size, count):
+def make_sphere(voxel_size, object_size, count):
     """
     make the array for a sphere
     Args:
         voxel_size (float): cell dimension
         count (int): number of cells on each dimension
+        object_size (float): size of sphere
     Returns
         np array
     """
@@ -179,16 +200,17 @@ def make_sphere(voxel_size, count):
     centre = (count * voxel_size)/2.0
     half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, centre), voxel_size, half_size, vox_data)
+    fill_sphere(count, (centre, centre, centre), object_size, voxel_size, half_size, vox_data)
 
     return vox_data
 
-def fill_sphere(count, centre, voxel_size, half_size, vox_data):
+def fill_sphere(count, centre, object_size, voxel_size, half_size, vox_data):
     """
     fill an array with spherical data densities
     Args:
         count (int): number of cells on each dimension
         centre ((float)):
+        object_size (float): the size of the sphere
         voxel_size (float):
         half_size (float):
         vox_data (np.array(float)):
@@ -206,15 +228,15 @@ def fill_sphere(count, centre, voxel_size, half_size, vox_data):
                 dx = centre[0] - dx
                 radius = np.sqrt(dx*dx + dy*dy + dz*dz)
 
-                if radius < voxel_size*0.5:
+                if radius < object_size*0.5:
                     vox_data[i, j, k] += 1.0
-                elif radius < voxel_size:
+                elif radius < object_size:
                     vox_data[i, j, k] += 0.75
-                elif radius < voxel_size*1.5:
+                elif radius < object_size*1.5:
                     vox_data[i, j, k] += 0.5
-                elif radius < voxel_size*2:
+                elif radius < object_size*2:
                     vox_data[i, j, k] += 0.25
-                elif radius < voxel_size*2.5:
+                elif radius < object_size*2.5:
                     vox_data[i, j, k] += 0.125
 
 def main():
@@ -229,7 +251,10 @@ def main():
         return
 
     if args.voxtest is not None:
-        test_image, voxel_size = voxel_test(args.voxtest)
+        test_image, voxel_size = voxel_test(args.voxtest,
+                                            args.voxel_count,
+                                            args.voxel_size,
+                                            args.object_size)
         label = str(args.voxtest)
         label += f" by {getpass.getuser()} on "
         label += datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
