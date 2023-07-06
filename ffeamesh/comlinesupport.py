@@ -133,6 +133,11 @@ def read_parameters(file):
     """
     params = {}
     with file.open('r') as csvfile:
+        line = csvfile.readline()
+        parts = line.split()
+        if not parts[0].strip() == "#FFEA-SIMANNEAL":
+            raise ValueError("File is not FFEA sim-anneal parameters!")
+
         reader = csv.reader(csvfile, delimiter=',', quotechar='#')
         for row in reader:
             if len(row)>1:
