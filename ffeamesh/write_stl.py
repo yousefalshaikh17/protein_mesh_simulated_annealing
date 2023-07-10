@@ -22,9 +22,10 @@
 
  @author: jonathan pickering, joanna leng 08 Feb 23
 """
+# set up linting
+# pylint: disable = import-error
 import pathlib
-
-from ffeamesh.tetgen_read import make_vector_normal
+import sys
 
 def to_stl_normal_string(vec):
     """
@@ -72,7 +73,7 @@ def print_stl_file(nodes, faces, stl_name):
         print(f"solid {stl_name.stem}", file=out_file)
         for face in faces:
             print_stl_facet(nodes[face.vert0], nodes[face.vert1], nodes[face.vert2], out_file)
-        print(f"endsolid", file=out_file)
+        print("endsolid", file=out_file)
 
 def print_stl_facet(node0, node1, node2, out_stream=sys.stdout):
     """

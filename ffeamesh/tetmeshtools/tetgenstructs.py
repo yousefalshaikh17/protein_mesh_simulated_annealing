@@ -54,7 +54,7 @@ class NodePoint(_NodePoint):
         Args:
             rhs (NodePoint): the 'to' vector
         Returns:
-            EdgeVector
+            list(float)
         """
         return [rhs.x - self.x, rhs.y - self.y, rhs.z - self.z]
 

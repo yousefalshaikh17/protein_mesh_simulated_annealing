@@ -74,7 +74,13 @@ def convert_mrc_to_6tets(input_file, output_file, threshold, ffea_out, vtk_out, 
 
         v2t.write_tets_to_files(points, connectivities_final, output_file, ffea_out, vtk_out)
 
-def convert_mrc_to_6tets_interp(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
+def convert_mrc_to_6tets_interp(input_file,
+                                output_file,
+                                threshold,
+                                ffea_out,
+                                vtk_out,
+                                verbose,
+                                progress):
     """
     Converts the contents of a mrc file to a tetrohedron array (6 pre voxel).
     Args:
@@ -239,9 +245,15 @@ def voxels_to_6_tets_interp(mrc, threshold, progress):
     tmp = [[coord.cart.x, coord.cart.y, coord.cart.z] for coord in coord_store.to_list()]
     return next(voxel_count), tmp, connectivities_final
 
-def interp_voxel_to_6_tets(voxel, frac_to_cart, threshold, cube_vertex_values, coord_store, connectivities):
+def interp_voxel_to_6_tets(voxel,
+                           frac_to_cart,
+                           threshold,
+                           cube_vertex_values,
+                           coord_store,
+                           connectivities):
     """
-    Convert a single voxel to 6 tets thresholding the tets by interpolating vertex values. Called by voxels_to_6_tets_interp
+    Convert a single voxel to 6 tets thresholding the tets by interpolating
+    vertex values. Called by voxels_to_6_tets_interp
     Args:
         voxel (Coordinate): the array indices of the voxel
         frac_to_cart (fractional => cartesian): coordinates conversion function

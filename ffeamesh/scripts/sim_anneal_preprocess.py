@@ -29,6 +29,11 @@ import ffeamesh.mrclininterpolate as mi
 
 def make_weights(weights_vec):
     """
+    converts weights vector to a CostFratures object
+    Args:
+        weights_vec (list(float))
+    Returns:
+        CostFeatures
     """
     length = len(weights_vec)
     if length != 6:

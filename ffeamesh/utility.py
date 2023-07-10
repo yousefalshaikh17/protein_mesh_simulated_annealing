@@ -26,8 +26,8 @@
 # set up linting
 # pylint: disable = import-error
 
-import numpy as np
 from collections import namedtuple
+import numpy as np
 
 def tet_volume(coords):
     """
@@ -84,7 +84,7 @@ class VolumeBins():
             vol (float): the volume to be added
         """
         tmp = round(vol, 0)
-        if tmp in self.bin_counts.keys():
+        if tmp in self.bin_counts:
             self.bin_counts[tmp] += 1
         else:
             self.bin_counts[tmp] = 1

@@ -2,7 +2,7 @@
 """
  mrc_image_stats.pylint
  A script that reads a mrc file and prints out its image intensity stats.
- 
+
  -----------------------
 
  This file is part of the FFEA simulation package
@@ -44,7 +44,8 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""reads a mrc file and prints out its image intensity stats""")
+    parser = argparse.ArgumentParser("""reads a mrc file and prints out its """\
+                                     """image intensity stats""")
 
     parser.add_argument("-i",
                         "--input",

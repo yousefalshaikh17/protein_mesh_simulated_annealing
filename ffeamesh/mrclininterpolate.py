@@ -28,8 +28,6 @@
 import collections
 import numpy as np
 
-import ffeamesh.voxels2tets_utility as v2t
-
 ## container for the index of cell and fractional coords inside cell
 InnerCoords = collections.namedtuple("InnerCoords", ["x_index",
                                                      "x_frac",
@@ -230,24 +228,24 @@ class MRCImage():
         returns:
             (float)
         """
-        x = 0.0
-        y = 0.0
-        z = 0.0
+        x_coord = 0.0
+        y_coord = 0.0
+        z_coord = 0.0
 
         # lower limits
         if region_flag & 1:
-            x = image_x - self.low_limit_x
+            x_coord = image_x - self.low_limit_x
         if region_flag & 2:
-            y = image_y - self.low_limit_y
+            y_coord = image_y - self.low_limit_y
         if region_flag & 4:
-            z = image_z - self.low_limit_z
+            z_coord = image_z - self.low_limit_z
 
         # high limits
         if region_flag & 8:
-            x = image_x - self.high_limit_x
+            x_coord = image_x - self.high_limit_x
         if region_flag & 16:
-            y = image_y - self.high_limit_y
+            y_coord = image_y - self.high_limit_y
         if region_flag & 32:
-            z = image_z - self.high_limit_z
+            z_coord = image_z - self.high_limit_z
 
-        return x*x + y*y + z*z
+        return x_coord*x_coord + y_coord*y_coord + z_coord*z_coord

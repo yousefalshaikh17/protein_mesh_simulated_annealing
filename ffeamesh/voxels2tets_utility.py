@@ -22,9 +22,8 @@
 
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
-"""
-"""
-      Vertex Indices:
+
+        Vertex Indices:
          7+----------+6
          /|         /|
         / |        / |
@@ -35,6 +34,8 @@
        |/         |/           |/
       0+----------+1           +----x
 """
+# set up linting
+# pylint: disable = import-error
 import datetime
 import getpass
 import numpy as np
@@ -176,8 +177,8 @@ def is_odd(x_index, y_index, z_index):
         (bool)  True if voxel in an odd position, else odd
     '''
     flag = None
-    y_parity = (y_index % 2 == 0)
-    x_parity = (x_index % 2 == 0)
+    y_parity =  y_index % 2 == 0
+    x_parity =  x_index % 2 == 0
 
     # Logic for alternating tet division 0 (even) or 1 (odd) - to identify the odd and even voxels
     if z_index % 2 == 0:

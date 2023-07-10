@@ -4,6 +4,17 @@
 
  make examples of the decomposition of cubes into tetrhedron meshs.
 
+      Vertex Indices:
+         7+----------+6
+         /|         /|
+        / |        / |
+      4+----------+5 |
+       |  |       |  |         Axes:
+       | 3+-------|--+2        z  y
+       | /        | /          | /
+       |/         |/           |/
+      0+----------+1           +----x
+
 ---------------------------------
 
  This file is part of the FFEA simulation package
@@ -39,19 +50,6 @@ import vtk.util.numpy_support
 
 import ffeamesh.vtk_utility as vtk_u
 from ffeamesh import vtk_write
-
-"""
-      Vertex Indices:
-         7+----------+6
-         /|         /|
-        / |        / |
-      4+----------+5 |
-       |  |       |  |         Axes:
-       | 3+-------|--+2        z  y
-       | /        | /          | /
-       |/         |/           |/
-      0+----------+1           +----x
-"""
 
 def unit_cube_coords():
     """
@@ -117,7 +115,9 @@ def get_args():
     Returns
         (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""Make a pair of voxels decomposed into tetrahedra and output in VTK format. 5 and 6 tetrahedra decompositions are available.""")
+    parser = argparse.ArgumentParser("""Make a pair of voxels decomposed into tetrahedra """\
+                                     """and output in VTK format. 5 and 6 tetrahedra decompositions """\
+                                     """are available.""")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-5",

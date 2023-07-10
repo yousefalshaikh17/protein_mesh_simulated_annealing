@@ -49,8 +49,9 @@ def get_args():
     Returns
         (argparse.namespace)
     """
-    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which uses scipy ndimage zoom
- to interpolate values for the merged voxels (from 5Å to 15Å for example).""" )
+    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which """\
+                                     """uses scipy ndimage zoom to interpolate values """\
+                                     """for the merged voxels (from 5Å to 15Å for example).""" )
 
     parser.add_argument("-i",
                         "--input",

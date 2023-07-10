@@ -55,7 +55,8 @@ def main():
     with mrcfile.open(args.input, mode='r+') as mrc:
         delta = voxel_size(mrc)
 
-    print(f"{args.input} voxel size {round(delta.dx, 2)}, {round(delta.dy, 2)}, {round(delta.dz, 2)}")
+    print(f"{args.input} voxel size {round(delta.dx, 2)}, "\
+          f"{round(delta.dy, 2)}, {round(delta.dz, 2)}")
 
 if __name__ == "__main__":
     main()

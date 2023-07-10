@@ -125,7 +125,7 @@ def voxel_test(voxtest, count, voxel_size, object_size):
     cell_size = voxel_size * count
 
     if voxtest == Voxtest.CUBE:
-        mrc_data = make_sphere(voxel_size, count)
+        mrc_data = make_cube(count)
 
     elif voxtest == Voxtest.SPHERE:
         mrc_data = make_sphere(voxel_size, object_size, count)
@@ -138,7 +138,7 @@ def voxel_test(voxtest, count, voxel_size, object_size):
 
     return mrc_data, props
 
-def make_cube(voxel_size, count):
+def make_cube(count):
     """
     make the array for a cube
     Args:
@@ -149,16 +149,26 @@ def make_cube(voxel_size, count):
     """
     vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
 
-    half_count = count/2
+    half_count = round(count/2)
 
-    fill_cube(vox_data, half_count, 2, 0.25)
-    fill_cube(vox_data, half_count, 1, 0.5)
+    fill_cube(vox_data, half_count, 5, 0.1)
+    fill_cube(vox_data, half_count, 4, 0.2)
+    fill_cube(vox_data, half_count, 3, 0.4)
+    fill_cube(vox_data, half_count, 2, 0.8)
+    fill_cube(vox_data, half_count, 1, 1.6)
 
     vox_data[half_count, half_count, half_count] = 1.0
 
     return vox_data
 
 def fill_cube(vox_data, half_count, offset, level):
+    """
+    fill a cube of data
+    vox_data (numpy array): the array
+    half_count (int): half the array size
+    offset (int): the range around the ctr to be set to level
+    level (float): the value to be set
+    """
     for i in range(half_count-offset, half_count+offset):
         for j in range(half_count-offset, half_count+offset):
             for k in range(half_count-offset, half_count+offset):
@@ -180,8 +190,17 @@ def make_dbell(voxel_size, object_size, count):
 
     half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, 3*frac_centre), object_size, voxel_size, half_size, vox_data)
-    fill_sphere(count, (centre, centre, 7*frac_centre), object_size, voxel_size, half_size, vox_data)
+    fill_sphere(count,
+                (centre, centre, 3*frac_centre),
+                object_size, voxel_size,
+                half_size,
+                vox_data)
+    fill_sphere(count,
+                (centre, centre, 7*frac_centre),
+                object_size,
+                voxel_size,
+                half_size,
+                vox_data)
 
     return vox_data
 
@@ -218,15 +237,15 @@ def fill_sphere(count, centre, object_size, voxel_size, half_size, vox_data):
         np.array
     """
     for i in range(count):
-        dz = np.float32(i)*voxel_size + half_size
-        dz = centre[2] - dz
+        del_z = np.float32(i)*voxel_size + half_size
+        del_z = centre[2] - del_z
         for j in range(count):
-            dy = np.float32(j)*voxel_size + half_size
-            dy = centre[1] - dy
+            del_y = np.float32(j)*voxel_size + half_size
+            del_y = centre[1] - del_y
             for k in range(count):
-                dx = np.float32(k)*voxel_size + half_size
-                dx = centre[0] - dx
-                radius = np.sqrt(dx*dx + dy*dy + dz*dz)
+                del_x = np.float32(k)*voxel_size + half_size
+                del_x = centre[0] - del_x
+                radius = np.sqrt(del_x*del_x + del_y*del_y + del_z*del_z)
 
                 if radius < object_size*0.5:
                     vox_data[i, j, k] += 1.0

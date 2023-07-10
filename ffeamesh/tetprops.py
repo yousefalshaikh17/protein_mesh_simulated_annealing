@@ -23,9 +23,10 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting conditions
+# pylint: disable = import-error
 import numpy as np
-
-from ffeamesh.vector3 import Vector3
+import ffeamesh.vector3 as v3
 
 def shortest_sides(node_points, tets, tet_props):
     """
@@ -221,7 +222,7 @@ def make_inertia_tensor(nodes):
         tmp_x = node.x - ctr_x
         tmp_y = node.y - ctr_y
         tmp_z = node.z - ctr_z
-        offsets.append(Vector3([tmp_x, tmp_y, tmp_z]))
+        offsets.append(v3.Vector3([tmp_x, tmp_y, tmp_z]))
 
     inertia_tensor = np.zeros([3, 3], dtype=float)
     for vec in offsets:

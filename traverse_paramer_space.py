@@ -31,16 +31,28 @@ def get_args():
 
     return parser.parse_args()
 
+def run_file(params_file):
+    """
+    run a single file
+    Args:
+        source_file (str): the path to the parameters file
+    """
+    command = "python .\\ffeamesh\\scripts\\sim_anneal.py file "
+    command += f" -f {params_file}"
+    print(f"run:\t{command}")
+    os.system(command)
 
 def main():
+    """
+    run the script
+    """
     args = get_args()
-    print(args)
+    with args.params_files.open('r') as file:
+        lines = file.readlines()
+        for line in lines:
+            run_file(line.strip())
 
-    s = "python .\\ffeamesh\\scripts\\sim_anneal.py file "
-    s += f" -f {args.params_files} "
-    print(s)
-    os.system(s)
-    print("\tfin")
+    print("\t>>END<<")
 
 if __name__ == "__main__":
     main()

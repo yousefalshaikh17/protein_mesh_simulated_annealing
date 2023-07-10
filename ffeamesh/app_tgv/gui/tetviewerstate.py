@@ -154,15 +154,15 @@ class TetViewerState():
         """
         return self._current_tet_nodes
 
-    def set_surface_ctr(self, x, y, z):
+    def set_surface_ctr(self, x_coord, y_coord, z_coord):
         """
         set the centre of the current tet
         Args:
-            x: float
-            y: float
-            z: float
+            x_coord: float
+            y_coord: float
+            z_coord: float
         """
-        self._surface_ctr = (x, y, z)
+        self._surface_ctr = (x_coord, y_coord, z_coord)
         self.center_on_surface()
 
     def get_euler_x(self):
@@ -205,32 +205,32 @@ class TetViewerState():
         """
         return self._shift
 
-    def set_shift_xy(self, x, y):
+    def set_shift_xy(self, x_coord, y_coord):
         """
         set xy componants of shift
         Args:
-            x: float
-            y: float
+            x_coord: float
+            y_coord: float
         """
-        self._shift = (x, y, self._shift[2])
+        self._shift = (x_coord, y_coord, self._shift[2])
 
-    def set_shift_z(self, z):
+    def set_shift_z(self, z_coord):
         """
         set z componants of shift
         Args:
-            z: float
+            z_coord: float
         """
-        self._shift = (self._shift[0], self._shift[1], z)
+        self._shift = (self._shift[0], self._shift[1], z_coord)
 
-    def set_shift(self, x, y, z):
+    def set_shift(self, x_coord, y_coord, z_coord):
         """
         set the shift
         Args:
-            x: float
-            y: float
-            z: float
+            x_coord: float
+            y_coord: float
+            z_coord: float
         """
-        self._shift = (x, y, z)
+        self._shift = (x_coord, y_coord, z_coord)
 
     def get_look_z(self):
         """
@@ -240,13 +240,13 @@ class TetViewerState():
         """
         return self._look_z
 
-    def set_look_z(self, z):
+    def set_look_z(self, z_coord):
         """
         set the z componant of the look-from
         Args:
-            z: float
+            z_coord: float
         """
-        self._look_z = z
+        self._look_z = z_coord
 
     def set_display_current_tet(self, flag):
         """

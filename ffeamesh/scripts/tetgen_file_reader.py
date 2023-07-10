@@ -22,6 +22,8 @@
 
  @author: jonathan pickering, joanna leng 13 Dec 22
 """
+# set up linting conditions
+# pylint: disable = import-error
 import pathlib
 import argparse
 import sys
@@ -48,16 +50,17 @@ def demo_print_stl():
     node0, node1, node2 = make_test_nodes()
     tr.print_stl_facet(node0, node1, node2)
 
-
-
 def test_vector():
     """
     test the construction of edge vectors & their cross product
     """
     node0, node1, node2 = make_test_nodes()
     normal = tr.make_stl_normal(node0, node1, node2)
+    vec = [-0.48567734492792791,
+           -0.56782065825723671,
+           -0.6646030519641607]
 
-    if normal.isclose(tr.StlVector([-0.48567734492792791, -0.56782065825723671, -0.6646030519641607])):
+    if normal.isclose(tr.StlVector(vec)):
         print("Test vector: Pass")
     else:
         print("Test vector: Fail")
@@ -69,13 +72,12 @@ def make_test_vectors():
     returns
         NodePoint, NodePoint, NodePoint, NodePoint
     """
-    # t_x = tr.StlVector([1.0, 0.0, 0.0])
-    # t_y = tr.StlVector([0.0, 1.0, 0.0])
-    # t_z = tr.StlVector([0.0, 0.0, 1.0])
-    # t_t = tr.StlVector([2.0, 3.0, 4.0])
+    t_x = tr.StlVector([1.0, 0.0, 0.0])
+    t_y = tr.StlVector([0.0, 1.0, 0.0])
+    t_z = tr.StlVector([0.0, 0.0, 1.0])
+    t_t = tr.StlVector([2.0, 3.0, 4.0])
 
-    # return t_x, t_y, t_z, t_t
-    pass
+    return t_x, t_y, t_z, t_t
 
 def test_cross():
     """
@@ -88,24 +90,24 @@ def test_cross():
     if r_x != 0.0 and r_y != 1.0 and r_z != 0.0:
         print(f"Cross product: Fail {t_x}x{t_z} = ({r_x}, {r_y}, {r_z})")
         return
-    else:
-        print("Cross product: Pass")
+
+    print("Cross product: Pass")
 
     r_x, r_y, r_z = t_z.cross(t_x)
 
     if r_x != 0.0 and r_y != -1.0 and r_z != 0.0:
         print(f"Cross product: Fail {t_z}x{t_x} = ({r_x}, {r_y}, {r_z})")
         return
-    else:
-        print("Cross product: Pass")
+
+    print("Cross product: Pass")
 
     r_x, r_y, r_z = t_x.cross(t_t)
 
     if r_x != 0.0 and r_y != -4.0 and r_z != 3.0:
         print(f"Cross product: Fail {t_x}x{t_t} = ({r_x}, {r_y}, {r_z})")
         return
-    else:
-        print("Cross product: Pass")
+
+    print("Cross product: Pass")
 
 def test_dot():
     """
@@ -116,38 +118,38 @@ def test_dot():
     if t_x.dot(t_y) != 0.0:
         print("Dot product: Fail {t_x}.{t_y} != 0.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
     if t_x.dot(t_z) != 0.0:
         print("Dot product: Fail {t_x}.{t_z} != 0.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
     if t_y.dot(t_z) != 0.0:
         print("Dot product: Fail {t_y}.{t_z} != 0.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
     if t_x.dot(t_t) != 2.0:
         print("Dot product: Fail {t_x}.{t_t} != 2.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
     if t_y.dot(t_t) != 3.0:
         print("Dot product: Fail {t_y}.{t_t} != 3.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
     if t_z.dot(t_t) != 4.0:
         print("Dot product: Fail {t_z}.{t_t} != 4.0")
         return
-    else:
-        print("Dot product: Pass")
+
+    print("Dot product: Pass")
 
 def print_data(root_name, nodes_data, faces_data, tets_data):
     """

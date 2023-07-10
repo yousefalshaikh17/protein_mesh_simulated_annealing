@@ -24,6 +24,9 @@ import csv
 import ffeamesh.optimizemesh.simanneal as sa
 
 class SimAnnealParameters():
+    """
+    storage class for the command line parameter
+    """
     def __init__(self):
         self.debug = None
         self.cooling = None
@@ -37,6 +40,7 @@ class SimAnnealParameters():
         self.mrc_file = None
         self.start_temp = None
         self.stop_temp = None
+        self.cooling_rate = None
 
 def handel_input_file(filename):
     """
@@ -165,13 +169,14 @@ def get_args():
                         "--cooling",
                         type=sa.CoolingFunction,
                         required=True,
-                        help=f"simulated anneal selection cooling function {[el.value for el in sa.CoolingFunction]}")
+                        help=f"""simulated anneal selection cooling function
+                        {[el.value for el in sa.CoolingFunction]}""")
 
     sp_raw.add_argument("-r",
                         "--cooling_rate",
                         type=positive_float,
                         required=True,
-                        help=f"cooling function rate (alpha) value")
+                        help="cooling function rate (alpha) value")
 
     sp_raw.add_argument("-m",
                        "--mesh_file",

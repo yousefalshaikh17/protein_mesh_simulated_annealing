@@ -22,7 +22,7 @@
 
  @author: jonathan pickering, joanna leng 08 Feb 23
 """
-## TODO check if this object is actually used any more
+## TODO only used for length function just use
 
 import numpy as np
 
