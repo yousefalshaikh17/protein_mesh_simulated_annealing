@@ -122,6 +122,7 @@ class TriSurface():
         Returns:
             dict index => node: the nodes used in the surface
         """
+        # make list in which each node appears only once
         index_set = set()
         for index in self._nodes:
             index_set.add(index)
@@ -131,6 +132,18 @@ class TriSurface():
             surface_nodes[index] = self._nodes[index]
 
         return surface_nodes
+
+    def get_surface_node_indices(self):
+        """
+        get the indices of the nodes that are used in the surface
+        Returns:
+            [int]
+        """
+        index_set = set()
+        for index in self._nodes:
+            index_set.add(index)
+
+        return list(index_set)
 
     def get_triangle_verts(self, index):
         """
