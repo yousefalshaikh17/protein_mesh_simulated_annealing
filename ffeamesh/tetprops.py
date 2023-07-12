@@ -190,7 +190,7 @@ def area_of_triangle(nodes, signed=True):
 
     return np.cross(sides[0], sides[1])/2.0
 
-def edges_to_area_ratio(nodes):
+def edges_to_area_ratio_squared(nodes):
     """
     find the ratio of the square of the total edge length to the area: L^2/A
     """

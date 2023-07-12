@@ -41,6 +41,7 @@ class SimAnnealParameters():
         self.start_temp = None
         self.stop_temp = None
         self.cooling_rate = None
+        self.surface = False
 
 def handel_input_file(filename):
     """
@@ -246,5 +247,11 @@ def get_args():
                          type=pathlib.Path,
                          required=True,
                          help="file of input parameters")
+
+    parser.add_argument('-x',
+                        '--surface',
+                        action='store_true',
+                        default=False,
+                        help="run on surface only")
 
     return parser.parse_args()

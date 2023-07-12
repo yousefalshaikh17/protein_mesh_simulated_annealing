@@ -169,6 +169,18 @@ class TriSurface():
 
         return total
 
+    def get_triangle_signed_area_list(self):
+        """
+        get a list of the signed areas of the triangles
+        """
+        areas = []
+
+        for index in self._faces:
+            face_nodes = self.get_triangle_nodes(index)
+            areas.append(tp.area_of_triangle(face_nodes, True))
+
+        return areas
+
     def __str__(self):
         """to string"""
         return f"Surface: {len(self._faces)} triangles on {len(self._nodes)} nodes"
