@@ -39,7 +39,8 @@
 import datetime
 import getpass
 import numpy as np
-import vtk.util.numpy_support
+import vtk
+from vtkmodules.util import numpy_support
 from ffeamesh import vtk_write
 import ffeamesh.coord_utility as cu
 from ffeamesh.ffea_write import write_ffea_output
@@ -262,7 +263,8 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
 
     # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()
-    vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+    vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtk_pts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid

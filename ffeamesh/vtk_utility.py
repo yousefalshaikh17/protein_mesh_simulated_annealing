@@ -27,7 +27,7 @@
 # pylint: disable = import-error
 
 import numpy as np
-import vtk.util.numpy_support
+import vtk
 
 def make_vtk_tet_connectivity(connectivities):
     """
