@@ -230,7 +230,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         for suffix in [".1.node", ".1.ele", ".1.face"]:
             if fname.endswith(suffix):
-                fname = fname.removesuffix(suffix)
+                fname = fname.replace(suffix, "", 1)
 
         self.load_tetgen_files(pathlib.Path(fname))
 

@@ -31,14 +31,12 @@ def get_args():
 
     return parser.parse_args()
 
-def run_file(params_file):
+def run_file(command):
     """
     run a single file
     Args:
         source_file (str): the path to the parameters file
     """
-    command = "python .\\ffeamesh\\scripts\\sim_anneal.py file "
-    command += f" -f {params_file}"
     print(f"run:\t{command}")
     os.system(command)
 
