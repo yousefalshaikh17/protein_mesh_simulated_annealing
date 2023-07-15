@@ -219,7 +219,12 @@ def make_sphere(voxel_size, object_size, count):
     centre = (count * voxel_size)/2.0
     half_size = voxel_size/2.0
 
-    fill_sphere(count, (centre, centre, centre), object_size, voxel_size, half_size, vox_data)
+    fill_sphere(count,
+                (centre, centre, centre),
+                object_size,
+                voxel_size,
+                half_size,
+                vox_data)
 
     return vox_data
 
@@ -228,11 +233,11 @@ def fill_sphere(count, centre, object_size, voxel_size, half_size, vox_data):
     fill an array with spherical data densities
     Args:
         count (int): number of cells on each dimension
-        centre ((float)):
+        centre ((float)): cartesian coordinates of sphere centre
         object_size (float): the size of the sphere
-        voxel_size (float):
-        half_size (float):
-        vox_data (np.array(float)):
+        voxel_size (float): the size of a voxel
+        half_size (float): half the voxel size
+        vox_data (np.array(float)): the image array
     Returns
         np.array
     """

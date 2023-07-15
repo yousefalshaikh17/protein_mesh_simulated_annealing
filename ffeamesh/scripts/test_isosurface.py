@@ -41,6 +41,21 @@ import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.optimizemesh.costfunction as cf
 import ffeamesh.mrclininterpolate as mi
 
+def parse_position(text):
+    """
+    convert text to position
+    Args:
+        text (str): user input
+    Returns
+        [float]
+    """
+    position = [float(part) for part in text.split()]
+
+    if len(position) != 3:
+        raise ValueError()
+
+    return position
+
 def tetgen_root_file(name):
     """
     check string is tetgen root file name
@@ -77,6 +92,55 @@ def mrc_file(name):
 
     return path
 
+def add_file_arguments(s_file):
+    """
+    add args for 'file' option
+    Args:
+        s_file (subparser)
+    """
+    s_file.add_argument("-f",
+                        "--input_file",
+                        type=tetgen_root_file,
+                        required=True,
+                        help="input file")
+
+    s_file.add_argument("-i",
+                        "--image_file",
+                        type=mrc_file,
+                        required=True,
+                        help="mrc image file")
+
+    s_file.add_argument("-o",
+                        "--output",
+                        type=pathlib.Path,
+                        required=True,
+                        help="output file")
+
+    s_file.add_argument("-v",
+                        "--isovalue",
+                        required=True,
+                        type=float,
+                        help="the isovalue")
+
+def add_pos_arguments(sp_pos):
+    """
+    add args for 'file' option
+    Args:
+        s_file (subparser)
+    """
+    sp_pos.add_argument("-i",
+                        "--image_file",
+                        type=mrc_file,
+                        required=True,
+                        help="mrc image file")
+
+    sp_pos.add_argument("-p",
+                        "--position",
+                        required=True,
+                        type=float,
+                        nargs='+',
+                        help="the position")
+
 def get_args():
     """
     get the command line arguments
@@ -84,30 +148,15 @@ def get_args():
             (argparse.namespace)
     """
     parser = argparse.ArgumentParser("""test isosurface""")
+    subparser = parser.add_subparsers(dest="subparser")
 
-    parser.add_argument("-f",
-                        "--input_file",
-                        type=tetgen_root_file,
-                        required=True,
-                        help="input file")
+    s_file = subparser.add_parser("file",
+                                  help="read tetgen format file and run")
 
-    parser.add_argument("-i",
-                        "--image_file",
-                        type=mrc_file,
-                        required=True,
-                        help="mrc image file")
-
-    parser.add_argument("-o",
-                        "--output",
-                        type=pathlib.Path,
-                        required=True,
-                        help="output file")
-
-    parser.add_argument("-v",
-                        "--isovalue",
-                        required=True,
-                        type=float,
-                        help="the isovalue")
+    sp_pos = subparser.add_parser("position",
+                                  help="calculat at one position")
+    add_file_arguments(s_file)
+    add_pos_arguments(sp_pos)
 
     return parser.parse_args()
 
@@ -115,6 +164,18 @@ def main():
     """run the program"""
     args = get_args()
 
+    if args.subparser == "file":
+        run_file(args)
+    elif args.subparser == "position":
+        print("POS")
+    return
+
+def run_file(args):
+    """
+    run on a tetgen file
+    Args:
+        args (argparse.namespace)
+    """
     model = tr.make_model_from_tetgen(args.input_file)
     with mrcfile.open(args.image_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
@@ -123,6 +184,14 @@ def main():
                                                            image)
 
         print(total_density, total_distance)
+
+def run_position(args):
+    """
+    calculat for a position
+    Args:
+        args (argparse.namespace)
+    """
+    print("POS")
 
 if __name__ == "__main__":
     main()
