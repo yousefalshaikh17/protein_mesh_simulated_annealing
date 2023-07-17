@@ -167,7 +167,7 @@ def main():
     if args.subparser == "file":
         run_file(args)
     elif args.subparser == "position":
-        print("POS")
+        run_position(args)
     return
 
 def run_file(args):
@@ -191,7 +191,13 @@ def run_position(args):
     Args:
         args (argparse.namespace)
     """
-    print("POS")
+    with mrcfile.open(args.image_file, mode='r+') as mrc:
+        image = mi.MRCImage(mrc)
+        found_density, dist2 = image.density_or_distance_at(args.position[0],
+                                                            args.position[1],
+                                                            args.position[2])
+
+        print(found_density, dist2)
 
 if __name__ == "__main__":
     main()
