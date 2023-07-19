@@ -193,6 +193,7 @@ def run_position(args):
     """
     with mrcfile.open(args.image_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
+        image.depress_below_isovalue(0.1)
         found_density, dist2 = image.density_or_distance_at(args.position[0],
                                                             args.position[1],
                                                             args.position[2])

@@ -76,6 +76,7 @@ def main():
 
     with mrcfile.open(args.mrc_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
+        image.depress_below_isovalue(args.isovalue)
 
         try:
             model = None

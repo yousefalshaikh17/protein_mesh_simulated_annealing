@@ -249,3 +249,51 @@ class MRCImage():
             z_coord = image_z - self.high_limit_z
 
         return x_coord*x_coord + y_coord*y_coord + z_coord*z_coord
+
+    def depress_below_isovalue(self, isovalue):
+        """
+        set all values below isovalue low value
+        Args:
+            isovalue (float): target isovalue
+        """
+        for voxel_x in range(0, self._file.header['nx']):
+            for voxel_y in range(0, self._file.header['ny']):
+                for voxel_z in range(0, self._file.header['nz']):
+                    if self._file.data[voxel_z, voxel_y, voxel_x] < isovalue:
+                        self._file.data[voxel_z, voxel_y, voxel_x] = self.distance_to_value_squared(
+                                                                        voxel_z,
+                                                                        voxel_y,
+                                                                        voxel_x,
+                                                                        isovalue)
+                        print(f"[{voxel_x}, {voxel_y}, {voxel_z}] => {self._file.data[voxel_z, voxel_y, voxel_x]}")
+
+    def distance_to_value_squared(self, voxel_z, voxel_y, voxel_x, isovalue):
+        """
+        find the square of the distance to isovalue in voxels dimensions
+        Args:
+            voxel_z (int): array index
+            voxel_y (int): array index
+            voxel_x (int): array index
+            isovalue (float): the target value
+        Returns:
+            square of the distance to isovalue in voxels
+        """
+
+        shell = 0
+
+        while True:
+            shell += 1
+            if shell > self._file.header['nx'] or shell > self._file.header['ny'] or shell > self._file.header['nz']:
+                raise ValueError("isovalue cannot be found in mrc file")
+            for del_x in range(voxel_x - shell, voxel_x + shell):
+                if del_x >=0 and del_x < self._file.header['nx']:
+
+                    for del_y in range(voxel_y - shell, voxel_y + shell):
+                        if del_y >=0 and del_y < self._file.header['ny']:
+
+                            for del_z in range(voxel_z - shell, voxel_z + shell):
+                                if del_z >=0 and del_z < self._file.header['nz']:
+
+                                    if self._file.data[del_z, del_y, del_x] >= isovalue:
+                                        dist_square = (del_x-voxel_x)**2 + (del_y-voxel_y)**2 + (del_z-voxel_z)**2
+                                        return isovalue*dist_square
