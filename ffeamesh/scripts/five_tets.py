@@ -39,7 +39,9 @@ import sys
 import argparse
 import pathlib
 from enum import Enum
-from ffeamesh.fivetets import convert_mrc_to_5tets, convert_mrc_to_5tets_interp
+from ffeamesh.fivetets import (convert_mrc_to_5tets,
+                               convert_mrc_to_5tets_interp,
+                               convert_mrc_to_5tets_interp2)
 
 class Method(Enum):
     """
@@ -50,6 +52,9 @@ class Method(Enum):
 
     ## interpolated decomp into 5 tets
     INTERP = 'interp'
+
+    ## new interpolated decomp
+    INTERP2 = 'interp2'
 
 def get_args():
     """
@@ -176,6 +181,15 @@ def main():
 
     elif args.method == Method.INTERP:
         convert_mrc_to_5tets_interp(args.input,
+                                    args.output,
+                                    args.threshold,
+                                    args.ffea,
+                                    args.vtk,
+                                    args.verbose,
+                                    args.progress)
+
+    elif args.method == Method.INTERP2:
+        convert_mrc_to_5tets_interp2(args.input,
                                     args.output,
                                     args.threshold,
                                     args.ffea,

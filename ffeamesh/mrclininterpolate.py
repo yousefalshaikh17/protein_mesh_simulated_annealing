@@ -74,7 +74,16 @@ class MRCImage():
         """
 
         ## the mrc file
-        self._file = mrc
+        self._data = np.copy(mrc.data)
+
+        ## number of voxels in X
+        self._nx = mrc.header["nx"]
+
+        ## number of voxels in Y
+        self._ny = mrc.header["ny"]
+
+        ## number of voxels in Z
+        self._nz = mrc.header["nz"]
 
         # get coordinate origin
         self.x_origin = np.float32(mrc.header.origin['x'])
@@ -89,9 +98,9 @@ class MRCImage():
         self.offset_y = self.delta_y/2.0
         self.offset_z = self.delta_z/2.0
 
-        self.inner_size_x = self.delta_x*(self._file.header.nx-1)
-        self.inner_size_y = self.delta_y*(self._file.header.ny-1)
-        self.inner_size_z = self.delta_z*(self._file.header.nz-1)
+        self.inner_size_x = self.delta_x*(self._nx-1)
+        self.inner_size_y = self.delta_y*(self._ny-1)
+        self.inner_size_z = self.delta_z*(self._nz-1)
 
         self.low_limit_x = self.x_origin + self.offset_x
         self.low_limit_y = self.y_origin + self.offset_y
@@ -166,14 +175,14 @@ class MRCImage():
         Returns:
             (float): interpolated image denisty
         """
-        a000 = self._file.data[coords.z_index, coords.y_index, coords.x_index]
-        a100 = self._file.data[coords.z_index, coords.y_index, coords.x_index+1]
-        a010 = self._file.data[coords.z_index, coords.y_index+1, coords.x_index]
-        a001 = self._file.data[coords.z_index+1, coords.y_index, coords.x_index]
-        a110 = self._file.data[coords.z_index, coords.y_index+1, coords.x_index+1]
-        a101 = self._file.data[coords.z_index+1, coords.y_index, coords.x_index+1]
-        a011 = self._file.data[coords.z_index+1, coords.y_index+1, coords.x_index]
-        a111 = self._file.data[coords.z_index+1, coords.y_index+1, coords.x_index+1]
+        a000 = self._data[coords.z_index, coords.y_index, coords.x_index]
+        a100 = self._data[coords.z_index, coords.y_index, coords.x_index+1]
+        a010 = self._data[coords.z_index, coords.y_index+1, coords.x_index]
+        a001 = self._data[coords.z_index+1, coords.y_index, coords.x_index]
+        a110 = self._data[coords.z_index, coords.y_index+1, coords.x_index+1]
+        a101 = self._data[coords.z_index+1, coords.y_index, coords.x_index+1]
+        a011 = self._data[coords.z_index+1, coords.y_index+1, coords.x_index]
+        a111 = self._data[coords.z_index+1, coords.y_index+1, coords.x_index+1]
 
         value =  a000*coords.x_frac_comp*coords.y_frac_comp*coords.z_frac_comp
         value += a001*coords.x_frac_comp*coords.y_frac_comp*coords.z_frac
@@ -215,7 +224,7 @@ class MRCImage():
         Returns:
             float
         """
-        return self._file.data[voxel_z, voxel_y, voxel_x]
+        return self._data[voxel_z, voxel_y, voxel_x]
 
     def dist_to_image_squared(self, region_flag, image_x, image_y, image_z):
         """
@@ -256,16 +265,17 @@ class MRCImage():
         Args:
             isovalue (float): target isovalue
         """
-        for voxel_x in range(0, self._file.header['nx']):
-            for voxel_y in range(0, self._file.header['ny']):
-                for voxel_z in range(0, self._file.header['nz']):
-                    if self._file.data[voxel_z, voxel_y, voxel_x] < isovalue:
-                        self._file.data[voxel_z, voxel_y, voxel_x] = self.distance_to_value_squared(
+        for voxel_x in range(0, self._nx):
+            for voxel_y in range(0, self._ny):
+                for voxel_z in range(0, self._nz):
+                    print(self._data[voxel_z, voxel_y, voxel_x])
+                    if self._data[voxel_z, voxel_y, voxel_x] < isovalue:
+                        self._data[voxel_z, voxel_y, voxel_x] = self.distance_to_value_squared(
                                                                         voxel_z,
                                                                         voxel_y,
                                                                         voxel_x,
                                                                         isovalue)
-                        print(f"[{voxel_x}, {voxel_y}, {voxel_z}] => {self._file.data[voxel_z, voxel_y, voxel_x]}")
+                        #print(f">>[{voxel_x}, {voxel_y}, {voxel_z}] => {self._data[voxel_z, voxel_y, voxel_x]}")
 
     def distance_to_value_squared(self, voxel_z, voxel_y, voxel_x, isovalue):
         """
@@ -283,17 +293,17 @@ class MRCImage():
 
         while True:
             shell += 1
-            if shell > self._file.header['nx'] or shell > self._file.header['ny'] or shell > self._file.header['nz']:
+            if shell > self._nx or shell > self._ny or shell > self._nz:
                 raise ValueError("isovalue cannot be found in mrc file")
             for del_x in range(voxel_x - shell, voxel_x + shell):
-                if del_x >=0 and del_x < self._file.header['nx']:
+                if del_x >=0 and del_x < self._nx:
 
                     for del_y in range(voxel_y - shell, voxel_y + shell):
-                        if del_y >=0 and del_y < self._file.header['ny']:
+                        if del_y >=0 and del_y < self._ny:
 
                             for del_z in range(voxel_z - shell, voxel_z + shell):
-                                if del_z >=0 and del_z < self._file.header['nz']:
+                                if del_z >=0 and del_z < self._nz:
 
-                                    if self._file.data[del_z, del_y, del_x] >= isovalue:
+                                    if self._data[del_z, del_y, del_x] >= isovalue:
                                         dist_square = (del_x-voxel_x)**2 + (del_y-voxel_y)**2 + (del_z-voxel_z)**2
                                         return isovalue*dist_square

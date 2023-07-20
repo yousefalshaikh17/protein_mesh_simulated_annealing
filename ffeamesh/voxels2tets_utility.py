@@ -312,3 +312,74 @@ def ffea_output(grid, points, tets_connectivity, output_file):
                       faces,
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
+
+def crop_mesh_to_isovalue(points_list, tets_connectivity, image, isovalue):
+    """
+    Remove tets outside or largly outside isovalue
+    Args:
+        points_list (float*3 list): 3d coordinates of the points forming the tets
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+        image (MRCImage): image for interpolation
+        isovalue (float): limit value
+    Returns:
+        TODO
+    """
+    # convert coords to np.array
+    points_np = np.array(points_list)
+
+    grid = make_vtk_grid(points_list, tets_connectivity)
+
+    cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
+
+    # make the grid (vtk scene)
+    vtk_pts = vtk.vtkPoints()
+    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+    vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
+    grid = vtk.vtkUnstructuredGrid() #create unstructured grid
+    grid.SetPoints(vtk_pts) #assign points to grid
+    grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+
+    prune_mesh(grid, points_np, tets_connectivity, image, isovalue)
+
+def make_vtk_grid(points_np, tets_connectivity):
+    """
+    make a vtk UnstructuredGrid
+    Args:
+        points_list (float*3 numpy.array): 3d coordinates of the points forming the tets
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+    Returns:
+        UnstructuredGrid
+    """
+    # convert coords to np.array
+    cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
+
+    # make the grid (vtk scene)
+    vtk_pts = vtk.vtkPoints()
+    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+    vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
+    grid = vtk.vtkUnstructuredGrid() #create unstructured grid
+    grid.SetPoints(vtk_pts) #assign points to grid
+    grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+
+    return grid
+
+def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
+    """
+    Remove tets outside or largly outside isovalue
+    Args:
+        grid (UnstructuredGrid)
+        points (float*3 list): 3d coordinates of the points forming the tets
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+        image (MRCImage): image for interpolation
+        isovalue (float): limit value
+    Returns:
+        TODO
+    """
+    import sys
+    print(f"prune {isovalue}")
+    surf_points, cell_data, cell_count = vtk_u.get_vtk_surface(grid)
+    for point in surf_points:
+        density, dist = image.density_or_distance_at(point[0], point[1], point[2])
+        print(point, density, dist)
+
+    sys.exit(0)

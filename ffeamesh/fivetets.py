@@ -45,6 +45,7 @@ import mrcfile
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
 import ffeamesh.voxels2tets_utility as v2t
+import ffeamesh.mrclininterpolate as mi
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
@@ -289,3 +290,42 @@ def interp_voxel_to_5_tets(voxel,
             for index in tet:
                 tet_indices.append(coord_store.add(coords[index]))
             connectivities.append(tet_indices)
+
+
+def convert_mrc_to_5tets_interp2(input_file,
+                                output_file,
+                                threshold,
+                                ffea_out,
+                                vtk_out,
+                                verbose,
+                                progress):
+    """
+    Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
+    Args:
+        input_file (pathlib.Path): name of input file
+        output_file (pathlib.Path): name stem for output files
+        threshold (float): the threshold below which results are ignored (isosurface value)
+        ffea_out (bool): if true produce ffea input files (tetgen format)
+        vtk_out (bool): if true produce vtk file
+        verbose (bool): if true give details of results
+        progress (bool): if true print out progress
+    Returns:
+        None
+    """
+    with mrcfile.mmap(input_file, mode='r+') as mrc:
+        nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, threshold/2.0, progress)
+
+        if nvoxel <= 0:
+            print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
+            sys.exit()
+
+        image = mi.MRCImage(mrc)
+        v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
+
+        print("FIN")
+        sys.exit()
+
+        if verbose:
+            utility.verbose_output(mrc, points, tet_connectivities, nvoxel)
+
+        v2t.write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
