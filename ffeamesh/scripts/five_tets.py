@@ -189,14 +189,13 @@ def main():
                                     args.progress)
 
     elif args.method == Method.INTERP2:
-        print("Mistake: second inter is not yet implemented")
-        # convert_mrc_to_5tets_interp2(args.input,
-        #                             args.output,
-        #                             args.threshold,
-        #                             args.ffea,
-        #                             args.vtk,
-        #                             args.verbose,
-        #                             args.progress)
+        convert_mrc_to_5tets_interp2(args.input,
+                                    args.output,
+                                    args.threshold,
+                                    args.ffea,
+                                    args.vtk,
+                                    args.verbose,
+                                    args.progress)
 
 if __name__ == "__main__":
     main()

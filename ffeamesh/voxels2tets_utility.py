@@ -313,6 +313,28 @@ def ffea_output(grid, points, tets_connectivity, output_file):
                       original_ids,
                       f'# created by {getpass.getuser()} on {date}')
 
+###########################################################################
+###########################################################################
+
+def find_indices_of(point, points_array):
+    """
+    find all indices of point in array
+    Args:
+        point [float, float, float]: target point
+        points_array [[float, float, float]...]: array of points
+    Retuns
+        [int]: list of indices of occurance of point in points_array
+    """
+    indices = []
+    for index, pt in enumerate(points_array):
+        if point[0] == pt[0] and point[1] == pt[1] and point[2] == pt[2]:
+            indices.append(index)
+
+    if len(indices) == 0:
+        raise ValueError(f"point not in list {point}")
+
+    return indices
+
 def crop_mesh_to_isovalue(points_list, tets_connectivity, image, isovalue):
     """
     Remove tets outside or largly outside isovalue
@@ -324,22 +346,44 @@ def crop_mesh_to_isovalue(points_list, tets_connectivity, image, isovalue):
     Returns:
         TODO
     """
+    new_tets = find_tets_outside_isosurface(points_list, tets_connectivity, image, isovalue)
+
+    print(f"Number of new tets is {len(new_tets)}\n######################\n")
+
+    # new_tets = find_tets_outside_isosurface(points_list, new_tets, image, isovalue)
+
+    # print(f"Number of new tets is {len(new_tets)}")
+
+    return tets_connectivity
+
+
+def find_tets_outside_isosurface(points_list, tets_connectivity, image, isovalue):
+    """
+    Remove surface tets outside or with one face outside isovalue
+    Args:
+        points_list (float*3 list): 3d coordinates of the points forming the tets
+        tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
+        image (MRCImage): image for interpolation
+        isovalue (float): limit value
+    Returns:
+        (int*4 list): for each tet passing test the indices of its vertices in the points list
+    """
     # convert coords to np.array
     points_np = np.array(points_list)
 
     grid = make_vtk_grid(points_list, tets_connectivity)
 
-    cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
+    # cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
 
-    # make the grid (vtk scene)
-    vtk_pts = vtk.vtkPoints()
-    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
-    vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
-    grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    grid.SetPoints(vtk_pts) #assign points to grid
-    grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+    # # make the grid (vtk scene)
+    # vtk_pts = vtk.vtkPoints()
+    # #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+    # vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
+    # grid = vtk.vtkUnstructuredGrid() #create unstructured grid
+    # grid.SetPoints(vtk_pts) #assign points to grid
+    # grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
-    prune_mesh(grid, points_np, tets_connectivity, image, isovalue)
+    return prune_mesh(grid, points_np, tets_connectivity, image, isovalue)
 
 def make_vtk_grid(points_np, tets_connectivity):
     """
@@ -350,16 +394,21 @@ def make_vtk_grid(points_np, tets_connectivity):
     Returns:
         UnstructuredGrid
     """
-    # convert coords to np.array
+    # convert coords to vtk.vtkCellArray
     cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
 
-    # make the grid (vtk scene)
+    # make contaner fo the points
     vtk_pts = vtk.vtkPoints()
-    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+
+    # copy the numpy points into the vtk container
     vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
-    grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    grid.SetPoints(vtk_pts) #assign points to grid
-    grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+
+    #create unstructured grid (conatiner for any combinations of any cell types)
+    grid = vtk.vtkUnstructuredGrid()
+    #assign points to grid
+    grid.SetPoints(vtk_pts)
+    #assign tet cells to grid
+    grid.SetCells(vtk.VTK_TETRA, cells_con)
 
     return grid
 
@@ -368,18 +417,88 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
     Remove tets outside or largly outside isovalue
     Args:
         grid (UnstructuredGrid)
-        points (float*3 list): 3d coordinates of the points forming the tets
+        points_np (float*3 list): 3d coordinates of the points forming the tets
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         image (MRCImage): image for interpolation
         isovalue (float): limit value
     Returns:
-        TODO
+        (int*4 list): for each tet passing test the indices of its vertices in the points list
     """
-    import sys
-    print(f"prune {isovalue}")
-    surf_points, cell_data, cell_count = vtk_u.get_vtk_surface(grid)
-    for point in surf_points:
-        density, dist = image.density_or_distance_at(point[0], point[1], point[2])
-        print(point, density, dist)
+    print(f"prune to {isovalue}")
 
-    sys.exit(0)
+    # get the surface as indices in points
+    ##########################################################
+    surf_points, _, _ = vtk_u.get_vtk_surface(grid)
+    surface_indices = []
+    surface_set = set()
+    total = len(surf_points)
+    loop_count = 0
+    for point in surf_points:
+        index = find_indices_of(point, points_np)
+        surface_indices.append(index)
+        surface_set.add(index[0])
+        loop_count += 1
+        if loop_count%100 == 0:
+            print(f"Done {loop_count} out of {total}")
+
+    ##########################################################
+    print(f"Number of points {len(points_np)}")
+    print(f"Number of tets {len(tets_connectivity)}")
+    #print(f"Number of surface points {len(surf_points)}")
+    #print(f"Number of surface point indices {len(surface_indices)}")
+    #############################################################
+
+    # bin count tets by number of surface points
+    ##########################################################
+    pots = {0: [], 1: [], 2: [], 3: [], 4: []}
+    for index, tet in enumerate(tets_connectivity):
+        tet_s = set(tet)
+        in_surface = tet_s.intersection(surface_set)
+        count = len(in_surface)
+        if count == 0 :
+            pots[0].append(index)
+        elif count == 1:
+            pots[1].append(index)
+        elif count == 2 :
+            pots[2].append(index)
+        elif count == 3:
+            pots[3].append(index)
+        elif count == 4:
+            pots[4].append(index)
+
+    ##########################################################
+    for val in pots:
+        print(f"{len(pots[val])} tets have {val} surface points")
+    ##########################################################
+
+    # find tets to be removed
+    ##########################################################
+    tets_for_deletion = []
+    out_4 = 0
+    out_3 = 0
+    for tet_index in pots[4]:
+        count_outside = 0
+        tet = tets_connectivity[tet_index]
+        for index in tet:
+            point = points_np[index]
+            density, _ = image.density_or_distance_at(point[0], point[1], point[2])
+            if density < isovalue:
+                count_outside += 1
+
+        if count_outside > 3:
+            tets_for_deletion.append(tet_index)
+            out_4 += 1
+        elif count_outside > 2:
+            tets_for_deletion.append(tet_index)
+            out_3 += 1
+
+    print(f"4 out {out_4}: 3 out {out_3}")
+
+    # make new tet connectivity list
+    ##########################################################
+    new_tets = []
+    for index, tet in enumerate(tets_connectivity):
+        if index not in tets_for_deletion:
+            new_tets.append(tet)
+
+    return new_tets

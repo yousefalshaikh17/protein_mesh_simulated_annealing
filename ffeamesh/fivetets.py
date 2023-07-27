@@ -320,12 +320,9 @@ def convert_mrc_to_5tets_interp2(input_file,
             sys.exit()
 
         image = mi.MRCImage(mrc)
-        v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
-
-        print("FIN")
-        sys.exit()
+        connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
 
         if verbose:
-            utility.verbose_output(mrc, points, tet_connectivities, nvoxel)
+            utility.verbose_output(mrc, points, connectivity, nvoxel)
 
-        v2t.write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)
+        v2t.write_tets_to_files(points, connectivity, output_file, ffea_out, vtk_out)
