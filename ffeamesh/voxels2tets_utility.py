@@ -428,18 +428,18 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
 
     # get the surface as indices in points
     ##########################################################
-    surf_points, _, _ = vtk_u.get_vtk_surface(grid)
-    surface_indices = []
-    surface_set = set()
-    total = len(surf_points)
-    loop_count = 0
-    for point in surf_points:
-        index = find_indices_of(point, points_np)
-        surface_indices.append(index)
-        surface_set.add(index[0])
-        loop_count += 1
-        if loop_count%100 == 0:
-            print(f"Done {loop_count} out of {total}")
+    # surf_points, _, _ = vtk_u.get_vtk_surface(grid)
+    # surface_indices = []
+    # surface_set = set()
+    # total = len(surf_points)
+    # loop_count = 0
+    # for point in surf_points:
+    #     index = find_indices_of(point, points_np)
+    #     surface_indices.append(index)
+    #     surface_set.add(index[0])
+    #     loop_count += 1
+    #     if loop_count%100 == 0:
+    #         print(f"Done {loop_count} out of {total}")
 
     ##########################################################
     print(f"Number of points {len(points_np)}")
@@ -450,25 +450,25 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
 
     # bin count tets by number of surface points
     ##########################################################
-    pots = {0: [], 1: [], 2: [], 3: [], 4: []}
-    for index, tet in enumerate(tets_connectivity):
-        tet_s = set(tet)
-        in_surface = tet_s.intersection(surface_set)
-        count = len(in_surface)
-        if count == 0 :
-            pots[0].append(index)
-        elif count == 1:
-            pots[1].append(index)
-        elif count == 2 :
-            pots[2].append(index)
-        elif count == 3:
-            pots[3].append(index)
-        elif count == 4:
-            pots[4].append(index)
+    # pots = {0: [], 1: [], 2: [], 3: [], 4: []}
+    # for index, tet in enumerate(tets_connectivity):
+    #     tet_s = set(tet)
+    #     in_surface = tet_s.intersection(surface_set)
+    #     count = len(in_surface)
+    #     if count == 0 :
+    #         pots[0].append(index)
+    #     elif count == 1:
+    #         pots[1].append(index)
+    #     elif count == 2 :
+    #         pots[2].append(index)
+    #     elif count == 3:
+    #         pots[3].append(index)
+    #     elif count == 4:
+    #         pots[4].append(index)
 
     ##########################################################
-    for val in pots:
-        print(f"{len(pots[val])} tets have {val} surface points")
+    # for val in pots:
+    #     print(f"{len(pots[val])} tets have {val} surface points")
     ##########################################################
 
     # find tets to be removed
@@ -476,7 +476,9 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
     tets_for_deletion = []
     out_4 = 0
     out_3 = 0
-    for tet_index in pots[4]:
+    out_2 = 0
+    out_1 = 0
+    for tet_index in range(len(tets_connectivity)):
         count_outside = 0
         tet = tets_connectivity[tet_index]
         for index in tet:
@@ -491,8 +493,14 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
         elif count_outside > 2:
             tets_for_deletion.append(tet_index)
             out_3 += 1
+        elif count_outside > 1:
+            tets_for_deletion.append(tet_index)
+            out_2 += 1
+        elif count_outside > 0:
+            tets_for_deletion.append(tet_index)
+            out_1 += 1
 
-    print(f"4 out {out_4}: 3 out {out_3}")
+    print(f"4 out {out_4}: 3 out {out_3}: 2 out {out_2}: 1 out {out_1}")
 
     # make new tet connectivity list
     ##########################################################
