@@ -1,5 +1,8 @@
 import argparse
 import pathlib
+import mrcfile
+
+import ffeamesh.mrclininterpolate as mi
 
 def mrc_file(name):
     """
@@ -37,7 +40,12 @@ def get_args():
 
 def main():
     args = get_args()
-    print(args)
+    with mrcfile.open(args.image_file, mode='r+') as mrc:
+        image = mi.MRCImage(mrc)
+        for coord in range(0, 27):
+            x_coord = float(coord)
+            found_density, dist2 = image.density_or_distance_at(x_coord, 12.5, 12.5)
+            print(f"{x_coord}, {found_density}, {dist2}")
 
 if __name__ == "__main__":
     main()

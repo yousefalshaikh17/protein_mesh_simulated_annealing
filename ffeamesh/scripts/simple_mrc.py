@@ -11,7 +11,7 @@ def fill_test(image):
     image[2][2][2] = 1.2
 
 def main():
-    cell_size = 0.5
+    cell_size = 25.0
     cell_angle = 90.0
     label="Simple test"
     test_image = np.full((5, 5, 5), dtype=np.float32, fill_value=0.2)
