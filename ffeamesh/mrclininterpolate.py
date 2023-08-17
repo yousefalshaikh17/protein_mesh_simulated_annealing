@@ -52,6 +52,24 @@ def make_inner_coords(x_index, x_frac, y_index, y_frac, z_index, z_frac):
     Retuns:
         InnerCoords
     """
+    if x_frac < 0.5:
+        x_index -= 1
+        x_frac += 0.5
+    else:
+        x_frac -= 0.5
+
+    if y_frac < 0.5:
+        y_index -= 1
+        y_frac += 0.5
+    else:
+        y_frac -= 0.5
+
+    if z_frac < 0.5:
+        z_index -= 1
+        z_frac += 0.5
+    else:
+        z_frac -= 0.5
+
     x_frac_comp = 1.0 - x_frac
     y_frac_comp = 1.0 - y_frac
     z_frac_comp = 1.0 - z_frac
@@ -268,7 +286,7 @@ class MRCImage():
         for voxel_x in range(0, self._nx):
             for voxel_y in range(0, self._ny):
                 for voxel_z in range(0, self._nz):
-                    print(self._data[voxel_z, voxel_y, voxel_x])
+                    #print(self._data[voxel_z, voxel_y, voxel_x])
                     if self._data[voxel_z, voxel_y, voxel_x] < isovalue:
                         self._data[voxel_z, voxel_y, voxel_x] = self.distance_to_value_squared(
                                                                         voxel_z,
