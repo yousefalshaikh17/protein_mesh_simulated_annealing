@@ -183,7 +183,7 @@ class MRCImage():
 
         return make_inner_coords(round(x_index), x_frac,
                                  round(y_index), y_frac,
-                                 round(z_index), z_frac,)
+                                 round(z_index), z_frac)
 
     def linear_interp(self, coords):
         """

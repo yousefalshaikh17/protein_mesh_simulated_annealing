@@ -67,5 +67,6 @@ tmp/*
 *.1.node
 *.1.ele
 *.1.face
+*.vtk
 
 tmp/*

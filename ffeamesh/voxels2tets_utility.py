@@ -354,7 +354,7 @@ def crop_mesh_to_isovalue(points_list, tets_connectivity, image, isovalue):
 
     # print(f"Number of new tets is {len(new_tets)}")
 
-    return tets_connectivity
+    return new_tets
 
 
 def find_tets_outside_isosurface(points_list, tets_connectivity, image, isovalue):
@@ -488,6 +488,7 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
                 count_outside += 1
 
         if count_outside > 3:
+            print(f"out 4 {tet_index}")
             tets_for_deletion.append(tet_index)
             out_4 += 1
         elif count_outside > 2:
@@ -508,5 +509,7 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
     for index, tet in enumerate(tets_connectivity):
         if index not in tets_for_deletion:
             new_tets.append(tet)
+        else:
+            print(f"> {index}")
 
     return new_tets
