@@ -39,12 +39,22 @@
 import datetime
 import getpass
 import numpy as np
+import enum
 import vtk
 from vtkmodules.util import numpy_support
 from ffeamesh import vtk_write
 import ffeamesh.coord_utility as cu
 from ffeamesh.ffea_write import write_ffea_output
 import ffeamesh.vtk_utility as vtk_u
+
+class PruneLevel(enum.IntEnum):
+    """
+    number of verticies allowed below isovlue
+    """
+    FOUR  = 4
+    THREE = 3
+    TWO   = 2
+    ONE   = 1
 
 def make_fractional_to_cartesian_conversion_function(mrc):
     """
@@ -350,10 +360,6 @@ def crop_mesh_to_isovalue(points_list, tets_connectivity, image, isovalue):
 
     print(f"Number of new tets is {len(new_tets)}\n######################\n")
 
-    # new_tets = find_tets_outside_isosurface(points_list, new_tets, image, isovalue)
-
-    # print(f"Number of new tets is {len(new_tets)}")
-
     return new_tets
 
 
@@ -371,19 +377,7 @@ def find_tets_outside_isosurface(points_list, tets_connectivity, image, isovalue
     # convert coords to np.array
     points_np = np.array(points_list)
 
-    grid = make_vtk_grid(points_list, tets_connectivity)
-
-    # cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
-
-    # # make the grid (vtk scene)
-    # vtk_pts = vtk.vtkPoints()
-    # #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
-    # vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
-    # grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    # grid.SetPoints(vtk_pts) #assign points to grid
-    # grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
-
-    return prune_mesh(grid, points_np, tets_connectivity, image, isovalue)
+    return prune_mesh(points_np, tets_connectivity, image, isovalue)
 
 def make_vtk_grid(points_np, tets_connectivity):
     """
@@ -412,11 +406,10 @@ def make_vtk_grid(points_np, tets_connectivity):
 
     return grid
 
-def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
+def prune_mesh(points_np, tets_connectivity, image, isovalue, level=PruneLevel.TWO):
     """
     Remove tets outside or largly outside isovalue
     Args:
-        grid (UnstructuredGrid)
         points_np (float*3 list): 3d coordinates of the points forming the tets
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         image (MRCImage): image for interpolation
@@ -425,51 +418,8 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
         (int*4 list): for each tet passing test the indices of its vertices in the points list
     """
     print(f"prune to {isovalue}")
-
-    # get the surface as indices in points
-    ##########################################################
-    # surf_points, _, _ = vtk_u.get_vtk_surface(grid)
-    # surface_indices = []
-    # surface_set = set()
-    # total = len(surf_points)
-    # loop_count = 0
-    # for point in surf_points:
-    #     index = find_indices_of(point, points_np)
-    #     surface_indices.append(index)
-    #     surface_set.add(index[0])
-    #     loop_count += 1
-    #     if loop_count%100 == 0:
-    #         print(f"Done {loop_count} out of {total}")
-
-    ##########################################################
     print(f"Number of points {len(points_np)}")
     print(f"Number of tets {len(tets_connectivity)}")
-    #print(f"Number of surface points {len(surf_points)}")
-    #print(f"Number of surface point indices {len(surface_indices)}")
-    #############################################################
-
-    # bin count tets by number of surface points
-    ##########################################################
-    # pots = {0: [], 1: [], 2: [], 3: [], 4: []}
-    # for index, tet in enumerate(tets_connectivity):
-    #     tet_s = set(tet)
-    #     in_surface = tet_s.intersection(surface_set)
-    #     count = len(in_surface)
-    #     if count == 0 :
-    #         pots[0].append(index)
-    #     elif count == 1:
-    #         pots[1].append(index)
-    #     elif count == 2 :
-    #         pots[2].append(index)
-    #     elif count == 3:
-    #         pots[3].append(index)
-    #     elif count == 4:
-    #         pots[4].append(index)
-
-    ##########################################################
-    # for val in pots:
-    #     print(f"{len(pots[val])} tets have {val} surface points")
-    ##########################################################
 
     # find tets to be removed
     ##########################################################
@@ -488,7 +438,6 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
                 count_outside += 1
 
         if count_outside > 3:
-            print(f"out 4 {tet_index}")
             tets_for_deletion.append(tet_index)
             out_4 += 1
         elif count_outside > 2:
@@ -509,7 +458,5 @@ def prune_mesh(grid, points_np, tets_connectivity, image, isovalue):
     for index, tet in enumerate(tets_connectivity):
         if index not in tets_for_deletion:
             new_tets.append(tet)
-        else:
-            print(f"> {index}")
 
     return new_tets
