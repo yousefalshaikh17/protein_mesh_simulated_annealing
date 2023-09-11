@@ -3,11 +3,14 @@ FFEA Meshing {#ffea_meshing}
 
 ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) tetrahrdral meshes.
 
-The tools include: 
+The tools include:
     * a visualization tool that allows the user to interactively explore the tetrahedral mesh and select the worst and best elements using a number of recognised criteria.
+
     * rescale mrc files (used to collect cryo-em data)
+
     * convert mrc data into tetrahedral meshes using a 5 or 6 fold marching tetrahedron algorithm which results in a blocky surface
-    * optimisation vis simulated annealing to smooth the surface. 
+
+    * optimisation vis simulated annealing to smooth the surface.
 
 This project was started in summer 2021.
 

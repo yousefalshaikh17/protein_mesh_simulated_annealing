@@ -54,7 +54,10 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""test isosurface""")
+    description  = ("run a density scan across an mrc file on "
+                    "x, y and z axis printing out locations and "
+                    "image densities")
+    parser = argparse.ArgumentParser(description)
 
     parser.add_argument("-i",
                         "--image_file",
