@@ -18,7 +18,6 @@ Version
 ============
 This is version 1.0
 
-
 Copyright and License
 ============
 
@@ -97,22 +96,43 @@ To remove the environment, if you no longer want to use ffea-mesh:
 
 `conda env remove --name ffea-mesh`
 
-
-
 Scripts {#scripts}
 =============
+   * **fft_smooth.py** - Smoooths density data in a mrc fileusing a fast fourier transform function.
 
-   * **tet_from_pix.py** - Processes MRC files and produces a regular
-    tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
-    This is written out in the tetgen .ele, .face, and .node file format for
-    later use in FFEA, and .vtk for mesh analysis.
+   * **five_tets.py** - process MRC files and produces a regular tetrahedral volumetric
+    mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen
+    .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
 
-   * **mrc_zoom.py** - Coarsens MRC files to a user-defined resolution and
+   * **make_test_mrcfile.py** - makes simple mrc image file for use in testing
+
+   * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
+    and output in VTK format. 5 and 6 tetrahedra decompositions are available.
+
+   * **mrc_crop.py** - crops 3D mrc image file data
+
+   * **mrc_density_section.py** - run a density scan across an mrc file
+    on  x, y and z axis printing out locations and image densities
+
+   * **mrc_header_info.py** - print the header from an MRC file
+
+   * **mrc_image_stats.py** - reads a mrc file and prints out its image intensity stats
+
+   * **mrc_threshold.py** - reads a mrc file and set all voxels less than than the
+    thershold to zero, then outputs to a new file
+
+   * **mrc_voxel_size.py** - print an MRC file's voxel size
+
+   * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
+
+   * **simple_mrc.py** - produces a 5x5x5 mrc file with the value 1.2 at the centre
+     the value 0.8 around that and value 0.2 at the edge. The image is
+     saved as file simple_test.mrc.
+
+   * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+
+   * **zoom.py** - Coarsens MRC files to a user-defined resolution and
     outputs them as a new .mrc file. Can be called by tet_from_pix.
-
-   * **ffea_convert_to_vtk.py** - Converts FFEA systems into VTK files for
-    analysis in ParaView and other compatible software.
-
 
 Prerequisites {#prerequisites}
 =============

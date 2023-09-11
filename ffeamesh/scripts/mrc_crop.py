@@ -43,7 +43,7 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""crops 3D mrc image file data""")
+    parser = argparse.ArgumentParser(description="crops 3D mrc image file data")
 
     parser.add_argument("-i",
                         "--input",

@@ -44,8 +44,9 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""reads a mrc file and prints out its """\
-                                     """image intensity stats""")
+    description = ("reads a mrc file and prints out its "
+                   "image intensity stats")
+    parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("-i",
                         "--input",

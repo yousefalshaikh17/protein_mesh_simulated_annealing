@@ -62,16 +62,17 @@ def get_args():
     Returns:
         (argparse.namespace)
     """
+    description = ("process MRC files and produces a regular "
+        "tetrahedral volumetric mesh for FFEA using the \"marching tet\" algorithm. "
+        "This is written out in the tetgen .ele, .face, and .node file format for "
+        "later use in FFEA, and .vtk for mesh analysis."
 
-    parser = argparse.ArgumentParser("""process MRC files and produces a regular
-        tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
-        This is written out in the tetgen .ele, .face, and .node file format for
-        later use in FFEA, and .vtk for mesh analysis.
+        "Coding:   Molly Gravett (bsmgr@leeds.ac.uk), "
+        "Joanna Leng (J.Leng@leeds.ac.uk), "
+        "Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk), "
+        "Jonathan Pickering (J.H.Pickering@leeds.ac.uk)")
 
-        Coding:   Molly Gravett (bsmgr@leeds.ac.uk),
-        Joanna Leng (J.Leng@leeds.ac.uk),
-        Jarvellis Rogers (J.F.Rogers1@leeds.ac.uk)
-        Jonathan Pickering (J.H.Pickering@leeds.ac.uk)""")
+    parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("-i",
                         "--input",

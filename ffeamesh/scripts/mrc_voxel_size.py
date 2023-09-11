@@ -37,7 +37,7 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="print an MRC file's voxel size")
 
     parser.add_argument("-i",
                         "--input",

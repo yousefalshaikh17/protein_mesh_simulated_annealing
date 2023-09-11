@@ -56,8 +56,9 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""Smoooths density data in a mrc file
-                                  using a fft (fourier transform) function.""")
+    description = ("Smoooths density data in a mrc file"
+                   "using a fast fourier transform function.")
+    parser = argparse.ArgumentParser(description)
 
     parser.add_argument("-i",
                         "--input",

@@ -115,9 +115,10 @@ def get_args():
     Returns
         (argparse.namespace)
     """
-    parser = argparse.ArgumentParser("""Make a pair of voxels decomposed into tetrahedra """\
-                                     """and output in VTK format. 5 and 6 tetrahedra decompositions """\
-                                     """are available.""")
+    description = ("Make a pair of voxels decomposed into tetrahedra "
+                   "and output in VTK format. 5 and 6 tetrahedra decompositions "
+                   "are available.")
+    parser = argparse.ArgumentParser(description=description)
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-5",

@@ -57,8 +57,8 @@ def get_args():
         Returns
             (argparse.namespace)
     """
-    parser = argparse.ArgumentParser(description="""makes simple mrc image files
-        for use in testing""")
+    description = "makes simple mrc image file for use in testing"
+    parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("-o",
                         "--output",
