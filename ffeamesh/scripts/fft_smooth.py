@@ -79,11 +79,12 @@ def get_args():
                         help="""size of sphere or box used in ellipsoid or uniform
                             filtering; or the std dev for gaussian filtering""")
 
+    options = [el.value for el in Algorithm]
     parser.add_argument("-a",
                         "--algorithm",
                         type=Algorithm,
                         default=Algorithm.ELLIPSOID,
-                        help=f"choice of algorithm used in fft filtering: {[el.value for el in Algorithm]}")
+                        help=f"choice of algorithm used in fft filtering: {options}")
 
     return parser.parse_args()
 
