@@ -23,6 +23,9 @@
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
+# set up linting
+# pylint: disable = import-error
+
 import argparse
 import pathlib
 import mrcfile
@@ -40,7 +43,7 @@ def mrc_file(name):
     """
     path = pathlib.Path(name)
 
-    if not path.suffix == ".mrc":
+    if path.suffix != ".mrc":
         raise ValueError()
 
     if not path.exists():
