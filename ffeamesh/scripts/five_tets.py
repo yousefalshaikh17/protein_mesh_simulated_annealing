@@ -107,11 +107,12 @@ def get_args():
                         action="store_true",
                         help="overwrite")
 
+    options = [el.value for el in Method]
     parser.add_argument("-m",
                         "--method",
                         type=Method,
                         default=Method.PLAIN,
-                        help=f"choice of method used to make tetrohedrons: {[el.value for el in Method]}")
+                        help=f"choice of method used to make tetrohedrons: {options}")
 
     parser.add_argument("-V",
                         "--verbose",

@@ -188,18 +188,15 @@ def make_dbell(voxel_size, object_size, count):
     frac_centre = (count * voxel_size)/10.0
     centre = frac_centre*5
 
-    half_size = voxel_size/2.0
-
     fill_sphere(count,
                 (centre, centre, 3*frac_centre),
-                object_size, voxel_size,
-                half_size,
+                object_size,
+                voxel_size,
                 vox_data)
     fill_sphere(count,
                 (centre, centre, 7*frac_centre),
                 object_size,
                 voxel_size,
-                half_size,
                 vox_data)
 
     return vox_data
@@ -217,18 +214,16 @@ def make_sphere(voxel_size, object_size, count):
     vox_data = np.full((count, count, count), 0.05, dtype=np.float32)
 
     centre = (count * voxel_size)/2.0
-    half_size = voxel_size/2.0
 
     fill_sphere(count,
                 (centre, centre, centre),
                 object_size,
                 voxel_size,
-                half_size,
                 vox_data)
 
     return vox_data
 
-def fill_sphere(count, centre, object_size, voxel_size, half_size, vox_data):
+def fill_sphere(count, centre, object_size, voxel_size, vox_data):
     """
     fill an array with spherical data densities
     Args:
@@ -236,11 +231,11 @@ def fill_sphere(count, centre, object_size, voxel_size, half_size, vox_data):
         centre ((float)): cartesian coordinates of sphere centre
         object_size (float): the size of the sphere
         voxel_size (float): the size of a voxel
-        half_size (float): half the voxel size
         vox_data (np.array(float)): the image array
     Returns
         np.array
     """
+    half_size = voxel_size/2.0
     for i in range(count):
         del_z = np.float32(i)*voxel_size + half_size
         del_z = centre[2] - del_z
