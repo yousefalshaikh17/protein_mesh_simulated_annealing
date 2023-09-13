@@ -50,6 +50,7 @@ class Voxtest(Enum):
     CUBE = "cube"
     SPHERE = "sphere"
     DBELL = "dbell"
+    SIMPLE = "simple"
 
 def get_args():
     """
@@ -133,10 +134,37 @@ def voxel_test(voxtest, count, voxel_size, object_size):
     elif voxtest == Voxtest.DBELL:
         mrc_data = make_dbell(voxel_size, object_size, count)
 
+    elif voxtest == Voxtest.SIMPLE:
+        mrc_data = make_simple()
+
     props = CellProps(CellSize(cell_size, cell_size, cell_size),
                       CellAngles(90.0, 90.0, 90.0))
 
     return mrc_data, props
+
+def make_simple():
+    """
+    make a simple gradient
+    Returns
+        np array
+    """
+    test_image = np.full((5, 5, 5), dtype=np.float32, fill_value=0.2)
+    fill_test(test_image)
+
+    return test_image
+
+def fill_test(image):
+    """
+    fill the image array
+    Args:
+        image: numpy.ndarray
+    """
+    for i in range(1, 4):
+        for j in range(1, 4):
+            for k in range(1, 4):
+                image[i][j][k] = 0.8
+
+    image[2][2][2] = 1.2
 
 def make_cube(count):
     """
