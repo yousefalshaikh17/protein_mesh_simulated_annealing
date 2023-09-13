@@ -125,10 +125,6 @@ Scripts {#scripts}
 
    * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
 
-   * **simple_mrc.py** - produces a 5x5x5 mrc file with the value 1.2 at the centre
-     the value 0.8 around that and value 0.2 at the edge. The image is
-     saved as file simple_test.mrc.
-
    * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
 
    * **zoom.py** - Coarsens MRC files to a user-defined resolution and
