@@ -98,37 +98,129 @@ To remove the environment, if you no longer want to use ffea-mesh:
 
 Scripts {#scripts}
 =============
+The following scrips are available:
+
+MRC Data {#scripts-meta}
+---------
+
+   * **mrc_header_info.py** - print the header from an MRC file
+
+   * **mrc_image_stats.py** - reads a mrc file and prints out its image intensity stats
+
+   * **mrc_voxel_size.py** - print an MRC file's voxel size
+
+   * **mrc_density_section.py** - run a density scan across an mrc file
+    on  x, y and z axis printing out locations and image densities
+
+Filter {#scripts-filter}
+------
+
    * **fft_smooth.py** - Smoooths density data in a mrc fileusing a fast fourier transform function.
+
+   * **mrc_crop.py** - crops 3D mrc image file data
+
+   * **mrc_threshold.py** - reads a mrc file and set all voxels less than than the
+    thershold to zero, then outputs to a new file
+
+   * **zoom.py** - Coarsens MRC files to a user-defined resolution and
+    outputs them as a new .mrc file. Can be called by tet_from_pix.
+
+Meshing {#scripts-meshing}
+------
 
    * **five_tets.py** - process MRC files and produces a regular tetrahedral volumetric
     mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen
     .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+
+   * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+
+Test Files {#scripts_make_test}
+------
 
    * **make_test_mrcfile.py** - makes simple mrc image file for use in testing
 
    * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
     and output in VTK format. 5 and 6 tetrahedra decompositions are available.
 
-   * **mrc_crop.py** - crops 3D mrc image file data
-
-   * **mrc_density_section.py** - run a density scan across an mrc file
-    on  x, y and z axis printing out locations and image densities
-
-   * **mrc_header_info.py** - print the header from an MRC file
-
-   * **mrc_image_stats.py** - reads a mrc file and prints out its image intensity stats
-
-   * **mrc_threshold.py** - reads a mrc file and set all voxels less than than the
-    thershold to zero, then outputs to a new file
-
-   * **mrc_voxel_size.py** - print an MRC file's voxel size
+Modify Mesh {#scripts_modify}
+------
 
    * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
 
-   * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+How to Use {#how}
+=============
 
-   * **zoom.py** - Coarsens MRC files to a user-defined resolution and
-    outputs them as a new .mrc file. Can be called by tet_from_pix.
+As these are simply scripts there is no installation required other than the
+ [prerequisites](\ref prerequisites).
+
+five_tets & six_tets {#tetfrompix}
+-------------
+
+five_tets & six_tets input MRC files and processes them to produce volumetric mesh
+ files for use with FFEA. VTK files are also produced for mesh analysis.
+
+To get started quickly, the usage message can be viewed with the following command:
+
+      python five_tets.py -h
+
+In order to run five or six_tets there are three required flags:
+
+   * -h, --help            show this help message and exit
+
+   * `-i`, `--input` input file
+   * `-o`, `--output` output file name root, (no suffix)
+
+   * `-v`, `--vtk`     produce vtk output.
+
+   * `-f`, `--ffea`    produce ffea output.
+
+   * `-t` THRESHOLD, `--threshold` lower filter for voxels, default zero
+
+   * `-w`, `--overwrite` overwrite preexisting output files of same name
+
+   * `-m` METHOD, `--method` choice of method used to make tetrohedrons ['plain', 'interp', 'interp2']
+
+   * `-V`, `--verbose`         write verbose output
+
+   * `-p`, `--progress`        print progress during operation (may slow package)
+
+Optionally, an MRC file can first be coarsened to a user-specified resolution
+ before producing mesh files using the flag `-r` or `--resolution`, followed by
+ the resolution value. See [mrc_zoom](\ref mrczoom) for further explanation, as
+ this flag passes the input MRC file to this script and returns the output.
+
+In the output directory defined by `-o` or `--output`, the following files will
+ be found after running tet_from_pix successfully, where [outputname] is the
+ user-defined name of the output files:
+
+   * [outputname].1.ele
+   * [outputname].1.face
+   * [outputname].1.node
+   * [outputname].vtk
+
+zoom {#zoom}
+-------------
+
+zoom inputs MRC files and allows a user to coarsen them to a defined
+ resolution, and outputs them as a new MRC file. This is seperated from
+ five or six_tets as a standalone script for users that only wish to coarsen an
+ MRC file, rather than go through the whole process of producing volumetric
+ mesh files.
+
+To get started quickly, the usage message can be viewed with the following command:
+
+      python zoom.py -h
+
+In order to run tet_from_pix to produce volumetric mesh files, there are three
+required flags:
+
+   * '-h', '--help'  show help message and exit
+
+   * '-i', '--input' input file
+
+   * '-o', '--output' output file
+
+   * '-r', '--resolution' factor by which to coarsen input MRC.
 
 Prerequisites {#prerequisites}
 =============
@@ -183,139 +275,6 @@ Install the package to the environment using pip
 Make the documentation run doxygen
 
 `doxygen`
-
-Available Programs {#programs}
-=================
-
-The programs are provided in the ffeamesh/scripts directory.  They are listed here grouped by function.
-
-Meta Data {#programs-meta}
----------
-- mrc_header_info.py: List all header information in MRC file.
-- mrc_image_stats.py: Image intensity stats in ten bins.
-- mrc_voxel_size.py: Report the voxel size for MRC file.
-
-Filter {#programs-filter}
-------
-- mrc_crop.py: Cut a subset out of image and save in new file.
-- mrc_threshold.py: Make new MRC image with all voxels below threshold set to zero.
-- zoom.py: Reduce the number of voxels in MRC file.
-- fft_smooth.py: Smooth data in MRC file using Fast Fourier Transform (FFT).
-
-Meshing {#programs-meshing}
-------
-- five_tets.py: Threshold image and convert surviving voxels into five tetrahedrons.
-- six_tets.py: Threshold image and convert surviving voxels into six tetrahedrons.
-
-How to Use {#how}
-=============
-
-As these are simply scripts there is no installation required other than the
- [prerequisites](\ref prerequisites).
-
-tet_from_pix {#tetfrompix}
--------------
-
-tet_from_pix inputs MRC files and processes them to produce volumetric mesh
- files for use with FFEA. VTK files are also produced for mesh analysis.
-
-To get started quickly, the usage message can be viewed with the following command:
-
-      python tet_from_pix.py -h
-
-In order to run tet_from_pix to produce volumetric mesh files, there are three
- required flags:
-
-   * `-i` or `--input` - The filepath to the input MRC file to be processed.
-   * `-o` or `--output` - The name to be given to the output files. A filepath
-    can also be provided for this. Do not include a file extension suffix as
-    there will be multiple different kinds.
-   * `-t` or `--threshold` - <!-- Molly - can you explain this -->
-
-Running the required flags on an MRC would look something like the example
- command:
-
-      python tet_from_pix.py -i /path/to/input.mrc -o /path/to/output -t 0.12345
-
-Optionally, an MRC file can first be coarsened to a user-specified resolution
- before producing mesh files using the flag `-r` or `--resolution`, followed by
- the resolution value. See [mrc_zoom](\ref mrczoom) for further explanation, as
- this flag passes the input MRC file to this script and returns the output.
-
-In the output directory defined by `-o` or `--output`, the following files will
- be found after running tet_from_pix successfully, where [outputname] is the
- user-defined name of the output files:
-
-   * [outputname].1.ele
-   * [outputname].1.face
-   * [outputname].1.node
-   * [outputname].mrc (if the `-r` or `--resolution` flag was called)
-   * [outputname].vtk
-
-mrc_zoom {#mrczoom}
--------------
-
-mrc_zoom inputs MRC files and allows a user to coarsen them to a defined
- resolution, and outputs them as a new MRC file. This is seperated from
- tet_from_pix as a standalone script for users that only wish to coarsen an
- MRC file, rather than go through the whole process of producing volumetric
- mesh files.
-
-To get started quickly, the usage message can be viewed with the following command:
-
-      python mrc_zoom.py -h
-
-In order to run tet_from_pix to produce volumetric mesh files, there are three
-required flags:
-
-   * `-i` or `--input` - The filepath to the input MRC file to be coarsened.
-   * `-o` or `--output` - The name to be given to the output file. A filepath
-    can also be provided for this. A file extension suffix is not needed.
-   * `-r` or `--resolution` - A number value of the resolution to coarsen the
-    MRC file to. <!-- Molly - you might be able to give more detail here -->
-
-Running the required flags on an MRC would look something like the example
- command:
-
-      python mrc_zoom.py -i /path/to/input.mrc -o /path/to/output -r 10
-
-In the output directory defined by `-o` or `--output`, a new .mrc file will be
- found after running mrc_zoom successfully of the coarsened MRC, named after the
- user-defined output name.
-
-<!-- Note: This README style is inconsistent because of format changes made in the branch interpolation which will be merged at a later date. I had to compromise. -->
-## ffea_convert_to_vtk {#ffea-vtk}
-
-ffea_convert_to_vtk inputs FFEA scripts to find their input mesh(s), apply any
- transformations as dictated by the script, and then output them as points-only
- VTK files for mesh analysis.
-
-**NOTE**: This tool is currently incomplete. This will not yet process transformations
- dictated by coupling in FFEA scripts. This feature is to be added at a later date.
-
-In order to run ffea_convert_to_vtk there are two required flags:
-
-   * `-i` or `--input` - The filepath to the input FFEA file to be converted.
-   * `-o` or `--output` - The destination filepath of the output VTK file.
-
-Running the conversion tool would look something like the example command:
-
-     python fea_convert_to_vtk.py -i /path/to/input.ffea -o /path/to/output
-
-In the output directory defined by `-o` or `--output`, the file [outputname].vtk
- will be found, where [outputname] is the name of the input FFEA script.
-
-The output VTK file can be viewed in ParaView for analysis. When the VTK file is
- first loaded into ParaView, there will be nothing to see. A Glyphs filter needs
- to be applied to it first. This is done by selecting the VTK in the Pipeline
- Browser on the left, and then applying the Glyphs filter found in Filters >
- Alphabetical/Common. When adding these glyphs, ensure that in their properties
- that the Glyph Mode under Masking is set to All Points (see example in image
- below) or there will be vertices missing. The size and shape of the glyphs can
- also be adjusted in this properties panel.
-
-![VTK converted from FFEA script viewed in Paraview](docs/ffea-vtk.png)
-
 
 Unit Tests {#unit}
 =============
