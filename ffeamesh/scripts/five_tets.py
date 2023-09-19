@@ -38,23 +38,7 @@
 import sys
 import argparse
 import pathlib
-from enum import Enum
-from ffeamesh.fivetets import (convert_mrc_to_5tets,
-                               convert_mrc_to_5tets_interp,
-                               convert_mrc_to_5tets_interp2)
-
-class Method(Enum):
-    """
-    enumeration of possible methods of converting
-    """
-    ## simple decomp into 5 tets
-    PLAIN = 'plain'
-
-    ## interpolated decomp into 5 tets
-    INTERP = 'interp'
-
-    ## new interpolated decomp
-    INTERP2 = 'interp2'
+from ffeamesh.fivetets import convert_mrc_to_5tets_interp2
 
 def get_args():
     """
@@ -106,13 +90,6 @@ def get_args():
                         "--overwrite",
                         action="store_true",
                         help="overwrite")
-
-    options = [el.value for el in Method]
-    parser.add_argument("-m",
-                        "--method",
-                        type=Method,
-                        default=Method.PLAIN,
-                        help=f"choice of method used to make tetrohedrons: {options}")
 
     parser.add_argument("-V",
                         "--verbose",
@@ -172,32 +149,13 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    if args.method == Method.PLAIN:
-        convert_mrc_to_5tets(args.input,
-                             args.output,
-                             args.threshold,
-                             args.ffea,
-                             args.vtk,
-                             args.verbose,
-                             args.progress)
-
-    elif args.method == Method.INTERP:
-        convert_mrc_to_5tets_interp(args.input,
-                                    args.output,
-                                    args.threshold,
-                                    args.ffea,
-                                    args.vtk,
-                                    args.verbose,
-                                    args.progress)
-
-    elif args.method == Method.INTERP2:
-        convert_mrc_to_5tets_interp2(args.input,
-                                    args.output,
-                                    args.threshold,
-                                    args.ffea,
-                                    args.vtk,
-                                    args.verbose,
-                                    args.progress)
+    convert_mrc_to_5tets_interp2(args.input,
+                                 args.output,
+                                 args.threshold,
+                                 args.ffea,
+                                 args.vtk,
+                                 args.verbose,
+                                 args.progress)
 
 if __name__ == "__main__":
     main()
