@@ -101,6 +101,12 @@ def get_args():
                         action="store_true",
                         help="print progress during operation (may slow package)")
 
+    parser.add_argument("-n",
+                        "--vox_counts",
+                        type=int,
+                        nargs='+',
+                        help="voxel size for tets, if not used same as image, x y z (Angstroms)")
+
     return parser.parse_args()
 
 def validate_command_line(args):
@@ -136,6 +142,13 @@ def validate_command_line(args):
     if not args.vtk and not args.ffea:
         return "Error: you must specify and output type (vtk and/or ffea)"
 
+    if args.vox_counts is not None:
+        if len(args.vox_counts) != 3:
+            return f"Voxel counts must have 3 components, {args.vox_counts}"
+
+        if not all(x>1 for x in args.vox_counts):
+            return f"Voxel counts must be > 1, {args.vox_counts}"
+
     return None
 
 def main():
@@ -155,7 +168,8 @@ def main():
                                  args.ffea,
                                  args.vtk,
                                  args.verbose,
-                                 args.progress)
+                                 args.progress,
+                                 args.vox_counts)
 
 if __name__ == "__main__":
     main()

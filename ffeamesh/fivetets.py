@@ -291,6 +291,23 @@ def interp_voxel_to_5_tets(voxel,
                 tet_indices.append(coord_store.add(coords[index]))
             connectivities.append(tet_indices)
 
+def all_voxels_to_5_tets(mrc, counts, progress):
+    """
+    Converts image into voxels of 5 tetrohedrons.
+    Args:
+        mrc (mrcfile.mmap): the input file
+        counts ([int, int, int]): voxel counts on x, y and z axis
+        progress (bool): if true print out progress
+    Returns:
+        (int): the number of voxels transformed
+        ([float, float, float] list): the coordinates of the vertices
+        ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
+    """
+    x_lin = np.linspace(0.0, mrc.header.cella.x, counts[0])
+    y_lin = np.linspace(0.0, mrc.header.cella.y, counts[1])
+    z_lin = np.linspace(0.0, mrc.header.cella.z, counts[2])
+    print(x_lin, y_lin, z_lin)
+    return None, None, None
 
 def convert_mrc_to_5tets_interp2(input_file,
                                 output_file,
@@ -298,7 +315,8 @@ def convert_mrc_to_5tets_interp2(input_file,
                                 ffea_out,
                                 vtk_out,
                                 verbose,
-                                progress):
+                                progress,
+                                vox_counts):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:
@@ -309,11 +327,19 @@ def convert_mrc_to_5tets_interp2(input_file,
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
         progress (bool): if true print out progress
+        vox_counts ([int]): numbers of voxels on each dimension x, y, z, if None use image
     Returns:
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
-        nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, threshold/2.0, progress)
+        nvoxel=None
+        points=None
+        tet_connectivities=None
+        if vox_counts is None:
+            nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, threshold/2.0, progress)
+        else:
+            nvoxel, points, tet_connectivities = all_voxels_to_5_tets(mrc, vox_counts, progress)
+            quit(f"by now: {nvoxel} {points} {tet_connectivities}")
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
