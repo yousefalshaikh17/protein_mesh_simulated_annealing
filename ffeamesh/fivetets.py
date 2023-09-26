@@ -41,11 +41,152 @@
 import sys
 from itertools import count
 import numpy as np
+from itertools import product
 import mrcfile
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
 import ffeamesh.voxels2tets_utility as v2t
 import ffeamesh.mrclininterpolate as mi
+
+class Grid():
+    """
+    make and store a 3D grid
+    """
+
+    def __init__(self, nx, ny, nz, start, end):
+        """
+        set up object
+        Args:
+            nx (int): number of voxels on x axis
+            ny (int): number of voxels on y axis
+            nz (int): number of voxels on z axis
+            start ([float, float, float]): minimum values of x, y & z
+            end ([float, float, float]): maximum values of x, y & z
+        """
+        ## number of steps on x axis
+        self._nx = nx
+        ## number of steps on y axis
+        self._ny = ny
+        ## number of steps on z axis
+        self._nz = nz
+
+        ## number of vertices on x axis
+        self._size_x = nx+1
+        ## number of vertices on y axis
+        self._size_y = ny+1
+        ## number of vertices on z axis
+        self._size_z = nz+1
+
+        # make point on each axis
+        lin_x = np.linspace(start[0], end[0], self._size_x)
+        lin_y = np.linspace(start[1], end[1], self._size_y)
+        lin_z = np.linspace(start[2], end[2], self._size_z)
+
+        # make the 3D points as outer product
+        tmp = list(product(lin_z, lin_y))
+        tmp = list(product(tmp, lin_x))
+
+        ## flat list of all vertices
+        self._points = [[x[1], x[0][1], x[0][0]] for x in tmp]
+
+    def get_num_voxels_x(self):
+        """
+        get number of points on x axis
+        Return:
+            int: the number of points
+        """
+        return self._nx
+
+    def get_num_voxels_y(self):
+        """
+        get number of points on y axis
+        Return:
+            int: the number of points
+        """
+        return self._ny
+
+    def get_num_voxels_z(self):
+        """
+        get number of points on z axis
+        Return:
+            int: the number of points
+        """
+        return self._nz
+
+    def get_size_x(self):
+        """
+        get number of points on x axis
+        Return:
+            int: the number of points
+        """
+        return self._size_x
+
+    def get_size_y(self):
+        """
+        get number of points on y axis
+        Return:
+            int: the number of points
+        """
+        return self._size_y
+
+    def get_size_z(self):
+        """
+        get number of points on z axis
+        Return:
+            int: the number of points
+        """
+        return self._size_z
+
+    def get_point(self, x_index, y_index, z_index):
+        """
+        get point
+        Args:
+            x_index (int): the index of point on x axis
+            y_index (int): the index of point on y axis
+            z_index (int): the index of point on z axis
+        Return:
+            [float, float, float]: the point
+        """
+        index = (z_index * self._size_y * self._size_z) + (y_index * self._size_y) + x_index
+        return self._points[index]
+
+    def get_points(self):
+        """
+        get all points
+        Return:
+            [[float, float, float]..]: the points
+        """
+        return self._points
+
+    def get_voxel(self, x_index, y_index, z_index):
+        """
+        get the corners of a voxel
+        Args:
+            x_index (int): the x index of the voxel
+            y_index (int): the y index of the voxel
+            z_index (int): the z index of the voxel
+        Returns:
+            [[float, float, float]x8]: coordinates of corners
+        """
+        corners = []
+        corners.append(self.get_point(x_index, y_index, z_index))
+        corners.append(self.get_point(x_index+1, y_index, z_index))
+        corners.append(self.get_point(x_index+1, y_index+1, z_index))
+        corners.append(self.get_point(x_index, y_index+1, z_index))
+        corners.append(self.get_point(x_index, y_index, z_index+1))
+        corners.append(self.get_point(x_index+1, y_index, z_index+1))
+        corners.append(self.get_point(x_index+1, y_index+1, z_index+1))
+        corners.append(self.get_point(x_index, y_index+1, z_index+1))
+
+        return corners
+
+    def __len__(self):
+        """
+        dunder method to allow objects to have len applied to them
+        Return
+            int: the lenght of the points array
+        """
+        return len(self._points)
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
@@ -310,13 +451,13 @@ def all_voxels_to_5_tets(mrc, counts, progress):
     return None, None, None
 
 def convert_mrc_to_5tets_interp2(input_file,
-                                output_file,
-                                threshold,
-                                ffea_out,
-                                vtk_out,
-                                verbose,
-                                progress,
-                                vox_counts):
+                                 output_file,
+                                 threshold,
+                                 ffea_out,
+                                 vtk_out,
+                                 verbose,
+                                 progress,
+                                 vox_counts):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:

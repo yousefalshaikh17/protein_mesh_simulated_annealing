@@ -147,7 +147,7 @@ Modify Mesh {#scripts_modify}
 
    * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
 
-How to Use {#how}
+Usage {#usage}
 =============
 
 As these are simply scripts there is no installation required other than the
