@@ -77,7 +77,14 @@ class Grid():
         ## number of vertices on z axis
         self._size_z = nz+1
 
+        ## mimimum coordinates of image cube
+        self._start = start
+        ## maximum coordinates of image cube
+        self._end = end
+
         # make point on each axis
+        print(f"start: {start}")
+        print(f"end: {end}")
         lin_x = np.linspace(start[0], end[0], self._size_x)
         lin_y = np.linspace(start[1], end[1], self._size_y)
         lin_z = np.linspace(start[2], end[2], self._size_z)
@@ -88,6 +95,14 @@ class Grid():
 
         ## flat list of all vertices
         self._points = [[x[1], x[0][1], x[0][0]] for x in tmp]
+
+    def get_total_num_voxels(self):
+        """
+        get the total number of voxels
+        Return:
+            int
+        """
+        return self._nx*self._ny*self._nz
 
     def get_num_voxels_x(self):
         """
@@ -180,6 +195,22 @@ class Grid():
 
         return corners
 
+    def get_start(self):
+        """
+        get mimimum coordinates of image cube
+        Returns:
+            [float, float, float]
+        """
+        return self._start
+
+    def get_end(self):
+        """
+        get mimimum coordinates of image cube
+        Returns:
+            [float, float, float]
+        """
+        return self._end
+
     def __len__(self):
         """
         dunder method to allow objects to have len applied to them
@@ -187,6 +218,14 @@ class Grid():
             int: the lenght of the points array
         """
         return len(self._points)
+
+    def __repr__(self):
+        """
+        dunder method for to string
+        Returns:
+            string
+        """
+        return f"Grid({self._nx}, {self._ny}, {self._nz}, {self._start}, {self._end})"
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
@@ -444,10 +483,27 @@ def all_voxels_to_5_tets(mrc, counts, progress):
         ([float, float, float] list): the coordinates of the vertices
         ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
     """
-    x_lin = np.linspace(0.0, mrc.header.cella.x, counts[0])
-    y_lin = np.linspace(0.0, mrc.header.cella.y, counts[1])
-    z_lin = np.linspace(0.0, mrc.header.cella.z, counts[2])
-    print(x_lin, y_lin, z_lin)
+    # get the start and end value of the image cube axis
+    start = [0.0, 0.0, 0.0]
+    end = [float(mrc.header.cella.x), float(mrc.header.cella.y), float(mrc.header.cella.z)]
+    grid = Grid(counts[0], counts[1], counts[2], start, end)
+
+    for voxel_z in range(grid.get_num_voxels_z()):
+        for voxel_y in range(grid.get_num_voxels_y()):
+            for voxel_x in range(grid.get_num_voxels_z()):
+                if v2t.is_odd(voxel_x, voxel_y, voxel_z):
+                    indices = v2t.odd_cube_tet_indices()
+                    message = " (ODD)"
+                else:
+                    indices = v2t.even_cube_tet_indices()
+                    message = " (EVEN)"
+                voxel = grid.get_voxel(voxel_x, voxel_y, voxel_z)
+
+                print(f"\nVoxel: {voxel_x} {voxel_y} {voxel_z}" + message)
+                for point in voxel:
+                    print(point)
+
+
     return None, None, None
 
 def convert_mrc_to_5tets_interp2(input_file,
@@ -468,7 +524,7 @@ def convert_mrc_to_5tets_interp2(input_file,
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
         progress (bool): if true print out progress
-        vox_counts ([int]): numbers of voxels on each dimension x, y, z, if None use image
+        vox_counts ([int]): numbers of voxels on each dimension x, y, z, if None use image voxel counts
     Returns:
         None
     """
@@ -477,7 +533,7 @@ def convert_mrc_to_5tets_interp2(input_file,
         points=None
         tet_connectivities=None
         if vox_counts is None:
-            nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, threshold/2.0, progress)
+            nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, 0.0, progress)
         else:
             nvoxel, points, tet_connectivities = all_voxels_to_5_tets(mrc, vox_counts, progress)
             quit(f"by now: {nvoxel} {points} {tet_connectivities}")

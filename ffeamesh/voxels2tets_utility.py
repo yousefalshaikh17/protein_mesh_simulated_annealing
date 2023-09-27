@@ -207,7 +207,7 @@ def is_odd(x_index, y_index, z_index):
 
 def create_cube_coords(voxel, frac_to_cart):
     '''
-    Caluculates the next 8 coords for the next volxel that has been
+    Caluculates the next 8 coords for the next voxel that has been
     previously thresholded (logic in loop that calls this one).
     Args:
         voxel (Coordinate): array indices of voxel
