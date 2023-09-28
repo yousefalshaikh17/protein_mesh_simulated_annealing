@@ -53,48 +53,63 @@ class Grid():
     make and store a 3D grid
     """
 
-    def __init__(self, nx, ny, nz, start, end):
+    def __init__(self, counts, start, end, image):
         """
         set up object
         Args:
-            nx (int): number of voxels on x axis
-            ny (int): number of voxels on y axis
-            nz (int): number of voxels on z axis
+            counts ([int, int, int]): number of steps on x, y & z axis
             start ([float, float, float]): minimum values of x, y & z
             end ([float, float, float]): maximum values of x, y & z
+            image (MRCImage): image file object
         """
-        ## number of steps on x axis
-        self._nx = nx
-        ## number of steps on y axis
-        self._ny = ny
-        ## number of steps on z axis
-        self._nz = nz
+        ## number of steps on x, y & z axis
+        self._num_steps = counts
 
-        ## number of vertices on x axis
-        self._size_x = nx+1
-        ## number of vertices on y axis
-        self._size_y = ny+1
-        ## number of vertices on z axis
-        self._size_z = nz+1
+        ## number of vertices on x, y & axis
+        self._num_verts = [n+1 for n in counts]
 
+        epsilon = np.finfo(np.float64).eps
         ## mimimum coordinates of image cube
-        self._start = start
+        self._start = [np.float64(x)+epsilon for x in start]
         ## maximum coordinates of image cube
-        self._end = end
+        self._end = [np.float64(x)-epsilon for x in end]
 
-        # make point on each axis
-        print(f"start: {start}")
-        print(f"end: {end}")
-        lin_x = np.linspace(start[0], end[0], self._size_x)
-        lin_y = np.linspace(start[1], end[1], self._size_y)
-        lin_z = np.linspace(start[2], end[2], self._size_z)
+        ## offsets to allow for half voxel bound on linear interpolation
+        self._offsets = []
 
-        # make the 3D points as outer product
+        for index in range(3):
+            self._offsets.append( (self._end[index]-self._start[index])/(2*counts[index])  )
+
+        # make points on each axis
+        lin_x = np.linspace(self._start[0]+self._offsets[0],
+                            self._end[0]-self._offsets[0],
+                            self._num_verts[0])
+        lin_y = np.linspace(self._start[1]+self._offsets[1],
+                            self._end[1]-self._offsets[1],
+                            self._num_verts[1])
+        lin_z = np.linspace(self._start[2]+self._offsets[2],
+                            self._end[2]-self._offsets[2],
+                            self._num_verts[2])
+
+        # outer product of axis points to make 3D
         tmp = list(product(lin_z, lin_y))
         tmp = list(product(tmp, lin_x))
 
-        ## flat list of all vertices
+        ## flat list of all 3D vertices
         self._points = [[x[1], x[0][1], x[0][0]] for x in tmp]
+
+        self._augment_points(image)
+
+    def _augment_points(self, mrc):
+        """
+        add image density as final component of point
+        """
+        for point in self._points:
+            density, distance = mrc.density_or_distance_at(point[0], point[1], point[2])
+            if distance != 0.0:
+                print(point)
+                raise ValueError(f"point in mesh grid outside original image {distance} IS THIS AND IMAGE CALCULATING DIFFERENTLY")
+            point.append(density)
 
     def get_total_num_voxels(self):
         """
@@ -102,7 +117,7 @@ class Grid():
         Return:
             int
         """
-        return self._nx*self._ny*self._nz
+        return self._num_steps[0]*self._num_steps[1]*self._num_steps[3]
 
     def get_num_voxels_x(self):
         """
@@ -110,7 +125,7 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._nx
+        return self._num_steps[0]
 
     def get_num_voxels_y(self):
         """
@@ -118,7 +133,7 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._ny
+        return self._num_steps[1]
 
     def get_num_voxels_z(self):
         """
@@ -126,31 +141,31 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._nz
+        return self._num_steps[2]
 
-    def get_size_x(self):
+    def get_num_verts_x(self):
         """
         get number of points on x axis
         Return:
             int: the number of points
         """
-        return self._size_x
+        return self._num_verts[0]
 
-    def get_size_y(self):
+    def get_num_verts_y(self):
         """
         get number of points on y axis
         Return:
             int: the number of points
         """
-        return self._size_y
+        return self._num_verts[1]
 
-    def get_size_z(self):
+    def get_num_verts_z(self):
         """
         get number of points on z axis
         Return:
             int: the number of points
         """
-        return self._size_z
+        return self._num_verts[2]
 
     def get_point(self, x_index, y_index, z_index):
         """
@@ -162,7 +177,7 @@ class Grid():
         Return:
             [float, float, float]: the point
         """
-        index = (z_index * self._size_y * self._size_z) + (y_index * self._size_y) + x_index
+        index = (z_index * self._num_verts[2] * self._num_verts[2]) + (y_index * self._num_verts[1]) + x_index
         return self._points[index]
 
     def get_points(self):
@@ -225,7 +240,7 @@ class Grid():
         Returns:
             string
         """
-        return f"Grid({self._nx}, {self._ny}, {self._nz}, {self._start}, {self._end})"
+        return f"Grid({self._num_steps}, {self._start}, {self._end})"
 
 def convert_mrc_to_5tets(input_file, output_file, threshold, ffea_out, vtk_out, verbose, progress):
     """
@@ -471,11 +486,11 @@ def interp_voxel_to_5_tets(voxel,
                 tet_indices.append(coord_store.add(coords[index]))
             connectivities.append(tet_indices)
 
-def all_voxels_to_5_tets(mrc, counts, progress):
+def all_voxels_to_5_tets(image, counts, progress):
     """
     Converts image into voxels of 5 tetrohedrons.
     Args:
-        mrc (mrcfile.mmap): the input file
+        image (MRCImage): the input file
         counts ([int, int, int]): voxel counts on x, y and z axis
         progress (bool): if true print out progress
     Returns:
@@ -484,9 +499,12 @@ def all_voxels_to_5_tets(mrc, counts, progress):
         ([int, int, int int] list): the vertices of the tets as indices in the coordinates list
     """
     # get the start and end value of the image cube axis
-    start = [0.0, 0.0, 0.0]
-    end = [float(mrc.header.cella.x), float(mrc.header.cella.y), float(mrc.header.cella.z)]
-    grid = Grid(counts[0], counts[1], counts[2], start, end)
+    start = [image.x_origin, image.y_origin, image.z_origin]
+    end = [image.cell_size[0]+start[0], image.cell_size[1]+start[1], image.cell_size[2]+start[2]]
+    print(f"START: {start}")
+    print(f"END: {end}")
+
+    grid = Grid(counts, start, end, image)
 
     for voxel_z in range(grid.get_num_voxels_z()):
         for voxel_y in range(grid.get_num_voxels_y()):
@@ -502,7 +520,6 @@ def all_voxels_to_5_tets(mrc, counts, progress):
                 print(f"\nVoxel: {voxel_x} {voxel_y} {voxel_z}" + message)
                 for point in voxel:
                     print(point)
-
 
     return None, None, None
 
@@ -529,20 +546,21 @@ def convert_mrc_to_5tets_interp2(input_file,
         None
     """
     with mrcfile.mmap(input_file, mode='r+') as mrc:
+        image = mi.MRCImage(mrc)
         nvoxel=None
         points=None
         tet_connectivities=None
         if vox_counts is None:
             nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, 0.0, progress)
         else:
-            nvoxel, points, tet_connectivities = all_voxels_to_5_tets(mrc, vox_counts, progress)
+            nvoxel, points, tet_connectivities = all_voxels_to_5_tets(image, vox_counts, progress)
             quit(f"by now: {nvoxel} {points} {tet_connectivities}")
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
 
-        image = mi.MRCImage(mrc)
+
         connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
 
         if verbose:

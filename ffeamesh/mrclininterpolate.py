@@ -108,6 +108,11 @@ class MRCImage():
         self.y_origin = np.float32(mrc.header.origin['y'])
         self.z_origin = np.float32(mrc.header.origin['z'])
 
+        ## cell size
+        self.cell_size = [float(mrc.header.cella.x),
+                          float(mrc.header.cella.y),
+                          float(mrc.header.cella.z)]
+
         self.delta_x = mrc.header.cella.x/mrc.header.mx
         self.delta_y = mrc.header.cella.y/mrc.header.my
         self.delta_z = mrc.header.cella.z/mrc.header.mz
@@ -138,6 +143,9 @@ class MRCImage():
         Raise
             ValueError if out of range
         """
+        print(f"lims {self.low_limit_x}, {self.low_limit_y}, {self.low_limit_z}")
+        print(f"lims {self.high_limit_x}, {self.high_limit_y}, {self.high_limit_z}")
+
         # binary flag
         flag = 0
         if x_coord < self.low_limit_x:
@@ -223,7 +231,9 @@ class MRCImage():
         Retruns
             (float, float): interpolated density and distance from image squared
         """
+        print(f"DoDa: {image_x}, {image_y}, {image_z}")
         coords = self.to_coords(image_x, image_y, image_z)
+        print(f"coords {coords}")
 
         if isinstance(coords, int):
             dist2 = self.dist_to_image_squared(coords, image_x, image_y, image_z)
