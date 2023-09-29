@@ -117,7 +117,7 @@ class Grid():
         Return:
             int
         """
-        return self._num_steps[0]*self._num_steps[1]*self._num_steps[3]
+        return self._num_steps[0]*self._num_steps[1]*self._num_steps[2]
 
     def get_num_voxels_x(self):
         """
@@ -232,14 +232,14 @@ class Grid():
             [[float, float, float]x8]: coordinates of corners
         """
         corners = []
-        corners.append(self.get_vertex(x_index, y_index, z_index))
-        corners.append(self.get_vertex(x_index+1, y_index, z_index))
+        corners.append(self.get_vertex(x_index,   y_index,   z_index))
+        corners.append(self.get_vertex(x_index+1, y_index,   z_index))
         corners.append(self.get_vertex(x_index+1, y_index+1, z_index))
-        corners.append(self.get_vertex(x_index, y_index+1, z_index))
-        corners.append(self.get_vertex(x_index, y_index, z_index+1))
-        corners.append(self.get_vertex(x_index+1, y_index, z_index+1))
+        corners.append(self.get_vertex(x_index,   y_index+1, z_index))
+        corners.append(self.get_vertex(x_index,   y_index,   z_index+1))
+        corners.append(self.get_vertex(x_index+1, y_index,   z_index+1))
         corners.append(self.get_vertex(x_index+1, y_index+1, z_index+1))
-        corners.append(self.get_vertex(x_index, y_index+1, z_index+1))
+        corners.append(self.get_vertex(x_index,   y_index+1, z_index+1))
 
         return corners
 
@@ -564,7 +564,7 @@ def all_voxels_to_5_tets(image, counts, progress):
                         tet_indices.append(verts_indices[index])
                     connectivities.append(tet_indices)
 
-    return None, None, connectivities
+    return grid.get_total_num_voxels(), grid.get_vertices(), connectivities
 
 def convert_mrc_to_5tets_interp2(input_file,
                                  output_file,
@@ -598,7 +598,6 @@ def convert_mrc_to_5tets_interp2(input_file,
         else:
             nvoxel, points, tet_connectivities = all_voxels_to_5_tets(image, vox_counts, progress)
             quit(f"by now: {nvoxel} {points} {tet_connectivities}")
-            #quit("By")
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
