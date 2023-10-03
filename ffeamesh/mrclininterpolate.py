@@ -133,6 +133,30 @@ class MRCImage():
         self.high_limit_y = self.low_limit_y + self.inner_size_y
         self.high_limit_z = self.low_limit_z + self.inner_size_z
 
+    def get_nx(self):
+        """
+        getter for number of voxels on x axis
+        Returns:
+            int
+        """
+        return self._nx
+
+    def get_ny(self):
+        """
+        getter for number of voxels on y axis
+        Returns:
+            int
+        """
+        return self._ny
+
+    def get_nz(self):
+        """
+        getter for number of voxels on z axis
+        Returns:
+            int
+        """
+        return self._nz
+
     def test_inner_coords(self, x_coord, y_coord, z_coord):
         """"
         ensure offset coordinates are in inner array range
