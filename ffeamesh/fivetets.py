@@ -641,10 +641,10 @@ def convert_mrc_to_5tets_interp2(input_file,
         print(f"num tets {len(tet_connectivities)}")
 
         #connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
-        #connectivity = v2t.crop_mesh_to_isovalue(vertices,  densities, connectivity, threshold)
+        connectivity = v2t.crop_mesh_to_isovalue(vertices,  densities, tet_connectivities, threshold)
         if verbose:
             #utility.verbose_output(mrc, points, connectivity, nvoxel)
             utility.verbose_output(mrc, vertices, tet_connectivities, nvoxel)
 
-        #v2t.write_tets_to_files(points, connectivity, output_file, ffea_out, vtk_out)
-        v2t.write_tets_to_files(vertices, tet_connectivities, output_file, ffea_out, vtk_out)
+        v2t.write_tets_to_files(vertices, connectivity, output_file, ffea_out, vtk_out)
+        #v2t.write_tets_to_files(vertices, tet_connectivities, output_file, ffea_out, vtk_out)
