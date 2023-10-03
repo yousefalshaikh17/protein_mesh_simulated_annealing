@@ -464,3 +464,56 @@ def prune_mesh(points_np, tets_connectivity, image, isovalue, level=PruneLevel.T
             new_tets.append(tet)
 
     return new_tets
+
+def crop_mesh_to_isovalue(vertices,  densities, connectivity, isovalue, level=PruneLevel.TWO):
+    """
+    Remove tets outside or largly outside isovalue
+    Args:
+        vertices ([[float, float float]]): 3d coordinates of the points forming the tets
+        densities (float): the image density at each vertex
+        connectivity ([[int, int, int, int]]): the indices of each tet's vertices in the list
+        isovalue (float): limit value
+        level (PruneLevel): the number of vertices below the isovalue that causes deleation
+    Returns:
+        [[int, int, int, int]]: connectivity of tets passing test
+    """
+    print(f"prune to {isovalue}")
+    print(f"Number of points {len(vertices)}")
+    print(f"Number of tets {len(connectivity)}")
+
+    # find tets to be removed
+    ##########################################################
+    tets_for_deletion = []
+    out_4 = 0
+    out_3 = 0
+    out_2 = 0
+    out_1 = 0
+    for tet_index, tet in enumerate(connectivity):
+        count_outside = 0
+        for index in tet:
+            if densities[index] < isovalue:
+                count_outside += 1
+
+        if count_outside > 3:
+            tets_for_deletion.append(tet_index)
+            out_4 += 1
+        elif count_outside > 2:
+            tets_for_deletion.append(tet_index)
+            out_3 += 1
+        elif count_outside > 1:
+            tets_for_deletion.append(tet_index)
+            out_2 += 1
+        elif count_outside > 0:
+            tets_for_deletion.append(tet_index)
+            out_1 += 1
+
+    print(f"4 out {out_4}: 3 out {out_3}: 2 out {out_2}: 1 out {out_1}")
+
+    # make new tet connectivity list
+    ##########################################################
+    new_tets = []
+    for index, tet in enumerate(connectivity):
+        if index not in tets_for_deletion:
+            new_tets.append(tet)
+
+    return new_tets
