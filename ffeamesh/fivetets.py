@@ -105,11 +105,11 @@ class Grid():
         add image density as final component of vertex
         """
         for point in self._vertices:
+            # TODO how to store density for later use
             density, distance = mrc.density_or_distance_at(point[0], point[1], point[2])
             if distance != 0.0:
-                print(point)
                 raise ValueError(f"point in mesh grid outside original image {distance} IS THIS AND IMAGE CALCULATING DIFFERENTLY")
-            point.append(density)
+            #point.append(density)
 
     def get_total_num_voxels(self):
         """
@@ -206,20 +206,31 @@ class Grid():
             x_index (int): the x index of the voxel
             y_index (int): the y index of the voxel
             z_index (int): the z index of the voxel
+                  Vertex Indices:
+         7+----------+6
+         /|         /|
+        / |        / |
+      4+----------+5 |
+       |  |       |  |         Axes:
+       | 3+-------|--+2        z  y
+       | /        | /          | /
+       |/         |/           |/
+      0+----------+1           +----x
         Returns:
             [int x *]: indices of vertices froming the corners
         """
-        corners = []
-        corners.append(self.get_vertex_index(x_index, y_index, z_index))
-        corners.append(self.get_vertex_index(x_index+1, y_index, z_index))
-        corners.append(self.get_vertex_index(x_index+1, y_index+1, z_index))
-        corners.append(self.get_vertex_index(x_index, y_index+1, z_index))
-        corners.append(self.get_vertex_index(x_index, y_index, z_index+1))
-        corners.append(self.get_vertex_index(x_index+1, y_index, z_index+1))
-        corners.append(self.get_vertex_index(x_index+1, y_index+1, z_index+1))
-        corners.append(self.get_vertex_index(x_index, y_index+1, z_index+1))
+        indices = []
+        indices.append(self.get_vertex_index(x_index, y_index, z_index))
+        indices.append(self.get_vertex_index(x_index+1, y_index, z_index))
+        indices.append(self.get_vertex_index(x_index+1, y_index+1, z_index))
+        indices.append(self.get_vertex_index(x_index, y_index+1, z_index))
 
-        return corners
+        indices.append(self.get_vertex_index(x_index, y_index, z_index+1))
+        indices.append(self.get_vertex_index(x_index+1, y_index, z_index+1))
+        indices.append(self.get_vertex_index(x_index+1, y_index+1, z_index+1))
+        indices.append(self.get_vertex_index(x_index, y_index+1, z_index+1))
+
+        return indices
 
     def get_voxel(self, x_index, y_index, z_index):
         """
@@ -232,14 +243,8 @@ class Grid():
             [[float, float, float]x8]: coordinates of corners
         """
         corners = []
-        corners.append(self.get_vertex(x_index,   y_index,   z_index))
-        corners.append(self.get_vertex(x_index+1, y_index,   z_index))
-        corners.append(self.get_vertex(x_index+1, y_index+1, z_index))
-        corners.append(self.get_vertex(x_index,   y_index+1, z_index))
-        corners.append(self.get_vertex(x_index,   y_index,   z_index+1))
-        corners.append(self.get_vertex(x_index+1, y_index,   z_index+1))
-        corners.append(self.get_vertex(x_index+1, y_index+1, z_index+1))
-        corners.append(self.get_vertex(x_index,   y_index+1, z_index+1))
+        for index in self.get_voxel_indices(x_index, y_index, z_index):
+            corners.append(self._vertices[index])
 
         return corners
 
@@ -534,29 +539,27 @@ def all_voxels_to_5_tets(image, counts, progress):
     connectivities = []
 
     # get the start and end value of the image cube axis
-    start = [image.x_origin, image.y_origin, image.z_origin]
-    end = [image.cell_size[0]+start[0], image.cell_size[1]+start[1], image.cell_size[2]+start[2]]
-    print(f"START: {start}")
-    print(f"END: {end}")
+    start = [image.x_origin,
+             image.y_origin,
+             image.z_origin]
+    end = [image.cell_size[0]+start[0],
+           image.cell_size[1]+start[1],
+           image.cell_size[2]+start[2]]
 
     grid = Grid(counts, start, end, image)
 
+    # iterate the voxels and make tet connectivities
     for voxel_z in range(grid.get_num_voxels_z()):
         for voxel_y in range(grid.get_num_voxels_y()):
             for voxel_x in range(grid.get_num_voxels_z()):
                 if v2t.is_odd(voxel_x, voxel_y, voxel_z):
                     indices = v2t.odd_cube_tet_indices()
-                    message = " (ODD)"
                 else:
                     indices = v2t.even_cube_tet_indices()
-                    message = " (EVEN)"
+
                 verts_indices = grid.get_voxel_indices(voxel_x, voxel_y, voxel_z)
 
-                print(f"\nVoxel: {voxel_x} {voxel_y} {voxel_z}" + message)
-                for vert in verts_indices:
-                    print(vert)
-
-                # make the test
+                # make the tets
                 for tet in indices:
                     tet_indices = []
                     for index in tet:
@@ -597,15 +600,20 @@ def convert_mrc_to_5tets_interp2(input_file,
             nvoxel, points, tet_connectivities = voxels_to_5_tets_interp(mrc, 0.0, progress)
         else:
             nvoxel, points, tet_connectivities = all_voxels_to_5_tets(image, vox_counts, progress)
-            quit(f"by now: {nvoxel} {points} {tet_connectivities}")
 
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
 
-        connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
+        print(f"num voxels: {nvoxel}")
+        print(f"num vertices {len(points)}")
+        print(f"num tets {len(tet_connectivities)}")
+
+        #connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
 
         if verbose:
-            utility.verbose_output(mrc, points, connectivity, nvoxel)
+            #utility.verbose_output(mrc, points, connectivity, nvoxel)
+            utility.verbose_output(mrc, points, tet_connectivities, nvoxel)
 
-        v2t.write_tets_to_files(points, connectivity, output_file, ffea_out, vtk_out)
+        #v2t.write_tets_to_files(points, connectivity, output_file, ffea_out, vtk_out)
+        v2t.write_tets_to_files(points, tet_connectivities, output_file, ffea_out, vtk_out)

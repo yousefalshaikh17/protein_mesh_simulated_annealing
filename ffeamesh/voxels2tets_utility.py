@@ -269,12 +269,15 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     # convert coords to np.array
     points_np = np.array(points_list)
 
+    # connectivity in vtk
     cells_con = vtk_u.make_vtk_tet_connectivity(tets_connectivity)
 
     # make the grid (vtk scene)
     vtk_pts = vtk.vtkPoints()
-    #vtk_pts.SetData(vtk.util.numpy_support.numpy_to_vtk(points_np, deep=True))
+
+    # work on deep copy
     vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
+
     grid = vtk.vtkUnstructuredGrid() #create unstructured grid
     grid.SetPoints(vtk_pts) #assign points to grid
     grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
