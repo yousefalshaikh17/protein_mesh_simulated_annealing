@@ -98,18 +98,33 @@ class Grid():
         ## flat list of all 3D vertices
         self._vertices = [[x[1], x[0][1], x[0][0]] for x in tmp]
 
-        self._augment_vertices(image)
+        ## storage for the desnsities at each vertex
+        self._densities = []
 
-    def _augment_vertices(self, mrc):
+        self._calculate_densities(image)
+
+    def _calculate_densities(self, mrc):
         """
-        add image density as final component of vertex
+        find & store image density for each vertex
         """
         for point in self._vertices:
-            # TODO how to store density for later use
             density, distance = mrc.density_or_distance_at(point[0], point[1], point[2])
             if distance != 0.0:
                 raise ValueError(f"point in mesh grid outside original image {distance} IS THIS AND IMAGE CALCULATING DIFFERENTLY")
-            #point.append(density)
+            self._densities.append(density)
+
+    def remove_surplas_vertices(self, tets_connectivity):
+        """
+        TODO
+        remove the vertices not used in the connectivity and relabel the connectivity
+        Args:
+            tets_connectivity ([[int, int, int, int]]): connectivity, will be changed
+        Returns
+            [[float, float float]]: redundancy free vertex list
+        """
+        new_vertices = []
+
+        return new_vertices
 
     def get_total_num_voxels(self):
         """
@@ -198,6 +213,14 @@ class Grid():
             [[float, float, float]..]: the points
         """
         return self._vertices
+
+    def get_densities(self):
+        """
+        get all densities
+        Return:
+            [float]: the densities
+        """
+        return self._densities
 
     def get_voxel_indices(self, x_index, y_index, z_index):
         """
@@ -547,6 +570,8 @@ def all_voxels_to_5_tets(image, counts, progress):
            image.cell_size[2]+start[2]]
 
     grid = Grid(counts, start, end, image)
+    for row in grid.get_densities():
+        print(row)
 
     # iterate the voxels and make tet connectivities
     for voxel_z in range(grid.get_num_voxels_z()):

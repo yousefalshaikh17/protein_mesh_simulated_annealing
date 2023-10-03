@@ -411,6 +411,7 @@ def make_vtk_grid(points_np, tets_connectivity):
 
 def prune_mesh(points_np, tets_connectivity, image, isovalue, level=PruneLevel.TWO):
     """
+    TODO modify for work with grid
     Remove tets outside or largly outside isovalue
     Args:
         points_np (float*3 list): 3d coordinates of the points forming the tets
