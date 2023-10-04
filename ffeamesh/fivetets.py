@@ -85,6 +85,9 @@ class Grid():
         ## storage for the desnsities at each vertex
         self._densities = []
 
+        ## storage for the connectivit of the tets
+        self._connectivities = []
+
     def build_grid(self, image):
         """
         build grid and calculate densities
@@ -120,6 +123,29 @@ class Grid():
             if distance != 0.0:
                 raise ValueError(f"point in mesh grid outside original image {distance} IS THIS AND IMAGE CALCULATING DIFFERENTLY")
             self._densities.append(density)
+
+    def build_tets(self):
+        """
+        make the tet's connectivity
+        """
+        # iterate the voxels and make tet connectivities
+        for voxel_z in range(self._num_steps[0]):
+            for voxel_y in range(self._num_steps[1]):
+                for voxel_x in range(self._num_steps[2]):
+                    if v2t.is_odd(voxel_x, voxel_y, voxel_z):
+                        indices = v2t.odd_cube_tet_indices()
+                    else:
+                        indices = v2t.even_cube_tet_indices()
+
+                    verts_indices = self.get_voxel_indices(voxel_x, voxel_y, voxel_z)
+
+                    # make the tets
+                    for tet in indices:
+                        tet_indices = []
+                        for index in tet:
+                            ## need to add the indices in the original array return array of indices
+                            tet_indices.append(verts_indices[index])
+                        self._connectivities.append(tet_indices)
 
     def remove_surplas_vertices(self, tets_connectivity):
         """
@@ -229,6 +255,14 @@ class Grid():
             [float]: the densities
         """
         return self._densities
+
+    def get_connectivities(self):
+        """
+        get all densities
+        Return:
+            [float]: the densities
+        """
+        return self._connectivities
 
     def get_voxel_indices(self, x_index, y_index, z_index):
         """
@@ -577,27 +611,9 @@ def all_voxels_to_5_tets(image, counts, progress):
 
     grid = Grid(counts, start, end)
     grid.build_grid(image)
+    grid.build_tets()
 
-    # iterate the voxels and make tet connectivities
-    for voxel_z in range(grid.get_num_voxels_z()):
-        for voxel_y in range(grid.get_num_voxels_y()):
-            for voxel_x in range(grid.get_num_voxels_z()):
-                if v2t.is_odd(voxel_x, voxel_y, voxel_z):
-                    indices = v2t.odd_cube_tet_indices()
-                else:
-                    indices = v2t.even_cube_tet_indices()
-
-                verts_indices = grid.get_voxel_indices(voxel_x, voxel_y, voxel_z)
-
-                # make the tets
-                for tet in indices:
-                    tet_indices = []
-                    for index in tet:
-                        ## need to add the indices in the original array return array of indices
-                        tet_indices.append(verts_indices[index])
-                    connectivities.append(tet_indices)
-
-    return grid.get_total_num_voxels(), grid.get_vertices(), connectivities, grid.get_densities()
+    return grid
 
 def convert_mrc_to_5tets_interp2(input_file,
                                  output_file,
@@ -629,18 +645,19 @@ def convert_mrc_to_5tets_interp2(input_file,
         if vox_counts is None:
             vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]
 
-        nvoxel, vertices, tet_connectivities, densities = all_voxels_to_5_tets(image, vox_counts, progress)
+        grid = all_voxels_to_5_tets(image, vox_counts, progress)
 
-        if nvoxel <= 0:
+
+        if grid.get_total_num_voxels() <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
 
-        print(f"num voxels: {nvoxel}")
-        print(f"num vertices {len(vertices)}")
-        print(f"num tets {len(tet_connectivities)}")
+        print(f"num voxels: {grid.get_total_num_voxels()}")
+        print(f"num vertices {len(grid.get_vertices())}")
+        print(f"num tets {len(grid.get_connectivities())}")
 
-        connectivity = v2t.crop_mesh_to_isovalue(vertices,  densities, tet_connectivities, threshold)
+        connectivity = v2t.crop_mesh_to_isovalue(grid.get_vertices(),  grid.get_densities(), grid.get_connectivities(), threshold)
         if verbose:
-            utility.verbose_output(mrc, vertices, tet_connectivities, nvoxel)
+            utility.verbose_output(mrc, grid.get_vertices(), grid.get_connectivities(), grid.get_total_num_voxels())
 
-        v2t.write_tets_to_files(vertices, connectivity, output_file, ffea_out, vtk_out)
+        v2t.write_tets_to_files(grid.get_vertices(), connectivity, output_file, ffea_out, vtk_out)
