@@ -64,10 +64,8 @@ class Grid():
         ## number of steps on x, y & z axis
         self._num_steps = counts
 
-        ## number of vertices on x, y & axis
-        self._num_verts = [n+1 for n in counts]
-
         epsilon = np.finfo(np.float64).eps
+
         ## mimimum coordinates of image cube
         self._start = [np.float64(x)+epsilon for x in start]
         ## maximum coordinates of image cube
@@ -97,13 +95,13 @@ class Grid():
         # make points on each axis
         lin_x = np.linspace(self._start[0]+self._offsets[0],
                             self._end[0]-self._offsets[0],
-                            self._num_verts[0])
+                            self._num_steps[0]+1)
         lin_y = np.linspace(self._start[1]+self._offsets[1],
                             self._end[1]-self._offsets[1],
-                            self._num_verts[1])
+                            self._num_steps[1]+1)
         lin_z = np.linspace(self._start[2]+self._offsets[2],
                             self._end[2]-self._offsets[2],
-                            self._num_verts[2])
+                            self._num_steps[2]+1)
 
         # outer product of axis points to make 3D
         tmp = list(product(lin_z, lin_y))
@@ -121,7 +119,7 @@ class Grid():
         for point in self._vertices:
             density, distance = mrc.density_or_distance_at(point[0], point[1], point[2])
             if distance != 0.0:
-                raise ValueError(f"point in mesh grid outside original image {distance} IS THIS AND IMAGE CALCULATING DIFFERENTLY")
+                raise ValueError(f"mesh point outside image {distance}")
             self._densities.append(density)
 
     def build_tets(self):
@@ -198,7 +196,7 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._num_verts[0]
+        return self._num_steps[0]+1
 
     def get_num_verts_y(self):
         """
@@ -206,7 +204,7 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._num_verts[1]
+        return self._num_steps[1]+1
 
     def get_num_verts_z(self):
         """
@@ -214,7 +212,7 @@ class Grid():
         Return:
             int: the number of points
         """
-        return self._num_verts[2]
+        return self._num_steps[2]+1
 
     def get_vertex_index(self, x_index, y_index, z_index):
         """
@@ -226,7 +224,9 @@ class Grid():
         Return:
             [float, float, float]: the point
         """
-        return (z_index * self._num_verts[2] * self._num_verts[2]) + (y_index * self._num_verts[1]) + x_index
+        z_offset = z_index * (self._num_steps[2]+1) * (self._num_steps[1]+1)
+        y_offset = y_index * self._num_steps[1]
+        return z_offset + y_offset + x_index
 
     def get_vertex(self, x_index, y_index, z_index):
         """
@@ -599,8 +599,6 @@ def all_voxels_to_5_tets(image, counts, progress):
     Returns:
         (Grid)
     """
-    connectivities = []
-
     # get the start and end value of the image cube axis
     start = [image.x_origin,
              image.y_origin,
@@ -623,7 +621,7 @@ def convert_mrc_to_5tets_interp2(input_file,
                                  verbose,
                                  progress,
                                  vox_counts,
-                                 low_voxels):
+                                 low_vertices):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:
@@ -634,11 +632,13 @@ def convert_mrc_to_5tets_interp2(input_file,
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
         progress (bool): if true print out progress
-        vox_counts ([int]): numbers of voxels on each dimension x, y, z, if None use image voxel counts
-        low_voxels (int): the number of v
+        vox_counts ([int]): voxels counts on x, y, z, if None use image voxel counts
+        low_vertices (int): number of vertices below isovalue that triggers culling
     Returns:
         None
     """
+    prune_level = v2t.PruneLevel(low_vertices)
+
     with mrcfile.mmap(input_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
 
@@ -656,8 +656,19 @@ def convert_mrc_to_5tets_interp2(input_file,
         print(f"num vertices {len(grid.get_vertices())}")
         print(f"num tets {len(grid.get_connectivities())}")
 
-        connectivity = v2t.crop_mesh_to_isovalue(grid.get_vertices(),  grid.get_densities(), grid.get_connectivities(), threshold)
+        connectivity = v2t.crop_mesh_to_isovalue(grid.get_vertices(),
+                                                 grid.get_densities(),
+                                                 grid.get_connectivities(),
+                                                 threshold,
+                                                 prune_level)
         if verbose:
-            utility.verbose_output(mrc, grid.get_vertices(), grid.get_connectivities(), grid.get_total_num_voxels())
+            utility.verbose_output(mrc,
+                                   grid.get_vertices(),
+                                   grid.get_connectivities(),
+                                   grid.get_total_num_voxels())
 
-        v2t.write_tets_to_files(grid.get_vertices(), connectivity, output_file, ffea_out, vtk_out)
+        v2t.write_tets_to_files(grid.get_vertices(),
+                                connectivity,
+                                output_file,
+                                ffea_out,
+                                vtk_out)
