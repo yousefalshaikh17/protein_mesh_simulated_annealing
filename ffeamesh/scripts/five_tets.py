@@ -101,6 +101,13 @@ def get_args():
                         action="store_true",
                         help="print progress during operation (may slow package)")
 
+    parser.add_argument("-m",
+                        '--low_vertices',
+                        type=int,
+                        default=2,
+                        choices=[1, 2, 3, 4],
+                        help="number of vertices below isovalue for tet to be culled (default: %(default)s)")
+
     parser.add_argument("-n",
                         "--vox_counts",
                         type=int,
@@ -169,7 +176,8 @@ def main():
                                  args.vtk,
                                  args.verbose,
                                  args.progress,
-                                 args.vox_counts)
+                                 args.vox_counts,
+                                 args.low_vertices)
 
 if __name__ == "__main__":
     main()

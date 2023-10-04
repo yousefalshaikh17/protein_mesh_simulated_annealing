@@ -606,7 +606,8 @@ def convert_mrc_to_5tets_interp2(input_file,
                                  vtk_out,
                                  verbose,
                                  progress,
-                                 vox_counts):
+                                 vox_counts,
+                                 low_voxels):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:
@@ -618,6 +619,7 @@ def convert_mrc_to_5tets_interp2(input_file,
         verbose (bool): if true give details of results
         progress (bool): if true print out progress
         vox_counts ([int]): numbers of voxels on each dimension x, y, z, if None use image voxel counts
+        low_voxels (int): the number of v
     Returns:
         None
     """
@@ -629,9 +631,6 @@ def convert_mrc_to_5tets_interp2(input_file,
 
         nvoxel, vertices, tet_connectivities, densities = all_voxels_to_5_tets(image, vox_counts, progress)
 
-        # nvoxel=None
-        # vertices=None
-        # tet_connectivities=None
         if nvoxel <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
@@ -640,11 +639,8 @@ def convert_mrc_to_5tets_interp2(input_file,
         print(f"num vertices {len(vertices)}")
         print(f"num tets {len(tet_connectivities)}")
 
-        #connectivity = v2t.crop_mesh_to_isovalue(points, tet_connectivities, image, threshold)
         connectivity = v2t.crop_mesh_to_isovalue(vertices,  densities, tet_connectivities, threshold)
         if verbose:
-            #utility.verbose_output(mrc, points, connectivity, nvoxel)
             utility.verbose_output(mrc, vertices, tet_connectivities, nvoxel)
 
         v2t.write_tets_to_files(vertices, connectivity, output_file, ffea_out, vtk_out)
-        #v2t.write_tets_to_files(vertices, tet_connectivities, output_file, ffea_out, vtk_out)
