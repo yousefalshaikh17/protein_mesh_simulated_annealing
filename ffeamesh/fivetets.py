@@ -126,10 +126,12 @@ class Grid():
         """
         make the tet's connectivity
         """
+        used = set()
         # iterate the voxels and make tet connectivities
         for voxel_z in range(self._num_steps[0]):
             for voxel_y in range(self._num_steps[1]):
                 for voxel_x in range(self._num_steps[2]):
+                    print(f"{voxel_x} {voxel_y} {voxel_z}")
                     if v2t.is_odd(voxel_x, voxel_y, voxel_z):
                         indices = v2t.odd_cube_tet_indices()
                     else:
@@ -224,8 +226,8 @@ class Grid():
         Return:
             [float, float, float]: the point
         """
-        z_offset = z_index * (self._num_steps[2]+1) * (self._num_steps[1]+1)
-        y_offset = y_index * self._num_steps[1]
+        z_offset = z_index * (self._num_steps[1]+1) * (self._num_steps[0]+1)
+        y_offset = y_index * (self._num_steps[1]+1)
         return z_offset + y_offset + x_index
 
     def get_vertex(self, x_index, y_index, z_index):
@@ -661,6 +663,7 @@ def convert_mrc_to_5tets_interp2(input_file,
                                                  grid.get_connectivities(),
                                                  threshold,
                                                  prune_level)
+        #connectivity = grid.get_connectivities()
         if verbose:
             utility.verbose_output(mrc,
                                    grid.get_vertices(),
