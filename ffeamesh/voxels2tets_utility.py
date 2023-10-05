@@ -435,11 +435,6 @@ def crop_mesh_to_isovalue(vertices,  densities, connectivity, isovalue, level=Pr
     # out_2 = 0
     # out_1 = 0
 
-    if level == PruneLevel.TWO:
-        print("PRUNE 2")
-    else:
-        print("PRUNE NOT 2")
-
     for tet_index, tet in enumerate(connectivity):
         count_outside = 0
         for index in tet:

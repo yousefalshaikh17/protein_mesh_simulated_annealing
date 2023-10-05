@@ -131,7 +131,6 @@ class Grid():
         for voxel_z in range(self._num_steps[0]):
             for voxel_y in range(self._num_steps[1]):
                 for voxel_x in range(self._num_steps[2]):
-                    print(f"{voxel_x} {voxel_y} {voxel_z}")
                     if v2t.is_odd(voxel_x, voxel_y, voxel_z):
                         indices = v2t.odd_cube_tet_indices()
                     else:
@@ -147,18 +146,65 @@ class Grid():
                             tet_indices.append(verts_indices[index])
                         self._connectivities.append(tet_indices)
 
-    def remove_surplas_vertices(self, tets_connectivity):
+    def crop_mesh_to_isovalue(self, isovalue, prune_level):
         """
-        TODO
-        remove the vertices not used in the connectivity and relabel the connectivity
+        Remove tets outside or largly outside isovalue
         Args:
-            tets_connectivity ([[int, int, int, int]]): connectivity, will be changed
-        Returns
-            [[float, float float]]: redundancy free vertex list
+            isovalue (float): limit value
+            level (PruneLevel): the number of vertices below the isovalue that causes deleation
         """
-        new_vertices = []
+        tets_for_deletion = []
+        out_count = 0
 
-        return new_vertices
+        for tet_index, tet in enumerate(self._connectivities):
+            count_outside = 0
+            for index in tet:
+                if self._densities[index] < isovalue:
+                    count_outside += 1
+
+            if count_outside > prune_level.value:
+                tets_for_deletion.append(tet_index)
+                out_count += 1
+
+         # make new tet connectivity list
+        new_tets = []
+        for index, tet in enumerate(self._connectivities):
+            if index not in tets_for_deletion:
+                new_tets.append(tet)
+
+        self._connectivities = new_tets
+
+    def remove_surplas_vertices(self):
+        """
+        TODO finish this
+        remove the vertices not used in the connectivity and relabel the connectivity
+        """
+        import itertools
+        used = set()
+
+        for tet in self._connectivities:
+            for index in tet:
+                used.add(index)
+
+        print(f"Total verts {len(self._vertices)} used {len(used)}")
+
+        saved_verts = []
+        map_to_new_indices = {}
+        new_index = itertools.count()
+        for index in used:
+            saved_verts.append(self._vertices[index])
+            map_to_new_indices[index] = next(new_index)
+
+        new_connectivities = [[None, None, None, None] for _ in self._connectivities]
+
+        for tet_index, tet in enumerate(new_connectivities):
+            for vert_index in range(4):
+                old_index = self._connectivities[tet_index][vert_index]
+                tet[vert_index] = map_to_new_indices[old_index]
+
+
+        self._connectivities = new_connectivities
+        self._vertices = saved_verts
 
     def get_total_num_voxels(self):
         """
@@ -648,7 +694,8 @@ def convert_mrc_to_5tets_interp2(input_file,
             vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]
 
         grid = all_voxels_to_5_tets(image, vox_counts, progress)
-
+        grid.crop_mesh_to_isovalue(threshold, prune_level)
+        grid.remove_surplas_vertices()
 
         if grid.get_total_num_voxels() <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
@@ -658,12 +705,6 @@ def convert_mrc_to_5tets_interp2(input_file,
         print(f"num vertices {len(grid.get_vertices())}")
         print(f"num tets {len(grid.get_connectivities())}")
 
-        connectivity = v2t.crop_mesh_to_isovalue(grid.get_vertices(),
-                                                 grid.get_densities(),
-                                                 grid.get_connectivities(),
-                                                 threshold,
-                                                 prune_level)
-        #connectivity = grid.get_connectivities()
         if verbose:
             utility.verbose_output(mrc,
                                    grid.get_vertices(),
@@ -671,7 +712,7 @@ def convert_mrc_to_5tets_interp2(input_file,
                                    grid.get_total_num_voxels())
 
         v2t.write_tets_to_files(grid.get_vertices(),
-                                connectivity,
+                                grid.get_connectivities(),
                                 output_file,
                                 ffea_out,
                                 vtk_out)
