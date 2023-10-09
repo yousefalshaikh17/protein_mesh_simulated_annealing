@@ -43,6 +43,8 @@ from itertools import count
 import numpy as np
 from itertools import product
 import mrcfile
+from time import process_time
+
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
 import ffeamesh.voxels2tets_utility as v2t
@@ -154,51 +156,32 @@ class Grid():
             level (PruneLevel): the number of vertices below the isovalue that causes deleation
             progress (bool): if true print progress reports
         """
-        tets_for_deletion = []
-        out_count = 0
         completed = count()
         total_tets = len(self._connectivities)
+        new_tets = []
 
-        for tet_index, tet in enumerate(self._connectivities):
+        for tet in self._connectivities:
             count_outside = 0
             for index in tet:
                 if self._densities[index] < isovalue:
                     count_outside += 1
 
-            if count_outside > prune_level.value:
-                tets_for_deletion.append(tet_index)
-                out_count += 1
+            if count_outside <= prune_level.value:
+                new_tets.append(tet)
 
             tmp = next(completed)
             if progress and tmp%10000 == 0:
                 print(f"Processed {tmp} out of {total_tets} tets", file=sys.stdout)
 
         if progress:
-            print(f"Crop of tets completed {total_tets-out_count} surviving tets")
-
-         # make new tet connectivity list
-        new_tets = []
-        for index, tet in enumerate(self._connectivities):
-            #print(f">>>>> {index}")
-            if index not in tets_for_deletion:
-                new_tets.append(tet)
-
-        if progress:
-            print(f"new list made")
+            print(f"Crop of tets completed: {len(new_tets)} surviving tets")
 
         self._connectivities = new_tets
 
-        if progress:
-            print(f"new list assisgned")
-
-
-
     def remove_surplas_vertices(self):
         """
-        TODO finish this
         remove the vertices not used in the connectivity and relabel the connectivity
         """
-        import itertools
         used = set()
 
         for tet in self._connectivities:
@@ -221,14 +204,6 @@ class Grid():
 
         self._connectivities = new_connectivities
         self._vertices = saved_verts
-
-    def reduce_to_one_tet(self):
-
-         # make new tet connectivity list
-        new_tets = [self._connectivities[0]]
-
-        self._connectivities = new_tets
-
 
     def get_total_num_voxels(self):
         """
@@ -717,6 +692,9 @@ def convert_mrc_to_5tets_interp2(input_file,
     """
     prune_level = v2t.PruneLevel(low_vertices)
 
+    # start time
+    time_start = process_time()
+
     with mrcfile.mmap(input_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
 
@@ -738,6 +716,12 @@ def convert_mrc_to_5tets_interp2(input_file,
         if grid.get_total_num_voxels() <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)
             sys.exit()
+
+        # end time
+        time_end = process_time()
+
+        if progress:
+            print(f"Conversion in {time_end - time_start} seconds, writing files")
 
         print(f"num voxels: {grid.get_total_num_voxels()}")
         print(f"num vertices {len(grid.get_vertices())}")
