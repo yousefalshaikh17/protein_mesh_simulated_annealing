@@ -146,15 +146,18 @@ class Grid():
                             tet_indices.append(verts_indices[index])
                         self._connectivities.append(tet_indices)
 
-    def crop_mesh_to_isovalue(self, isovalue, prune_level):
+    def crop_mesh_to_isovalue(self, isovalue, prune_level, progress):
         """
         Remove tets outside or largly outside isovalue
         Args:
             isovalue (float): limit value
             level (PruneLevel): the number of vertices below the isovalue that causes deleation
+            progress (bool): if true print progress reports
         """
         tets_for_deletion = []
         out_count = 0
+        completed = count()
+        total_tets = len(self._connectivities)
 
         for tet_index, tet in enumerate(self._connectivities):
             count_outside = 0
@@ -166,13 +169,29 @@ class Grid():
                 tets_for_deletion.append(tet_index)
                 out_count += 1
 
+            tmp = next(completed)
+            if progress and tmp%10000 == 0:
+                print(f"Processed {tmp} out of {total_tets} tets", file=sys.stdout)
+
+        if progress:
+            print(f"Crop of tets completed {total_tets-out_count} surviving tets")
+
          # make new tet connectivity list
         new_tets = []
         for index, tet in enumerate(self._connectivities):
+            #print(f">>>>> {index}")
             if index not in tets_for_deletion:
                 new_tets.append(tet)
 
+        if progress:
+            print(f"new list made")
+
         self._connectivities = new_tets
+
+        if progress:
+            print(f"new list assisgned")
+
+
 
     def remove_surplas_vertices(self):
         """
@@ -186,11 +205,9 @@ class Grid():
             for index in tet:
                 used.add(index)
 
-        print(f"Total verts {len(self._vertices)} used {len(used)}")
-
         saved_verts = []
         map_to_new_indices = {}
-        new_index = itertools.count()
+        new_index = count()
         for index in used:
             saved_verts.append(self._vertices[index])
             map_to_new_indices[index] = next(new_index)
@@ -202,9 +219,16 @@ class Grid():
                 old_index = self._connectivities[tet_index][vert_index]
                 tet[vert_index] = map_to_new_indices[old_index]
 
-
         self._connectivities = new_connectivities
         self._vertices = saved_verts
+
+    def reduce_to_one_tet(self):
+
+         # make new tet connectivity list
+        new_tets = [self._connectivities[0]]
+
+        self._connectivities = new_tets
+
 
     def get_total_num_voxels(self):
         """
@@ -656,8 +680,14 @@ def all_voxels_to_5_tets(image, counts, progress):
            image.cell_size[2]+start[2]]
 
     grid = Grid(counts, start, end)
+    if progress:
+        print(f"Grid object constructed.", file=sys.stdout)
     grid.build_grid(image)
+    if progress:
+        print(f"Vertices constructed", file=sys.stdout)
     grid.build_tets()
+    if progress:
+        print(f"Tets constructed", file=sys.stdout)
 
     return grid
 
@@ -694,8 +724,16 @@ def convert_mrc_to_5tets_interp2(input_file,
             vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]
 
         grid = all_voxels_to_5_tets(image, vox_counts, progress)
-        grid.crop_mesh_to_isovalue(threshold, prune_level)
+        if progress:
+            print(f"Grid formed {len(grid.get_vertices())} vertices")
+
+        grid.crop_mesh_to_isovalue(threshold, prune_level, progress)
+        if progress:
+            print(f">>>Grid formed {len(grid.get_connectivities())} tets")
+
         grid.remove_surplas_vertices()
+        if progress:
+            print(f"redundant vertices removed {len(grid.get_vertices())} remain")
 
         if grid.get_total_num_voxels() <= 0:
             print(f"Error: threshold value of {threshold} yielded no results", file=sys.stderr)

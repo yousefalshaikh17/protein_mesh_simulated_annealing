@@ -129,7 +129,7 @@ def verbose_output(mrc, points, tet_connectivities, nvoxel):
         tet_connectivities ([int, int, int int] list): tets map to vertices
         nvoxel (int): the number of voxels transformed
     """
-    print(f"Number of voxels over threshold {nvoxel}")
+    print(f"Number of voxels {nvoxel}")
     v_size = voxel_size(mrc)
     vol = v_size.dx * v_size.dx * v_size.dx
     print(f"Voxel size ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
