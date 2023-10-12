@@ -55,29 +55,32 @@ class Grid():
     make and store a 3D grid
     """
 
-    def __init__(self, counts, start, end):
+    def __init__(self, counts, start, end, image_counts):
         """
         set up object
         Args:
             counts ([int, int, int]): number of steps on x, y & z axis
             start ([float, float, float]): minimum values of x, y & z
             end ([float, float, float]): maximum values of x, y & z
+            image_counts ([int, int, int]): number of voxels on x, y & z in image
         """
         ## number of steps on x, y & z axis
         self._num_steps = counts
 
-        epsilon = np.finfo(np.float64).eps
-
         ## mimimum coordinates of image cube
-        self._start = [np.float64(x)+epsilon for x in start]
+        self._start = [np.float64(x) for x in start]
         ## maximum coordinates of image cube
-        self._end = [np.float64(x)-epsilon for x in end]
+        self._end = [np.float64(x) for x in end]
 
         ## offsets to allow for half voxel bound on linear interpolation
         self._offsets = []
-
         for index in range(3):
-            self._offsets.append( (self._end[index]-self._start[index])/(2*counts[index])  )
+            self._offsets.append((self._end[index]-self._start[index])/(2*image_counts[index]))
+
+        # move start & end in by half an image voxel
+        for index in range(3):
+            self._start[index] = self._start[index]+self._offsets[index]
+            self._end[index] = self._end[index]-self._offsets[index]
 
         ## flat list of all 3D vertices
         self._vertices = None
@@ -95,14 +98,16 @@ class Grid():
             image (MRCImage): the density interpolater
         """
         # make points on each axis
-        lin_x = np.linspace(self._start[0]+self._offsets[0],
-                            self._end[0]-self._offsets[0],
+        lin_x = np.linspace(self._start[0],
+                            self._end[0],
                             self._num_steps[0]+1)
-        lin_y = np.linspace(self._start[1]+self._offsets[1],
-                            self._end[1]-self._offsets[1],
+
+        lin_y = np.linspace(self._start[1],
+                            self._end[1],
                             self._num_steps[1]+1)
-        lin_z = np.linspace(self._start[2]+self._offsets[2],
-                            self._end[2]-self._offsets[2],
+
+        lin_z = np.linspace(self._start[2],
+                            self._end[2],
                             self._num_steps[2]+1)
 
         # outer product of axis points to make 3D
@@ -128,11 +133,11 @@ class Grid():
         """
         make the tet's connectivity
         """
-        used = set()
         # iterate the voxels and make tet connectivities
-        for voxel_z in range(self._num_steps[0]):
+        for voxel_z in range(self._num_steps[2]):
             for voxel_y in range(self._num_steps[1]):
-                for voxel_x in range(self._num_steps[2]):
+                for voxel_x in range(self._num_steps[0]):
+
                     if v2t.is_odd(voxel_x, voxel_y, voxel_z):
                         indices = v2t.odd_cube_tet_indices()
                     else:
@@ -144,7 +149,7 @@ class Grid():
                     for tet in indices:
                         tet_indices = []
                         for index in tet:
-                            ## need to add the indices in the original array return array of indices
+                            # need to add the indices in the original array return array of indices
                             tet_indices.append(verts_indices[index])
                         self._connectivities.append(tet_indices)
 
@@ -163,8 +168,11 @@ class Grid():
         for tet in self._connectivities:
             count_outside = 0
             for index in tet:
-                if self._densities[index] < isovalue:
-                    count_outside += 1
+                try:
+                    if self._densities[index] < isovalue:
+                        count_outside += 1
+                except IndexError:
+                    quit(f"IndexError {index}, in size {len(self._densities)}")
 
             if count_outside <= prune_level.value:
                 new_tets.append(tet)
@@ -272,7 +280,7 @@ class Grid():
             [float, float, float]: the point
         """
         z_offset = z_index * (self._num_steps[1]+1) * (self._num_steps[0]+1)
-        y_offset = y_index * (self._num_steps[1]+1)
+        y_offset = y_index * (self._num_steps[0]+1)
         return z_offset + y_offset + x_index
 
     def get_vertex(self, x_index, y_index, z_index):
@@ -653,8 +661,9 @@ def all_voxels_to_5_tets(image, counts, progress):
     end = [image.cell_size[0]+start[0],
            image.cell_size[1]+start[1],
            image.cell_size[2]+start[2]]
+    image_counts =[image.get_nx(), image.get_ny(), image.get_nz()]
 
-    grid = Grid(counts, start, end)
+    grid = Grid(counts, start, end, image_counts)
     if progress:
         print(f"Grid object constructed.", file=sys.stdout)
     grid.build_grid(image)
@@ -707,7 +716,7 @@ def convert_mrc_to_5tets_interp2(input_file,
 
         grid.crop_mesh_to_isovalue(threshold, prune_level, progress)
         if progress:
-            print(f">>>Grid formed {len(grid.get_connectivities())} tets")
+            print(f"Grid formed {len(grid.get_connectivities())} tets")
 
         grid.remove_surplas_vertices()
         if progress:
