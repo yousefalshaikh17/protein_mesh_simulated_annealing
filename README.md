@@ -1,4 +1,4 @@
-FFEA Meshing {#ffea_meshing}
+FFEA Meshing
 ============
 
 ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) tetrahrdral meshes.
@@ -14,12 +14,12 @@ The tools include:
 
 This project was started in summer 2021.
 
-Version
-============
+## Version
+
 This is version 1.0
 
-Copyright and License
-============
+## Copyright and License
+
 
 The algorithm and software in this project were developed by the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
@@ -29,13 +29,22 @@ Licensed under GNU General Public License v3.0 as published by the Free Software
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-DEVELOPED WITH:
-============
+## Developed With
+
 
 This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 
-QUICK START:
-============
+## Table of Contents
+
+**[Quick Start](#quick-start)**<br>
+**[Managing The ffea_mesh Environment](#managing-the-ffea_mesh-environment)**<br>
+**[Scripts](#scripts)**<br>
+**[Usage](#usage)**<br>
+**[Prerequisites](#prerequisites)**<br>
+**[Installation](#istallation)**<br>
+**[Unit Tests](#unit-tests)**<br>
+
+## Quick Start:
 
 Immediately below are a set of instructions that allow you to execute the cpt software quickly. There are no explanations of the steps here. Please look at the rest of the README file if you have any problems.
 
@@ -67,8 +76,7 @@ If you want to use them to write your own python scripts you can now import them
 
 `import cpt`
 
-MANAGING THE ffea_mesh ENVIRONMENT:
-============
+## Managing The ffea_mesh Environment:
 
 The Anaconda environment, with all the necessary modules, can be set up using the environment_ffea-mesh.yml file.
 
@@ -96,12 +104,11 @@ To remove the environment, if you no longer want to use ffea-mesh:
 
 `conda env remove --name ffea-mesh`
 
-Scripts {#scripts}
-=============
+## Scripts
+
 The following scrips are available:
 
-MRC Data {#scripts-meta}
----------
+### MRC Data
 
    * **mrc_header_info.py** - print the header from an MRC file
 
@@ -112,8 +119,7 @@ MRC Data {#scripts-meta}
    * **mrc_density_section.py** - run a density scan across an mrc file
     on  x, y and z axis printing out locations and image densities
 
-Filter {#scripts-filter}
-------
+### Filter
 
    * **fft_smooth.py** - Smoooths density data in a mrc fileusing a fast fourier transform function.
 
@@ -125,8 +131,7 @@ Filter {#scripts-filter}
    * **zoom.py** - Coarsens MRC files to a user-defined resolution and
     outputs them as a new .mrc file. Can be called by tet_from_pix.
 
-Meshing {#scripts-meshing}
-------
+### Meshing
 
    * **five_tets.py** - process MRC files and produces a regular tetrahedral volumetric
     mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen
@@ -134,27 +139,23 @@ Meshing {#scripts-meshing}
 
    * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
 
-Test Files {#scripts_make_test}
-------
+### Test Files
 
    * **make_test_mrcfile.py** - makes simple mrc image file for use in testing
 
    * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
     and output in VTK format. 5 and 6 tetrahedra decompositions are available.
 
-Modify Mesh {#scripts_modify}
-------
+### Modify Mesh
 
    * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
 
-Usage {#usage}
-=============
+## Usage
 
 As these are simply scripts there is no installation required other than the
  [prerequisites](\ref prerequisites).
 
-five_tets & six_tets {#tetfrompix}
--------------
+### five_tets & six_tets
 
 five_tets & six_tets input MRC files and processes them to produce volumetric mesh
  files for use with FFEA. VTK files are also produced for mesh analysis.
@@ -198,8 +199,7 @@ In the output directory defined by `-o` or `--output`, the following files will
    * [outputname].1.node
    * [outputname].vtk
 
-zoom {#zoom}
--------------
+### zoom
 
 zoom inputs MRC files and allows a user to coarsen them to a defined
  resolution, and outputs them as a new MRC file. This is seperated from
@@ -222,8 +222,7 @@ required flags:
 
    * '-r', '--resolution' factor by which to coarsen input MRC.
 
-Prerequisites {#prerequisites}
-=============
+## Prerequisites
 
    * [Python (>= 3.8)](https://www.python.org/).
      Required for running the tool scripts.
@@ -246,8 +245,8 @@ Prerequisites {#prerequisites}
    * [pylint](https://pypi.org/project/pylint/)
      Required for development
 
-Installation {#installation}
-============
+## Installation
+
 Get a copy of the latest version from bitbucket by running
 
 `git clone https://bitbucket.org/FFEA/ffea-meshing.git/`
@@ -276,8 +275,7 @@ Make the documentation run doxygen
 
 `doxygen`
 
-Unit Tests {#unit}
-=============
+## Unit Tests
 
 The directory `tests` contain unit tests for developers working on ffea-meshing.
  Inside is a script called `unit_tests.py` which executes the tests, and the
