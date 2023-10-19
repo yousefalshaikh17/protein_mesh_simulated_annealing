@@ -38,6 +38,9 @@ from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
     """the viewers main window"""
 
+    ## the title for the window
+    window_title = "TetgenViewer"
+
     def __init__(self,
                  parent=None,
                  config_args=None):
@@ -108,6 +111,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._current_source = file_path.parent
             self._tetViewer.reset_view()
             self._tetViewer.set_model(self._model)
+            self.set_title(file_path)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
@@ -146,10 +150,26 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self.reset_view()
             self._current_source = root_name.parent
             self._tetViewer.set_model(self._model)
+            self.set_title(root_name)
 
         except ValueError as error:
             qw.QMessageBox.warning(self, "Tetgen viewer", error)
             return
+
+    def set_title(self, file_path=None):
+        """
+        add the file name to the window title
+        Args:
+            file_path (pathlib.Path): the file
+        """
+        print(f"set title {file_path}")
+
+        if file_path is None:
+            self.setWindowTitle(TetgenViewerMain.window_title)
+
+        self.setWindowTitle(TetgenViewerMain.window_title + ' ' + file_path.name)
+
+
 
     def reset_view(self):
         """
