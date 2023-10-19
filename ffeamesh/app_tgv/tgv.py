@@ -68,7 +68,7 @@ def get_args():
                         "--input",
                         type=pathlib.Path,
                         required=False,
-                        help="input file root name")
+                        help="input file: tetgen, root name; ffea, full inc .vol")
 
     return parser.parse_args()
 
