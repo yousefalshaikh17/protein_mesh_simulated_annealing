@@ -73,6 +73,13 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             file_path (pathlib.Path): file path
         """
+        if not file_path.exists():
+            qw.QMessageBox.warning(
+                self,
+                self.tr('TetgenViewer'),
+                self.tr(f"File {file_path} doesn't exist!"))
+            return
+
         try:
             points, surface, volume = fr.read_file(file_path)
 
@@ -112,14 +119,23 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             root_name (pathlib.Path): the path and root name of files
         """
-        node_file = root_name.with_suffix(".1.node")
-        face_file = root_name.with_suffix(".1.face")
-        tets_file = root_name.with_suffix(".1.ele")
+        tet_files = []
+        tet_files.append(root_name.with_suffix(".1.node"))
+        tet_files.append(root_name.with_suffix(".1.face"))
+        tet_files.append(root_name.with_suffix(".1.ele"))
+
+        for file in tet_files:
+            if not file.exists():
+                qw.QMessageBox.warning(
+                    self,
+                    self.tr('TetgenViewer'),
+                    self.tr(f"File {file} doesn't exist!"))
+                return
 
         try:
-            _, nodes = tr.read_node_file(node_file)
-            _, faces = tr.read_face_file(face_file)
-            _, tets  = tr.read_tet_file(tets_file)
+            _, nodes = tr.read_node_file(tet_files[0])
+            _, faces = tr.read_face_file(tet_files[1])
+            _, tets  = tr.read_tet_file(tet_files[2])
 
             tet_props = tp.get_tet_props(nodes, tets)
 
