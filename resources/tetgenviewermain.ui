@@ -234,79 +234,56 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QGroupBox" name="groupBox_3">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="title">
-             <string>Background</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <widget class="QRadioButton" name="_blackButton">
-               <property name="text">
-                <string>Black</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">_backgroundGroup</string>
-               </attribute>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="_whiteButton">
-               <property name="text">
-                <string>White</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">_backgroundGroup</string>
-               </attribute>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="_grayButton">
-               <property name="text">
-                <string>Gray</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">_backgroundGroup</string>
-               </attribute>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_4">
+           <widget class="QGroupBox" name="groupBox_5">
             <property name="title">
              <string>Mesh Properties</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Total volume (A^3)</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Total volume (A^3)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="_totalVolLabel">
+                 <property name="text">
+                  <string>0.0</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Surface area (A^3)</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Surface area (A^3)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="_totalAreaLabel">
+                 <property name="text">
+                  <string>0.0</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <spacer name="verticalSpacer_2">
+              <spacer name="verticalSpacer">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>5</height>
+                 <height>40</height>
                 </size>
                </property>
               </spacer>
@@ -526,22 +503,6 @@
    <signal>triggered()</signal>
    <receiver>TetgenViewerMain</receiver>
    <slot>save_image()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>498</x>
-     <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>_backgroundGroup</sender>
-   <signal>buttonToggled(QAbstractButton*,bool)</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>background_change(QAbstractButton*,bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

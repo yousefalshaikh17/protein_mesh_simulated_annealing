@@ -178,17 +178,13 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             tet_props
         """
         total = sum(props[2] for props in tet_props.values())
-        print(f"total volume {round(total, 2)}")
+        self._totalVolLabel.setText(str(round(total, 2)))
 
     def reset_view(self):
         """
         on load reset zero rotations, shift and prespective
         """
         self.reset_sliders()
-
-        old_state = self._backgroundGroup.blockSignals(True)
-        self._whiteButton.setChecked(True)
-        self._backgroundGroup.blockSignals(old_state)
 
         old_state = self._surfaceLatticeButton.blockSignals(True)
         self._surfaceLatticeButton.setChecked(False)
