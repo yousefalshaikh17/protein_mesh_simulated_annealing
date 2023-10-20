@@ -453,3 +453,24 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         responde to request for orthogonal view
         """
         self._tetViewer.set_view("Orthogonal")
+
+    @qc.pyqtSlot()
+    def background_black(self):
+        """
+        responde to request for black background
+        """
+        self._tetViewer.change_background("Black")
+
+    @qc.pyqtSlot()
+    def background_white(self):
+        """
+        responde to request for white background
+        """
+        self._tetViewer.change_background("White")
+
+    @qc.pyqtSlot()
+    def background_gray(self):
+        """
+        responde to request for gray background
+        """
+        self._tetViewer.change_background("Gray")

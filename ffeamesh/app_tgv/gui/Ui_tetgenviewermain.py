@@ -210,9 +210,9 @@ class Ui_TetgenViewerMain(object):
         self._showTetBox.toggled['bool'].connect(self._tetViewer.show_current_tet) # type: ignore
         self._actionPerspective.triggered.connect(TetgenViewerMain.view_perspective) # type: ignore
         self._actionOrthogonal.triggered.connect(TetgenViewerMain.view_orthogonal) # type: ignore
-        self._actionBlackBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
-        self._actionGrayBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
-        self._actionWhiteBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
+        self._actionBlackBackground.triggered.connect(TetgenViewerMain.background_black) # type: ignore
+        self._actionGrayBackground.triggered.connect(TetgenViewerMain.background_gray) # type: ignore
+        self._actionWhiteBackground.triggered.connect(TetgenViewerMain.background_white) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
