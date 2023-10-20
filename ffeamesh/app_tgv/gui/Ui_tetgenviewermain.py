@@ -161,6 +161,8 @@ class Ui_TetgenViewerMain(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuView = QtWidgets.QMenu(self.menubar)
+        self.menuView.setObjectName("menuView")
         TetgenViewerMain.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(TetgenViewerMain)
         self.statusbar.setObjectName("statusbar")
@@ -177,6 +179,10 @@ class Ui_TetgenViewerMain(object):
         self._actionSaveSetup.setObjectName("_actionSaveSetup")
         self._actionLoadSetup = QtWidgets.QAction(TetgenViewerMain)
         self._actionLoadSetup.setObjectName("_actionLoadSetup")
+        self._actionPerspective = QtWidgets.QAction(TetgenViewerMain)
+        self._actionPerspective.setObjectName("_actionPerspective")
+        self._actionOrthogonal = QtWidgets.QAction(TetgenViewerMain)
+        self._actionOrthogonal.setObjectName("_actionOrthogonal")
         self.menuFile.addAction(self._actionLoad)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionSaveImage)
@@ -186,7 +192,10 @@ class Ui_TetgenViewerMain(object):
         self.menuFile.addAction(self._actionLoadSetup)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionExit)
+        self.menuView.addAction(self._actionPerspective)
+        self.menuView.addAction(self._actionOrthogonal)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuView.menuAction())
 
         self.retranslateUi(TetgenViewerMain)
         self._actionExit.triggered.connect(TetgenViewerMain.close) # type: ignore
@@ -206,6 +215,8 @@ class Ui_TetgenViewerMain(object):
         self._actionSaveSetup.triggered.connect(TetgenViewerMain.save_setup) # type: ignore
         self._actionLoadSetup.triggered.connect(TetgenViewerMain.load_setup) # type: ignore
         self._showTetBox.toggled['bool'].connect(self._tetViewer.show_current_tet) # type: ignore
+        self._actionPerspective.triggered.connect(TetgenViewerMain.view_perspective) # type: ignore
+        self._actionOrthogonal.triggered.connect(TetgenViewerMain.view_orthogonal) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -229,10 +240,13 @@ class Ui_TetgenViewerMain(object):
         self._perspectiveButton.setText(_translate("TetgenViewerMain", "Perspective"))
         self._orthogonalButton.setText(_translate("TetgenViewerMain", "Orthogonal"))
         self.menuFile.setTitle(_translate("TetgenViewerMain", "File"))
+        self.menuView.setTitle(_translate("TetgenViewerMain", "View"))
         self._actionLoad.setText(_translate("TetgenViewerMain", "Load"))
         self._actionExit.setText(_translate("TetgenViewerMain", "Exit"))
         self._actionSaveImage.setText(_translate("TetgenViewerMain", "Save image"))
         self._actionSaveTetData.setText(_translate("TetgenViewerMain", "Save tet data"))
         self._actionSaveSetup.setText(_translate("TetgenViewerMain", "Save setup"))
         self._actionLoadSetup.setText(_translate("TetgenViewerMain", "Load setup"))
+        self._actionPerspective.setText(_translate("TetgenViewerMain", "Perspective"))
+        self._actionOrthogonal.setText(_translate("TetgenViewerMain", "Orthogonal"))
 from ffeamesh.app_tgv.gui.tetviewer import TetViewer

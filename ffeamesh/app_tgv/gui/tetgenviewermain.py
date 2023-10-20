@@ -447,9 +447,23 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def view_change(self, button, flag):
         """
-        callback for the motion of a mouse with a button held
+        callback for toggeling the perspective/orthogonal
         """
         if not flag:
             return
 
         self._tetViewer.set_view(button.text())
+
+    @qc.pyqtSlot()
+    def view_perspective(self):
+        """
+        responde to request for prespective view
+        """
+        print("Perspective")
+
+    @qc.pyqtSlot()
+    def view_orthogonal(self):
+        """
+        responde to request for orthogonal view
+        """
+        print("Orthogonal")

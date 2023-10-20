@@ -393,7 +393,7 @@ class TetViewer(qw.QOpenGLWidget):
 
     def set_view(self, text):
         """
-        set the background colour
+        set the view matrix (persepctive, orthogonal)
         """
         if text == "Perspective":
             self._state.set_perspective(True)

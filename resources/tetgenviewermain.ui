@@ -341,7 +341,15 @@
     <addaction name="separator"/>
     <addaction name="_actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="_actionPerspective"/>
+    <addaction name="_actionOrthogonal"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="_actionLoad">
@@ -372,6 +380,16 @@
   <action name="_actionLoadSetup">
    <property name="text">
     <string>Load setup</string>
+   </property>
+  </action>
+  <action name="_actionPerspective">
+   <property name="text">
+    <string>Perspective</string>
+   </property>
+  </action>
+  <action name="_actionOrthogonal">
+   <property name="text">
+    <string>Orthogonal</string>
    </property>
   </action>
  </widget>
@@ -653,6 +671,38 @@
     <hint type="destinationlabel">
      <x>198</x>
      <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionPerspective</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>view_perspective()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionOrthogonal</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>view_orthogonal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>183</y>
     </hint>
    </hints>
   </connection>
