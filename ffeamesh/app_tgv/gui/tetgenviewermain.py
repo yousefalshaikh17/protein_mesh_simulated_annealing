@@ -186,10 +186,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         """
         self.reset_sliders()
 
-        old_state = self._viewGroup.blockSignals(True)
-        self._perspectiveButton.setChecked(True)
-        self._viewGroup.blockSignals(old_state)
-
         old_state = self._backgroundGroup.blockSignals(True)
         self._whiteButton.setChecked(True)
         self._backgroundGroup.blockSignals(old_state)
@@ -443,16 +439,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             return
 
         self._tetViewer.change_background(button.text())
-
-    @qc.pyqtSlot(qw.QAbstractButton, bool)
-    def view_change(self, button, flag):
-        """
-        callback for toggeling the perspective/orthogonal
-        """
-        if not flag:
-            return
-
-        self._tetViewer.set_view(button.text())
 
     @qc.pyqtSlot()
     def view_perspective(self):

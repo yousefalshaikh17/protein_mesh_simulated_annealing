@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>701</width>
+    <width>844</width>
     <height>367</height>
    </rect>
   </property>
@@ -278,38 +278,6 @@
             </layout>
            </widget>
           </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_4">
-            <property name="title">
-             <string>View</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QRadioButton" name="_perspectiveButton">
-               <property name="text">
-                <string>Perspective</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">_viewGroup</string>
-               </attribute>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="_orthogonalButton">
-               <property name="text">
-                <string>Orthogonal</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">_viewGroup</string>
-               </attribute>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
          </layout>
         </item>
        </layout>
@@ -323,7 +291,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>701</width>
+     <width>844</width>
      <height>22</height>
     </rect>
    </property>
@@ -579,22 +547,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>_viewGroup</sender>
-   <signal>buttonToggled(QAbstractButton*,bool)</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>view_change(QAbstractButton*,bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>498</x>
-     <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>_ctrMeshButton</sender>
    <signal>clicked()</signal>
    <receiver>_tetViewer</receiver>
@@ -708,7 +660,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="_backgroundGroup"/>
   <buttongroup name="_viewGroup"/>
+  <buttongroup name="_backgroundGroup"/>
  </buttongroups>
 </ui>

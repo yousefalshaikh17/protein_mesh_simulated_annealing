@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TetgenViewerMain(object):
     def setupUi(self, TetgenViewerMain):
         TetgenViewerMain.setObjectName("TetgenViewerMain")
-        TetgenViewerMain.resize(701, 367)
+        TetgenViewerMain.resize(844, 367)
         TetgenViewerMain.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.centralwidget = QtWidgets.QWidget(TetgenViewerMain)
         self.centralwidget.setObjectName("centralwidget")
@@ -137,27 +137,11 @@ class Ui_TetgenViewerMain(object):
         self._backgroundGroup.addButton(self._grayButton)
         self.verticalLayout_5.addWidget(self._grayButton)
         self.horizontalLayout_5.addWidget(self.groupBox_3)
-        self.groupBox_4 = QtWidgets.QGroupBox(self.groupBox_2)
-        self.groupBox_4.setObjectName("groupBox_4")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupBox_4)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self._perspectiveButton = QtWidgets.QRadioButton(self.groupBox_4)
-        self._perspectiveButton.setChecked(True)
-        self._perspectiveButton.setObjectName("_perspectiveButton")
-        self._viewGroup = QtWidgets.QButtonGroup(TetgenViewerMain)
-        self._viewGroup.setObjectName("_viewGroup")
-        self._viewGroup.addButton(self._perspectiveButton)
-        self.verticalLayout_3.addWidget(self._perspectiveButton)
-        self._orthogonalButton = QtWidgets.QRadioButton(self.groupBox_4)
-        self._orthogonalButton.setObjectName("_orthogonalButton")
-        self._viewGroup.addButton(self._orthogonalButton)
-        self.verticalLayout_3.addWidget(self._orthogonalButton)
-        self.horizontalLayout_5.addWidget(self.groupBox_4)
         self.verticalLayout_4.addLayout(self.horizontalLayout_5)
         self.verticalLayout_6.addWidget(self.splitter)
         TetgenViewerMain.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(TetgenViewerMain)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 701, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 844, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -209,7 +193,6 @@ class Ui_TetgenViewerMain(object):
         self._ctrTetButton.clicked.connect(self._tetViewer.centre_tet) # type: ignore
         self._surfaceButton.toggled['bool'].connect(TetgenViewerMain.show_surface) # type: ignore
         self._surfaceLatticeButton.toggled['bool'].connect(TetgenViewerMain.show_surface_lattice) # type: ignore
-        self._viewGroup.buttonToggled['QAbstractButton*','bool'].connect(TetgenViewerMain.view_change) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
         self._actionSaveSetup.triggered.connect(TetgenViewerMain.save_setup) # type: ignore
@@ -236,9 +219,6 @@ class Ui_TetgenViewerMain(object):
         self._blackButton.setText(_translate("TetgenViewerMain", "Black"))
         self._whiteButton.setText(_translate("TetgenViewerMain", "White"))
         self._grayButton.setText(_translate("TetgenViewerMain", "Gray"))
-        self.groupBox_4.setTitle(_translate("TetgenViewerMain", "View"))
-        self._perspectiveButton.setText(_translate("TetgenViewerMain", "Perspective"))
-        self._orthogonalButton.setText(_translate("TetgenViewerMain", "Orthogonal"))
         self.menuFile.setTitle(_translate("TetgenViewerMain", "File"))
         self.menuView.setTitle(_translate("TetgenViewerMain", "View"))
         self._actionLoad.setText(_translate("TetgenViewerMain", "Load"))
