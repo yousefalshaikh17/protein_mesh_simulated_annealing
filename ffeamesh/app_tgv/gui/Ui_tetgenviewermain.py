@@ -167,6 +167,12 @@ class Ui_TetgenViewerMain(object):
         self._actionPerspective.setObjectName("_actionPerspective")
         self._actionOrthogonal = QtWidgets.QAction(TetgenViewerMain)
         self._actionOrthogonal.setObjectName("_actionOrthogonal")
+        self._actionBlackBackground = QtWidgets.QAction(TetgenViewerMain)
+        self._actionBlackBackground.setObjectName("_actionBlackBackground")
+        self._actionWhiteBackground = QtWidgets.QAction(TetgenViewerMain)
+        self._actionWhiteBackground.setObjectName("_actionWhiteBackground")
+        self._actionGrayBackground = QtWidgets.QAction(TetgenViewerMain)
+        self._actionGrayBackground.setObjectName("_actionGrayBackground")
         self.menuFile.addAction(self._actionLoad)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionSaveImage)
@@ -178,6 +184,10 @@ class Ui_TetgenViewerMain(object):
         self.menuFile.addAction(self._actionExit)
         self.menuView.addAction(self._actionPerspective)
         self.menuView.addAction(self._actionOrthogonal)
+        self.menuView.addSeparator()
+        self.menuView.addAction(self._actionBlackBackground)
+        self.menuView.addAction(self._actionWhiteBackground)
+        self.menuView.addAction(self._actionGrayBackground)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
 
@@ -200,6 +210,9 @@ class Ui_TetgenViewerMain(object):
         self._showTetBox.toggled['bool'].connect(self._tetViewer.show_current_tet) # type: ignore
         self._actionPerspective.triggered.connect(TetgenViewerMain.view_perspective) # type: ignore
         self._actionOrthogonal.triggered.connect(TetgenViewerMain.view_orthogonal) # type: ignore
+        self._actionBlackBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
+        self._actionGrayBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
+        self._actionWhiteBackground.triggered.connect(TetgenViewerMain.close) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -229,4 +242,7 @@ class Ui_TetgenViewerMain(object):
         self._actionLoadSetup.setText(_translate("TetgenViewerMain", "Load setup"))
         self._actionPerspective.setText(_translate("TetgenViewerMain", "Perspective"))
         self._actionOrthogonal.setText(_translate("TetgenViewerMain", "Orthogonal"))
+        self._actionBlackBackground.setText(_translate("TetgenViewerMain", "Black background"))
+        self._actionWhiteBackground.setText(_translate("TetgenViewerMain", "White background"))
+        self._actionGrayBackground.setText(_translate("TetgenViewerMain", "Gray background"))
 from ffeamesh.app_tgv.gui.tetviewer import TetViewer

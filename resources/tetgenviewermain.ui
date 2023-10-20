@@ -315,6 +315,10 @@
     </property>
     <addaction name="_actionPerspective"/>
     <addaction name="_actionOrthogonal"/>
+    <addaction name="separator"/>
+    <addaction name="_actionBlackBackground"/>
+    <addaction name="_actionWhiteBackground"/>
+    <addaction name="_actionGrayBackground"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -358,6 +362,21 @@
   <action name="_actionOrthogonal">
    <property name="text">
     <string>Orthogonal</string>
+   </property>
+  </action>
+  <action name="_actionBlackBackground">
+   <property name="text">
+    <string>Black background</string>
+   </property>
+  </action>
+  <action name="_actionWhiteBackground">
+   <property name="text">
+    <string>White background</string>
+   </property>
+  </action>
+  <action name="_actionGrayBackground">
+   <property name="text">
+    <string>Gray background</string>
    </property>
   </action>
  </widget>
@@ -654,6 +673,54 @@
     </hint>
     <hint type="destinationlabel">
      <x>350</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionBlackBackground</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionGrayBackground</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_actionWhiteBackground</sender>
+   <signal>triggered()</signal>
+   <receiver>TetgenViewerMain</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
      <y>183</y>
     </hint>
    </hints>
