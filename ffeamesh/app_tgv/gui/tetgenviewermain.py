@@ -459,11 +459,11 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         """
         responde to request for prespective view
         """
-        print("Perspective")
+        self._tetViewer.set_view("Perspective")
 
     @qc.pyqtSlot()
     def view_orthogonal(self):
         """
         responde to request for orthogonal view
         """
-        print("Orthogonal")
+        self._tetViewer.set_view("Orthogonal")
