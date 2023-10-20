@@ -107,6 +107,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
                                       tmes.TetMesh(nodes, tets))
 
             self.list_tets(tet_props)
+            self.display_total_volume(tet_props)
             self.reset_view()
             self._current_source = file_path.parent
             self._tetViewer.reset_view()
@@ -147,6 +148,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
                                       tmes.TetMesh(nodes, tets))
 
             self.list_tets(tet_props)
+            self.display_total_volume(tet_props)
             self.reset_view()
             self._current_source = root_name.parent
             self._tetViewer.set_model(self._model)
@@ -169,7 +171,14 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         self.setWindowTitle(TetgenViewerMain.window_title + ' ' + file_path.name)
 
-
+    def display_total_volume(self, tet_props):
+        """
+        display the total volume
+        Args:
+            tet_props
+        """
+        total = sum(props[2] for props in tet_props.values())
+        print(f"total volume {round(total, 2)}")
 
     def reset_view(self):
         """
