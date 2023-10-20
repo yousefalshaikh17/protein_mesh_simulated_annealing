@@ -108,6 +108,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
+            self.display_total_surface_area()
             self.reset_view()
             self._current_source = file_path.parent
             self._tetViewer.reset_view()
@@ -149,6 +150,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
+            self.display_total_surface_area()
             self.reset_view()
             self._current_source = root_name.parent
             self._tetViewer.set_model(self._model)
@@ -179,6 +181,13 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         """
         total = sum(props[2] for props in tet_props.values())
         self._totalVolLabel.setText(str(round(total, 2)))
+
+    def display_total_surface_area(self):
+        """
+        find and display the total surface area of the model
+        """
+        area = self._model.get_surface().surface_area()
+        self._totalAreaLabel.setText(str(round(area, 2)))
 
     def reset_view(self):
         """

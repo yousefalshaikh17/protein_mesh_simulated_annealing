@@ -234,7 +234,7 @@ class Ui_TetgenViewerMain(object):
         self.groupBox_5.setTitle(_translate("TetgenViewerMain", "Mesh Properties"))
         self.label_5.setText(_translate("TetgenViewerMain", "Total volume (A^3)"))
         self._totalVolLabel.setText(_translate("TetgenViewerMain", "0.0"))
-        self.label_7.setText(_translate("TetgenViewerMain", "Surface area (A^3)"))
+        self.label_7.setText(_translate("TetgenViewerMain", "Surface area (A^2)"))
         self._totalAreaLabel.setText(_translate("TetgenViewerMain", "0.0"))
         self.menuFile.setTitle(_translate("TetgenViewerMain", "File"))
         self.menuView.setTitle(_translate("TetgenViewerMain", "View"))

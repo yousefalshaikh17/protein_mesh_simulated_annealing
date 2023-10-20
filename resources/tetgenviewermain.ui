@@ -262,7 +262,7 @@
                <item>
                 <widget class="QLabel" name="label_7">
                  <property name="text">
-                  <string>Surface area (A^3)</string>
+                  <string>Surface area (A^2)</string>
                  </property>
                 </widget>
                </item>
@@ -723,7 +723,4 @@
    </hints>
   </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="_backgroundGroup"/>
- </buttongroups>
 </ui>
