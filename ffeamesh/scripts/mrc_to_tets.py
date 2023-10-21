@@ -38,7 +38,7 @@
 import sys
 import argparse
 import pathlib
-from ffeamesh.fivetets import convert_mrc_to_tets
+from ffeamesh.maketets import convert_mrc_to_tets
 
 def get_args():
     """
