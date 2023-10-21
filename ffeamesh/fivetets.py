@@ -532,7 +532,7 @@ def voxels_to_5_tets_plain(mrc, threshold, progress):
     frac_to_cart = v2t.make_fractional_to_cartesian_conversion_function(mrc)
     prog_test = make_progress_test(mrc.header.nx, mrc.header.ny, mrc.header.nz)
 
-    # Create an array of array of 8 point (co-ordinates) for each hexahedron (voxel)
+    # Create an array of array of 8 point co-ordinates for each voxel
     for voxel_z in range(0, mrc.header.nz):
         for voxel_y in range(0, mrc.header.ny):
             for voxel_x in range(0, mrc.header.nx):
