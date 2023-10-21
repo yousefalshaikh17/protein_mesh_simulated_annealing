@@ -39,11 +39,10 @@
 # pylint: disable = import-error
 
 import sys
-from itertools import count
-import numpy as np
-from itertools import product
-import mrcfile
 from time import process_time
+from itertools import (product, count)
+import numpy as np
+import mrcfile
 
 import ffeamesh.coord_utility as cu
 from ffeamesh import utility
@@ -168,11 +167,8 @@ class Grid():
         for tet in self._connectivities:
             count_outside = 0
             for index in tet:
-                try:
-                    if self._densities[index] < isovalue:
-                        count_outside += 1
-                except IndexError:
-                    quit(f"IndexError {index}, in size {len(self._densities)}")
+                if self._densities[index] < isovalue:
+                    count_outside += 1
 
             if count_outside <= prune_level.value:
                 new_tets.append(tet)
@@ -665,13 +661,13 @@ def all_voxels_to_5_tets(image, counts, progress):
 
     grid = Grid(counts, start, end, image_counts)
     if progress:
-        print(f"Grid object constructed.", file=sys.stdout)
+        print("Grid object constructed.", file=sys.stdout)
     grid.build_grid(image)
     if progress:
-        print(f"Vertices constructed", file=sys.stdout)
+        print("Vertices constructed", file=sys.stdout)
     grid.build_tets()
     if progress:
-        print(f"Tets constructed", file=sys.stdout)
+        print("Tets constructed", file=sys.stdout)
 
     return grid
 

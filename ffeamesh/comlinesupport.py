@@ -154,7 +154,7 @@ def get_args():
     """
     get command line arguments
     """
-    description = ("optimizes a tetrahedral mesh using simulated annealing")
+    description = "optimizes a tetrahedral mesh using simulated annealing"
     parser = argparse.ArgumentParser(description=description)
     subparser = parser.add_subparsers(required=True)
 
