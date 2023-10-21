@@ -3,10 +3,10 @@
  five_tets.py
 
  A script that processes MRC files and produces a regular
- tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
- This is written out in the tetgen .ele, .face, and .node file format for
- later use in FFEA, and .vtk for mesh analysis.
-
+ tetrahedral volumetric mesh for FFEA, with five tetrahedra
+ in each voxel, using the "marching tet" algorithm. This is
+ written out in the tetgen .ele, .face, and .node file format
+ for later use in FFEA, and .vtk for mesh analysis.
 
  ----------------------------
 
@@ -38,7 +38,7 @@
 import sys
 import argparse
 import pathlib
-from ffeamesh.fivetets import convert_mrc_to_5tets_interp2
+from ffeamesh.fivetets import convert_mrc_to_5tets
 
 def get_args():
     """
@@ -169,15 +169,15 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    convert_mrc_to_5tets_interp2(args.input,
-                                 args.output,
-                                 args.threshold,
-                                 args.ffea,
-                                 args.vtk,
-                                 args.verbose,
-                                 args.progress,
-                                 args.vox_counts,
-                                 args.low_vertices)
+    convert_mrc_to_5tets(args.input,
+                         args.output,
+                         args.threshold,
+                         args.ffea,
+                         args.vtk,
+                         args.verbose,
+                         args.progress,
+                         args.vox_counts,
+                         args.low_vertices)
 
 if __name__ == "__main__":
     main()

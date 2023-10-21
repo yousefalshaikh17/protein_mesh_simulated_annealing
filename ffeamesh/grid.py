@@ -131,6 +131,31 @@ class Grid():
                             tet_indices.append(verts_indices[index])
                         self._connectivities.append(tet_indices)
 
+    def build_six_tets(self):
+        """
+        make the tet's connectivity
+        TODO complete
+        """
+        # iterate the voxels and make tet connectivities
+        for voxel_z in range(self._num_steps[2]):
+            for voxel_y in range(self._num_steps[1]):
+                for voxel_x in range(self._num_steps[0]):
+
+                    # if v2t.is_odd(voxel_x, voxel_y, voxel_z):
+                    #     indices = v2t.odd_cube_tet_indices()
+                    # else:
+                    #     indices = v2t.even_cube_tet_indices()
+
+                    # verts_indices = self.get_voxel_indices(voxel_x, voxel_y, voxel_z)
+
+                    # # make the tets
+                    # for tet in indices:
+                    #     tet_indices = []
+                    #     for index in tet:
+                    #         # need to add the indices in the original array return array of indices
+                    #         tet_indices.append(verts_indices[index])
+                    #     self._connectivities.append(tet_indices)
+
     def crop_mesh_to_isovalue(self, isovalue, prune_level, progress):
         """
         Remove tets outside or largly outside isovalue

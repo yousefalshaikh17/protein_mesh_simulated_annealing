@@ -113,15 +113,15 @@ def all_voxels_to_5_tets(image, counts, progress):
 
     return grid
 
-def convert_mrc_to_5tets_interp2(input_file,
-                                 output_file,
-                                 threshold,
-                                 ffea_out,
-                                 vtk_out,
-                                 verbose,
-                                 progress,
-                                 vox_counts,
-                                 low_vertices):
+def convert_mrc_to_5tets(input_file,
+                         output_file,
+                         threshold,
+                         ffea_out,
+                         vtk_out,
+                         verbose,
+                         progress,
+                         vox_counts,
+                         low_vertices):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:
