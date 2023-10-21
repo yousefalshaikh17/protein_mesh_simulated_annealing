@@ -82,13 +82,14 @@ def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, star
 
     return progress_test
 
-def all_voxels_to_5_tets(image, counts, progress):
+def all_voxels_to_tets(image, counts, progress, use_six_tets=True):
     """
     Converts image into voxels of 5 tetrohedrons.
     Args:
         image (MRCImage): the input file
         counts ([int, int, int]): voxel counts on x, y and z axis
         progress (bool): if true print out progress
+        five_tets (bool): it True use 5 tet decomp, else 6
     Returns:
         (Grid)
     """
@@ -107,21 +108,25 @@ def all_voxels_to_5_tets(image, counts, progress):
     grid.build_grid(image)
     if progress:
         print("Vertices constructed", file=sys.stdout)
-    grid.build_five_tets()
+    if use_six_tets:
+        grid.build_six_tets()
+    else:
+        grid.build_five_tets()
     if progress:
         print("Tets constructed", file=sys.stdout)
 
     return grid
 
-def convert_mrc_to_5tets(input_file,
-                         output_file,
-                         threshold,
-                         ffea_out,
-                         vtk_out,
-                         verbose,
-                         progress,
-                         vox_counts,
-                         low_vertices):
+def convert_mrc_to_tets(input_file,
+                        output_file,
+                        threshold,
+                        ffea_out,
+                        vtk_out,
+                        verbose,
+                        progress,
+                        vox_counts,
+                        low_vertices,
+                        use_six_tets = False):
     """
     Converts the contents of a mrc file to a tetrohedron array (5 pre voxel).
     Args:
@@ -134,6 +139,7 @@ def convert_mrc_to_5tets(input_file,
         progress (bool): if true print out progress
         vox_counts ([int]): voxels counts on x, y, z, if None use image voxel counts
         low_vertices (int): number of vertices below isovalue that triggers culling
+        use_six_tets (bool): if True convert grid voxels to six tets, else five
     Returns:
         None
     """
@@ -148,7 +154,7 @@ def convert_mrc_to_5tets(input_file,
         if vox_counts is None:
             vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]
 
-        grid = all_voxels_to_5_tets(image, vox_counts, progress)
+        grid = all_voxels_to_tets(image, vox_counts, progress, use_six_tets)
         if progress:
             print(f"Grid formed {len(grid.get_vertices())} vertices")
 

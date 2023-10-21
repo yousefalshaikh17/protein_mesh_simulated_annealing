@@ -145,16 +145,17 @@ class Grid():
                     #     indices = v2t.odd_cube_tet_indices()
                     # else:
                     #     indices = v2t.even_cube_tet_indices()
+                    indices = v2t.cube_6_tet_indices()
 
-                    # verts_indices = self.get_voxel_indices(voxel_x, voxel_y, voxel_z)
+                    verts_indices = self.get_voxel_indices(voxel_x, voxel_y, voxel_z)
 
                     # # make the tets
-                    # for tet in indices:
-                    #     tet_indices = []
-                    #     for index in tet:
-                    #         # need to add the indices in the original array return array of indices
-                    #         tet_indices.append(verts_indices[index])
-                    #     self._connectivities.append(tet_indices)
+                    for tet in indices:
+                        tet_indices = []
+                        for index in tet:
+                            # need to add the indices in the original array return array of indices
+                            tet_indices.append(verts_indices[index])
+                        self._connectivities.append(tet_indices)
 
     def crop_mesh_to_isovalue(self, isovalue, prune_level, progress):
         """

@@ -38,7 +38,7 @@
 import sys
 import argparse
 import pathlib
-from ffeamesh.fivetets import convert_mrc_to_5tets
+from ffeamesh.fivetets import convert_mrc_to_tets
 
 def get_args():
     """
@@ -100,6 +100,11 @@ def get_args():
                         "--progress",
                         action="store_true",
                         help="print progress during operation (may slow package)")
+
+    parser.add_argument("-6",
+                        "--use_six_tets",
+                        action="store_true",
+                        help="decompose into six tets")
 
     parser.add_argument("-m",
                         '--low_vertices',
@@ -169,15 +174,16 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
-    convert_mrc_to_5tets(args.input,
-                         args.output,
-                         args.threshold,
-                         args.ffea,
-                         args.vtk,
-                         args.verbose,
-                         args.progress,
-                         args.vox_counts,
-                         args.low_vertices)
+    convert_mrc_to_tets(args.input,
+                        args.output,
+                        args.threshold,
+                        args.ffea,
+                        args.vtk,
+                        args.verbose,
+                        args.progress,
+                        args.vox_counts,
+                        args.low_vertices,
+                        args.use_six_tets)
 
 if __name__ == "__main__":
     main()
