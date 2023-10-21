@@ -278,30 +278,30 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     # work on deep copy
     vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
 
-    grid = vtk.vtkUnstructuredGrid() #create unstructured grid
-    grid.SetPoints(vtk_pts) #assign points to grid
-    grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
+    vtk_grid = vtk.vtkUnstructuredGrid() #create unstructured grid
+    vtk_grid.SetPoints(vtk_pts) #assign points to grid
+    vtk_grid.SetCells(vtk.VTK_TETRA, cells_con) #assign tet cells to grid
 
     #write vtk file
     if vtk_out:
-        vtk_write.vtk_output(grid, output_file)
+        vtk_write.vtk_output(vtk_grid, output_file)
 
     # write tetgen file for ffea input
     if ffea_out:
-        ffea_output(grid, points_np, tets_connectivity, output_file)
+        ffea_output(vtk_grid, points_np, tets_connectivity, output_file)
 
-def ffea_output(grid, points, tets_connectivity, output_file):
+def ffea_output(vtk_grid, points, tets_connectivity, output_file):
     """
     Constructs the faces and calls the ffea writer to output file.
     Args:
-        grid (vtk.vtkUnstructuredGrid): vtk scene
+        vtk_grid (vtk.vtkUnstructuredGrid): vtk scene
         points (float np.ndarray): duplicate free list of vertices
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         output_file (pathlib.Path): name stem of output files
     Returns:
         None
     """
-    surf_points, cell_data, cell_count = vtk_u.get_vtk_surface(grid)
+    surf_points, cell_data, cell_count = vtk_u.get_vtk_surface(vtk_grid)
 
     # make a connectivity into the tets points
     original_ids = np.zeros((len(surf_points),), dtype='int16')
@@ -401,13 +401,13 @@ def make_vtk_grid(points_np, tets_connectivity):
     vtk_pts.SetData(numpy_support.numpy_to_vtk(points_np, deep=True))
 
     #create unstructured grid (conatiner for any combinations of any cell types)
-    grid = vtk.vtkUnstructuredGrid()
+    vtk_grid = vtk.vtkUnstructuredGrid()
     #assign points to grid
-    grid.SetPoints(vtk_pts)
+    vtk_grid.SetPoints(vtk_pts)
     #assign tet cells to grid
-    grid.SetCells(vtk.VTK_TETRA, cells_con)
+    vtk_grid.SetCells(vtk.VTK_TETRA, cells_con)
 
-    return grid
+    return vtk_grid
 
 def crop_mesh_to_isovalue(vertices,  densities, connectivity, isovalue, level=PruneLevel.TWO):
     """

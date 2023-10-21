@@ -180,6 +180,10 @@ def convert_mrc_to_tets(input_file,
         print(f"num vertices {len(grid.get_vertices())}")
         print(f"num tets {len(grid.get_connectivities())}")
 
+        if len(grid.get_connectivities()) == 0:
+            print("No tetrahedrons were made, so no files written", file=sys.stdout)
+            return
+
         if verbose:
             utility.verbose_output(mrc,
                                    grid.get_vertices(),
