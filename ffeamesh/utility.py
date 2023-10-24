@@ -132,5 +132,5 @@ def verbose_output(mrc, points, tet_connectivities, nvoxel):
     print(f"Number of voxels {nvoxel}")
     v_size = voxel_size(mrc)
     vol = v_size.dx * v_size.dx * v_size.dx
-    print(f"Voxel size ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
+    print(f"Voxel size in image ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
     print_voxel_stats(points, tet_connectivities)

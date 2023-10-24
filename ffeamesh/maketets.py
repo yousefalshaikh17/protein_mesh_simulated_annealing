@@ -176,10 +176,6 @@ def convert_mrc_to_tets(input_file,
         if progress:
             print(f"Conversion in {time_end - time_start} seconds, writing files")
 
-        print(f"num voxels: {grid.get_total_num_voxels()}")
-        print(f"num vertices {len(grid.get_vertices())}")
-        print(f"num tets {len(grid.get_connectivities())}")
-
         if len(grid.get_connectivities()) == 0:
             print("No tetrahedrons were made, so no files written", file=sys.stdout)
             return
