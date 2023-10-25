@@ -2,6 +2,8 @@
 @copyright 2022
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting conditions
+# pylint: disable = import-error
 import pathlib
 
 import ffeamesh.tetmeshtools.tetgenwrite as tw
@@ -85,6 +87,7 @@ class TetModel():
             [int]: points array
             [int]: edges array
         """
+        # TODO no method get_tet in class
         points = []
         for point in self.get_tet(index):
             points.append(point.index)

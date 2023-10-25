@@ -23,14 +23,16 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# TODO only used in cost function
+
 class TriangleNodes():
     """
     storage for the node indices of a triangle
     """
 
-    def __init__(self, v1, v2, v3):
+    def __init__(self, vert0, vert1, vert2):
         """setup object"""
-        self._verts = [v1, v2, v3]
+        self._verts = [vert0, vert1, vert2]
 
     def __hash__(self):
         """symmetric hash function (order independant)"""

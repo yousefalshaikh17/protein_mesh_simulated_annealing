@@ -23,14 +23,14 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting conditions
+# pylint: disable = import-error
 import csv
 import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.tetgenstructs as ts
 import ffeamesh.tetmeshtools.trisurface as trs
 import ffeamesh.tetmeshtools.tetmesh as tm
 import ffeamesh.tetmeshtools.tetmodel as tmod
-
-import ffeamesh.tetmeshtools.tetgenstructs as ts
 
 def make_model_from_tetgen(file_root):
     """
@@ -158,7 +158,11 @@ def read_face_file(input_file):
         faces = {}
         for row in reader:
             row = [x for x in row if x != '']
-            faces[int(row[0])] = ts.Face(int(row[0]), int(row[1]),  int(row[2]), int(row[3]), int(row[4]))
+            faces[int(row[0])] = ts.Face(int(row[0]),
+                                         int(row[1]),
+                                         int(row[2]),
+                                         int(row[3]),
+                                         int(row[4]))
 
         if len(faces) != meta_data.faces:
             req = meta_data.faces

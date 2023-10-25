@@ -23,9 +23,9 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting conditions
+# pylint: disable = import-error
 import numpy as np
-
-import ffeamesh.tetmeshtools.tetgenread as tr
 
 class TetMesh():
     """
@@ -119,11 +119,11 @@ class TetMesh():
         Returns:
             [float]
         """
-        sv = []
+        six_vols = []
         for index in self._tets.keys():
-            sv.append(self.get_tet_signed_6volume(index))
+            six_vols.append(self.get_tet_signed_6volume(index))
 
-        return sv
+        return six_vols
 
     def __str__(self):
         """to string"""

@@ -24,6 +24,8 @@
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting conditions
+# pylint: disable = import-error
 import ffeamesh.tetmeshtools.tetgenstructs as ts
 import ffeamesh.tetmeshtools.trisurface as trs
 import ffeamesh.tetmeshtools.tetmesh as tm
