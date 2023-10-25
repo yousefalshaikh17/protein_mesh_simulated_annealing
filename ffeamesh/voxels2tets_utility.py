@@ -38,8 +38,9 @@
 # pylint: disable = import-error
 import datetime
 import getpass
-import numpy as np
 import enum
+import numpy as np
+
 import vtk
 from vtkmodules.util import numpy_support
 from ffeamesh import vtk_write

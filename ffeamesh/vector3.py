@@ -22,8 +22,6 @@
 
  @author: jonathan pickering, joanna leng 08 Feb 23
 """
-## TODO only used for length function just use
-
 import numpy as np
 
 class Vector3(list):

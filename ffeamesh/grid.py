@@ -23,10 +23,14 @@
     Authors: Joanna Leng, Jonathan Pickering - University of Leeds
     Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
 """
-import numpy as np
-from itertools import product, count
-import ffeamesh.voxels2tets_utility as v2t
+# set up linting condition
+# pylint: disable = import-error
+# pylint: disable = too-many-public-methods
 import sys
+from itertools import product, count
+import numpy as np
+
+import ffeamesh.voxels2tets_utility as v2t
 
 class Grid():
     """

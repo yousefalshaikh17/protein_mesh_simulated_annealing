@@ -316,15 +316,12 @@ class MRCImage():
         for voxel_x in range(0, self._nx):
             for voxel_y in range(0, self._ny):
                 for voxel_z in range(0, self._nz):
-                    #print(self._data[voxel_z, voxel_y, voxel_x])
                     if self._data[voxel_z, voxel_y, voxel_x] < isovalue:
                         self._data[voxel_z, voxel_y, voxel_x] = self.distance_to_value_squared(
                                                                         voxel_z,
                                                                         voxel_y,
                                                                         voxel_x,
                                                                         isovalue)
-                        #print(f">>[{voxel_x}, {voxel_y}, {voxel_z}] => {self._data[voxel_z, voxel_y, voxel_x]}")
-
     def distance_to_value_squared(self, voxel_z, voxel_y, voxel_x, isovalue):
         """
         find the square of the distance to isovalue in voxels dimensions
@@ -336,22 +333,24 @@ class MRCImage():
         Returns:
             square of the distance to isovalue in voxels
         """
-
         shell = 0
 
         while True:
             shell += 1
             if shell > self._nx or shell > self._ny or shell > self._nz:
                 raise ValueError("isovalue cannot be found in mrc file")
+
             for del_x in range(voxel_x - shell, voxel_x + shell):
-                if del_x >=0 and del_x < self._nx:
+                if 0 <= del_x < self._nx:
 
                     for del_y in range(voxel_y - shell, voxel_y + shell):
-                        if del_y >=0 and del_y < self._ny:
+                        if 0 <= del_y < self._ny:
 
                             for del_z in range(voxel_z - shell, voxel_z + shell):
-                                if del_z >=0 and del_z < self._nz:
+                                if 0 <= del_z < self._nz:
 
                                     if self._data[del_z, del_y, del_x] >= isovalue:
-                                        dist_square = (del_x-voxel_x)**2 + (del_y-voxel_y)**2 + (del_z-voxel_z)**2
+                                        dist_square  = (del_x-voxel_x)**2
+                                        dist_square += (del_y-voxel_y)**2
+                                        dist_square += (del_z-voxel_z)**2
                                         return isovalue*dist_square

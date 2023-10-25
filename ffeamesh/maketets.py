@@ -40,11 +40,8 @@
 
 import sys
 from time import process_time
-from itertools import count
-import numpy as np
 import mrcfile
 
-import ffeamesh.coord_utility as cu
 from ffeamesh import utility
 import ffeamesh.voxels2tets_utility as v2t
 import ffeamesh.mrclininterpolate as mi
