@@ -111,7 +111,7 @@ def get_args():
                         type=int,
                         default=2,
                         choices=[1, 2, 3, 4],
-                        help="number of vertices below isovalue for tet to be culled (default: %(default)s)")
+                        help="number vertices < isovalue for tet cull (default: %(default)s)")
 
     parser.add_argument("-n",
                         "--vox_counts",
