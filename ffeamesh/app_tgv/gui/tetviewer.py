@@ -18,6 +18,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
+# pylint: disable = invalid-name
+
 from enum import Enum
 import numpy as np
 
@@ -118,6 +120,8 @@ class TetViewer(qw.QOpenGLWidget):
         """
         c_color = self._state.get_clear_color()
         gl.glClearColor(c_color[0], c_color[1], c_color[2], 1.0)
+
+        # OpenGL.constant.IntConstant not regarded by pylint as an int hence warning
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         if self._model is None:
