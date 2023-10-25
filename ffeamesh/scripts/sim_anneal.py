@@ -53,11 +53,8 @@ def unpack_weights(weights_list):
 def main():
     """run the script"""
     args = cl.get_args()
-
     if hasattr(args, "read_func"):
-        tmp = args.surface
         args = args.read_func(args.file)
-        args.surface = tmp
 
     weights = None
     if args.weights is not None:
@@ -76,7 +73,6 @@ def main():
 
     with mrcfile.open(args.mrc_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
-        image.depress_below_isovalue(args.isovalue)
 
         try:
             model = None
@@ -92,29 +88,17 @@ def main():
             else:
                 debug_file = None
 
-            cooling = sa.CoolingParams(args.start_temp,
-                                       args.stop_temp,
-                                       args.cooling,
-                                       args.cooling_rate)
-
-            if args.surface:
-                sa.sim_anneal_surface(cooling,
-                                      model,
-                                      weights,
-                                      args.isovalue,
-                                      mutate,
-                                      image,
-                                      debug_file,
-                                      args.out_file_root)
-            else:
-                sa.sim_anneal_all(cooling,
-                                  model,
-                                  weights,
-                                  args.isovalue,
-                                  mutate,
-                                  image,
-                                  debug_file,
-                                  args.out_file_root)
+            sa.simulated_anneal(sa.CoolingParams(args.start_temp,
+                                                 args.stop_temp,
+                                                 args.cooling,
+                                                 args.cooling_rate),
+                                model,
+                                weights,
+                                args.isovalue,
+                                mutate,
+                                image,
+                                debug_file,
+                                args.out_file_root)
 
             if debug_file is not None:
                 debug_file.close()
