@@ -133,11 +133,9 @@ The following scrips are available:
 
 ### Meshing
 
-   * **five_tets.py** - process MRC files and produces a regular tetrahedral volumetric
-    mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen
-    .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
-
-   * **six_tets.py** - process MRC files and produces a regular tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm. This is written out in the tetgen .ele, .face, and .node file format for later use in FFEA, and .vtk for mesh analysis.
+   * **mrc_to_tets.py** - process MRC files and produces a regular tetrahedral volumetric
+    meshs for FFEA using the "marching tet" algorithm. Decomposition of the image voxels into 5 or 6 tetrohedra each is available. Output can be in the tetgen
+    .ele, .face, and .node file format and/or the .vtk format.
 
 ### Test Files
 
@@ -155,14 +153,14 @@ The following scrips are available:
 As these are simply scripts there is no installation required other than the
  [prerequisites](\ref prerequisites).
 
-### five_tets & six_tets
+### mrc_to_tets
 
 five_tets & six_tets input MRC files and processes them to produce volumetric mesh
- files for use with FFEA. VTK files are also produced for mesh analysis.
+ files for use with FFEA. VTK files can also be produced for mesh analysis, using vtk based tools such as ParaView.
 
 To get started quickly, the usage message can be viewed with the following command:
 
-      python five_tets.py -h
+      python mrc_to_tets.py -h
 
 In order to run five or six_tets there are three required flags:
 
@@ -179,16 +177,29 @@ In order to run five or six_tets there are three required flags:
 
    * `-w`, `--overwrite` overwrite preexisting output files of same name
 
-   * `-m` METHOD, `--method` choice of method used to make tetrohedrons ['plain', 'interp', 'interp2']
-
    * `-V`, `--verbose`         write verbose output
 
    * `-p`, `--progress`        print progress during operation (may slow package)
 
-Optionally, an MRC file can first be coarsened to a user-specified resolution
- before producing mesh files using the flag `-r` or `--resolution`, followed by
- the resolution value. See [mrc_zoom](\ref mrczoom) for further explanation, as
- this flag passes the input MRC file to this script and returns the output.
+   * `-6`, `--use_six_tets`    decompose into six tets, default 5
+
+  * `-m` {1,2,3,4}`, `--low_vertices {1,2,3,4}`
+               number vertices above isovalue for tet to be included in mesh (default: 2)
+
+  `-n VOX_COUNTS X Y Z`, `--vox_counts VOX_COUNTS X Y Z`
+               voxel size for tets, if not used same as image, enter x y & z in Angstroms
+
+The `-n` option allows the coursness of the mesh to be specifed, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
+
+The `-m` option specifes the maximum number of vertices that can be below the isovalue on a tet includes in the mesh. So if prune leve is two tets with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
+
+||0|1|2|3|4|
+|----|---|---|---|---|---|
+|**PruneLevel.1**|In|In|Out|Out|Out|
+|**PruneLevel.2**|In|In|In|Out|Out|
+|**PruneLevel.3**|In|In|In|In|Out|
+|**PruneLevel.4**|In|In|In|In|In|
+
 
 In the output directory defined by `-o` or `--output`, the following files will
  be found after running tet_from_pix successfully, where [outputname] is the

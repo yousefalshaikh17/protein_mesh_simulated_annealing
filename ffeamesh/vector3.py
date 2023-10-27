@@ -26,7 +26,8 @@ import numpy as np
 
 class Vector3(list):
     """
-    a vector class, providing a class incorprating numpy dot and cross methods
+    a 3d vector class extending list and providing
+    doc, cross, normalize and is_close methods
     """
 
     @classmethod

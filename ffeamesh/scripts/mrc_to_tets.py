@@ -104,7 +104,7 @@ def get_args():
     parser.add_argument("-6",
                         "--use_six_tets",
                         action="store_true",
-                        help="decompose into six tets")
+                        help="decompose into six tets, default 5")
 
     parser.add_argument("-m",
                         '--low_vertices',
