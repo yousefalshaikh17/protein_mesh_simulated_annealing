@@ -12,7 +12,9 @@ The tools include:
 
     * optimisation vis simulated annealing to smooth the surface.
 
-This project was started in summer 2021.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
+
+Project start in summer 2021.
 
 ## Version
 
@@ -191,15 +193,16 @@ In order to run five or six_tets there are three required flags:
 
 The `-n` option allows the coursness of the mesh to be specifed, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
 
-The `-m` option specifes the maximum number of vertices that can be below the isovalue on a tet includes in the mesh. So if prune leve is two tets with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
+The `-m` option specifes the maximum number of vertices that can be below the isovalue on a tetrhedron that is included in the mesh, specified by the PruneLevel enumeration. For example, if prune leve is set to 2 then tetraherda with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
 
 ||0|1|2|3|4|
 |----|---|---|---|---|---|
-|**PruneLevel.1**|In|In|Out|Out|Out|
-|**PruneLevel.2**|In|In|In|Out|Out|
-|**PruneLevel.3**|In|In|In|In|Out|
+|**PruneLevel.1**|In|In|**Out**|**Out**|**Out**|
+|**PruneLevel.2**|In|In|In|**Out**|**Out**|
+|**PruneLevel.3**|In|In|In|In|**Out**|
 |**PruneLevel.4**|In|In|In|In|In|
 
+**Table 1.** The rows specify the possible prune levels the user can choose. For each level the in the mesh, out of the mesh choice is specified for the five possible numbers of vertices a tetrahedron can have below the isovlue, from none to all four.
 
 In the output directory defined by `-o` or `--output`, the following files will
  be found after running tet_from_pix successfully, where [outputname] is the
