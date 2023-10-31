@@ -1,0 +1,41 @@
+Patargias GN, Harris SA, Harding JH. A demonstration of the inhomogeneity of the local dielectric 
+response of proteins by molecular dynamics simulations. 
+J Chem Phys. 2010 Jun 21;132(23):235103. 
+doi: 10.1063/1.3430628. 
+PMID: 20572740.
+
+@article{OLIVER2013147,
+title = {A stochastic finite element model for the dynamics of globular macromolecules},
+journal = {Journal of Computational Physics},
+volume = {239},
+pages = {147-165},
+year = {2013},
+issn = {0021-9991},
+doi = {https://doi.org/10.1016/j.jcp.2012.12.027},
+url = {https://www.sciencedirect.com/science/article/pii/S0021999112007589},
+author = {Robin C. Oliver and Daniel J. Read and Oliver G. Harlen and Sarah A. Harris},
+keywords = {Stochastic simulation, Finite elements, Biomolecular simulation},
+abstract = {We describe a novel coarse-grained simulation method for modelling the dynamics of globular macromolecules, such as proteins. The macromolecule is treated as a continuum that is subject to thermal fluctuations. The model includes a non-linear treatment of elasticity and viscosity with thermal noise that is solved using finite element analysis. We have validated the method by demonstrating that the model provides average kinetic and potential energies that are in agreement with the classical equipartition theorem and that the nodal velocities have the correct Gaussian distribution. In addition, we have performed Fourier analysis on the simulation trajectories obtained for a series of linear beams to confirm that the correct average energies are present in the first two Fourier bending modes and that the probability distribution of the amplitudes of the first two Fourier modes match the theoretical results. We demonstrate spatial convergence of the model by showing that the anisotropy of the inertia tensor for a cubic mesh converges as a function of the mesh resolution. We have then used the new modelling method to simulate the thermal fluctuations of a representative protein over 500ns timescales. Using reasonable parameters for the material properties, we have demonstrated that the overall deformation of the biomolecule is consistent with the results obtained for proteins in general from atomistic molecular dynamics simulations.}
+}
+
+Albert Solernou,Benjamin S. Hanson,Robin A. Richardson,Robert Welch,Daniel J. Read,
+Oliver G. Harlen,Sarah A. Harris 
+
+Version 2
+Published: March 23, 2018
+https://doi.org/10.1371/journal.pcbi.1005897
+
+@Article{D0SM00491J,
+author ="Welch, Robert and Harris, Sarah A. and Harlen, Oliver G. and Read, Daniel J.",
+title  ="KOBRA: a fluctuating elastic rod model for slender biological macromolecules",
+journal  ="Soft Matter",
+year  ="2020",
+volume  ="16",
+issue  ="32",
+pages  ="7544-7555",
+publisher  ="The Royal Society of Chemistry",
+doi  ="10.1039/D0SM00491J",
+url  ="http://dx.doi.org/10.1039/D0SM00491J",
+abstract  ="KOBRA (KirchOff Biological Rod Algorithm) is an algorithm and software package designed to perform dynamical simulations of elongated biomolecules such as those containing alpha-helices and coiled-coils. It represents these as coarsely-discretised Kirchoff rods{,} with linear elements that can stretch{,} bend and twist independently. These rods can have anisotropic and inhomogeneous parameters and bent or twisted equilibrium structures{,} allowing for a coarse-grained parameterisation of complex biological structures. Each element is non-inertial and subject to thermal fluctuations. The speed and simplicity of the algorithm allows KOBRA rods to easily access timescales from nanoseconds to seconds. To demonstrate this functionality{,} a KOBRA rod was parameterised using data from all-atom simulations of the Ndc80 protein complex{,} and compared against these simulations and negative-stain EM images. The distribution of bend angles and principal components were highly correlated between KOBRA{,} all-atom molecular dynamics{,} and experimental data. The properties of a hinge region{,} thought to be found at an unstructured loop{,} were studied. A C++ implementation of KOBRA is available under the GNU GPLv3 free software licence."
+}
+
