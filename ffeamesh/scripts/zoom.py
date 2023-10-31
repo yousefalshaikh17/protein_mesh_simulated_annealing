@@ -55,57 +55,80 @@ def get_args():
 
     parser.add_argument("-i",
                         "--input",
-                        type=pathlib.Path,
+                        type=existing_mrc_file,
                         required=True,
                         help="input file")
 
     parser.add_argument("-o",
                         "--output",
-                        type=pathlib.Path,
+                        type=mrc_file,
                         required=True,
                         help="output file")
 
     parser.add_argument("-r",
                         "--resolution",
-                        type=float,
-                        default=20.0,
+                        type=valid_resolution,
+                        default=10.0,
                         help="Resolution by which to coarsen input MRC.")
 
     return parser.parse_args()
 
-def validate_args(args):
+def mrc_file(filename):
     """
-    ensure command line arguments are sane
+    make a pathlib.Path and check it has postfix .mrc
     Args:
-        args: (argparse.Namespace)
-    Returns
-        (str/None): if error a string describing problen else None
+        filename (str): name/path of file
+    Returns:
+        pathlib.Path
+    Raises:
+        ValueError if the filename does not end .mrc
     """
-    if not args.input.exists():
-        return f"file {args.input} does not exist!"
+    path = pathlib.Path(filename)
+    return path.with_suffix('.mrc')
 
-    if args.resolution <= 0.0:
-        return f"resolution must be greater than zero! (was {args.resolution})"
+def existing_mrc_file(filename):
+    """
+    make a pathlib.Path and check it exists
+    Args:
+        filename (str): name/path of file
+    Returns:
+        pathlib.Path
+    Raises:
+        ValueError if filename cannot be made into path
+    """
+    path = mrc_file(filename)
 
-    return None
+    if not path.exists():
+        raise ValueError(f"File {filename} does not exist!")
+
+    return path
+
+def valid_resolution(resolution_s):
+    """
+    ensure the resolution is sane
+    Args:
+        resolution_s (str): resolution in string form
+    Returns
+        (float>0.0): the resolution
+    Raises:
+        ValueError if can not convert to float or value <= 0.0
+    """
+    resolution = float(resolution_s)
+
+    if resolution <= 0.0:
+        raise ValueError(f"resolution <= 0 (was {resolution})")
+
+    return resolution
 
 def main():
     """
     run the script
     """
     args = get_args()
-    message = validate_args(args)
 
-    if message is not None:
-        print(f"Error {message}", file=sys.stderr, flush=True)
-        return
+    scale = refine_volume_data(args.input, args.output, args.resolution)
 
-    # ensure output has correct suffix
-    out_file = args.output.with_suffix('.mrc')
-
-    scale = refine_volume_data(args.input, out_file, args.resolution)
-
-    print(f"{args.input} scaled to {scale} and written to {out_file}")
+    print(f"{args.input} scaled to {scale} and written to {args.output}")
 
 if __name__ == "__main__":
     main()
