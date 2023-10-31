@@ -21,6 +21,7 @@ bibliography: paper.bib
 
 # Summary
 
+Fluctuating Finite Element Analysis (FFEA) [@PATARGIAS20572740] [@OLIVER2013147] [@SOLERNOU1005897] [@D0SM00491J] is molecular modelling algorithm, designed to model systems too large and complex for atomistic molecular dynamics. Instead the systems are modelled as visco-elastic continuum solids represented as volumes comprised of tetrahedrons.
 
 
 # Statement of Need
