@@ -79,14 +79,13 @@ def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, star
 
     return progress_test
 
-def all_voxels_to_tets(image, counts, progress, use_six_tets=True):
+def make_density_at_vertex_grid(image, counts, progress):
     """
-    Converts image into voxels of 5 tetrohedrons.
+    Converts image into voxels with densities at vertices.
     Args:
         image (MRCImage): the input file
         counts ([int, int, int]): voxel counts on x, y and z axis
         progress (bool): if true print out progress
-        five_tets (bool): it True use 5 tet decomp, else 6
     Returns:
         (Grid)
     """
@@ -105,6 +104,22 @@ def all_voxels_to_tets(image, counts, progress, use_six_tets=True):
     grid.build_grid(image)
     if progress:
         print("Vertices constructed", file=sys.stdout)
+
+    return grid
+
+def all_voxels_to_tets(image, counts, progress, use_six_tets=True):
+    """
+    Converts image into voxels of 5 tetrohedrons.
+    Args:
+        image (MRCImage): the input file
+        counts ([int, int, int]): voxel counts on x, y and z axis
+        progress (bool): if true print out progress
+        five_tets (bool): it True use 5 tet decomp, else 6
+    Returns:
+        (Grid)
+    """
+    grid = make_density_at_vertex_grid(image, counts, progress)
+
     if use_six_tets:
         grid.build_six_tets()
     else:

@@ -30,6 +30,38 @@
 
 import mrcfile
 from scipy import ndimage
+import ffeamesh.mrclininterpolate as mi
+from ffeamesh.maketets import make_density_at_vertex_grid
+
+def resample_volume_data(in_file, out_file, resolution):
+    """
+    resample the input file producing an ouput with a different number of voxels
+    Args:
+        in_file (pathlib.Path) the input file
+        out_file (pathlib.Path) the output file
+        resolution (float) the new resolution
+    Return
+    """
+    with mrcfile.mmap(in_file, mode='r+') as mrc:
+        image = mi.MRCImage(mrc)
+        vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]//resolution
+        grid = make_density_at_vertex_grid(image, vox_counts, True)
+        #TODO construct centered grid
+        output_scaled_mrcfile(ndimage.zoom(mrc.data, scale_factor), out_file, mrc)
+
+def write_grid_to_mrcfil(grid, out_file, origin):
+    """
+    write out a scaled mrc file
+        Args:
+            grid (MRCImage): density at vertex grid
+            out_file (pathlib.Path) the output file
+            origin ([float]) the origin of the original grid
+    """
+    # TODO convert grid to np array & work out new origin
+    # with mrcfile.new(out_file, overwrite=True) as mrc:
+    #     mrc.set_data(data)
+    #     mrc.header.origin = original_mrc.header.origin
+    pass
 
 def refine_volume_data(in_file, out_file, resolution):
     """
