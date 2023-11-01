@@ -53,6 +53,9 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         super().__init__(parent)
         self.setupUi(self)
 
+        ## internal state
+        self._show_peak_nodes = False
+
         ## model
         self._model = None
 
@@ -479,3 +482,17 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         responde to request for gray background
         """
         self._tetViewer.change_background("Gray")
+
+    @qc.pyqtSlot()
+    def toggle_peak_nodes(self):
+        """
+        responde to request to show/hide peak nodes
+        """
+        self._show_peak_nodes = not self._show_peak_nodes
+
+        if self._show_peak_nodes:
+            self._actionShowPeakNodes.setText("Hide peak nodes")
+        else:
+            self._actionShowPeakNodes.setText("Show peak nodes")
+
+        print(f"Show peak {self._show_peak_nodes}")
