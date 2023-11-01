@@ -381,6 +381,12 @@ class Grid():
         """
         return self._end
 
+    def get_offsets(self):
+        """
+        getter for the offsets
+        """
+        return self._offsets
+
     def __len__(self):
         """
         dunder method to allow objects to have len applied to them

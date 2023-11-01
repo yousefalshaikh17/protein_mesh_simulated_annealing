@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
- zoom.py
+ mrc_resample.py
 
- A script to coarsen an MRC image file, which uses scipy ndimage zoom
- to interpolate values for the merged voxels (from 5Å to 15Å for example).
+ A script to coarsen an MRC image file from 5Å to 15Å for example.
+
+ Replaces the zoom function developed by Molly Gravett.
 
  -------------------------------------
-
 
  This file is part of the FFEA simulation package
 
@@ -29,19 +29,17 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
- Created on Mon Oct 25 11:50:39 2021
+ Created on Wed 01-Nov-23
 
- @author: mollygravett
- modified jonathan pickering 23Aug22
+ @author: Jonathan Pickering
 """
 # set up linting conditions
 # pylint: disable = import-error
 
 import argparse
 import pathlib
-import sys
 
-from ffeamesh.mrc_zoom import refine_volume_data
+from ffeamesh.mrc_zoom import resample_volume_data
 
 def get_args():
     """
@@ -49,9 +47,7 @@ def get_args():
     Returns
         (argparse.namespace)
     """
-    parser = argparse.ArgumentParser(""" A script to coarsen an MRC image file, which """\
-                                     """uses scipy ndimage zoom to interpolate values """\
-                                     """for the merged voxels (from 5Å to 15Å for example).""" )
+    parser = argparse.ArgumentParser("""coarsen an MRC image file.""" )
 
     parser.add_argument("-i",
                         "--input",
@@ -65,11 +61,11 @@ def get_args():
                         required=True,
                         help="output file")
 
-    parser.add_argument("-r",
-                        "--resolution",
-                        type=valid_resolution,
-                        default=10.0,
-                        help="Resolution by which to coarsen input MRC.")
+    parser.add_argument("-s",
+                        "--scalefactor",
+                        type=valid_scalefactor,
+                        default=0.5,
+                        help="scalefactor by which to coarsen input MRC.")
 
     return parser.parse_args()
 
@@ -103,32 +99,34 @@ def existing_mrc_file(filename):
 
     return path
 
-def valid_resolution(resolution_s):
+def valid_scalefactor(scalefactor_s):
     """
-    ensure the resolution is sane
+    ensure the scalefactor is sane
     Args:
-        resolution_s (str): resolution in string form
+        scalefactor_s (str): scalefactor in string form
     Returns
-        (float>0.0): the resolution
+        (0.0<float<1.0): the scalefactor
     Raises:
         ValueError if can not convert to float or value <= 0.0
     """
-    resolution = float(resolution_s)
+    scalefactor = float(scalefactor_s)
 
-    if resolution <= 0.0:
-        raise ValueError(f"resolution <= 0 (was {resolution})")
+    if scalefactor <= 0.0 or scalefactor >= 1.0:
+        raise ValueError(f"Error {scalefactor} outside range (0.0, 1.0)")
 
-    return resolution
+    return scalefactor
 
 def main():
     """
     run the script
     """
     args = get_args()
+    # TODO add warning if very small scale
 
-    scale = refine_volume_data(args.input, args.output, args.resolution)
+    resample_volume_data(args.input, args.output, args.scalefactor)
 
-    print(f"{args.input} scaled to {scale} and written to {args.output}")
+    # TODO output the numbers & size of voxels
+    print(f"{args.input} scaled to {args.scalefactor} and written to {args.output}")
 
 if __name__ == "__main__":
     main()

@@ -29,77 +29,87 @@
 # pylint: disable = import-error
 
 import mrcfile
-from scipy import ndimage
+import numpy as np
 import ffeamesh.mrclininterpolate as mi
-from ffeamesh.maketets import make_density_at_vertex_grid
 
-def resample_volume_data(in_file, out_file, resolution):
+def scale_int_list(int_list, scale_factor):
+    """
+    scale an int list by a float factor convert the results
+    to ints and ensure all are greater than zero
+    Args:
+        int_list ([int]): the list to be scaled
+        scale_factor (float): the factor
+    Returns:
+        ([int]): scaled list
+    Raises:
+        ValueError is any entry is zero
+    """
+    out_list = [int(x*scale_factor) for x in int_list]
+    if not all(x>0.0 for x in out_list):
+        raise ValueError("Scale factor too small, one axis has no voxels!")
+    return out_list
+
+def make_new_density_array(vox_counts, header, image):
+    """
+    make a numpy density array that can be used in a mrc file
+    Args:
+        voxel_counts [int]: the number of voxes on x, y & z axis
+    Retruns
+        (numpy.array of float)
+    """
+    array = np.zeros(vox_counts, dtype=np.float32)
+
+    step_x = header.cella.x/array.shape[2]
+    step_y = header.cella.y/array.shape[1]
+    step_z = header.cella.z/array.shape[0]
+
+    start_x = header.origin.x + (step_x/2.0)
+    start_y = header.origin.y + (step_y/2.0)
+    start_z = header.origin.z + (step_z/2.0)
+
+    # iterate the voxels and make tet connectivities
+    for voxel_z in range(vox_counts[0]):
+        for voxel_y in range(vox_counts[1]):
+            for voxel_x in range(vox_counts[2]):
+                # if voxel_x > 10:
+                #     array[voxel_z, voxel_y, voxel_x] = 1.0
+                ctr_x = start_x + (voxel_x*step_x)
+                ctr_y = start_y + (voxel_y*step_y)
+                ctr_z = start_z + (voxel_z*step_z)
+                density, distance = image.density_or_distance_at(ctr_x, ctr_y, ctr_z)
+                if distance > 0.0:
+                    raise ValueError("Attempt to sample density out of image")
+                array[voxel_z, voxel_y, voxel_x] = density
+
+    return array
+
+def resample_volume_data(in_file, out_file, scale_factor):
     """
     resample the input file producing an ouput with a different number of voxels
     Args:
         in_file (pathlib.Path) the input file
         out_file (pathlib.Path) the output file
-        resolution (float) the new resolution
-    Return
+        scale_factor (float): range [0, 1], multipler for the number of voxels on each axis
     """
     with mrcfile.mmap(in_file, mode='r+') as mrc:
         image = mi.MRCImage(mrc)
-        vox_counts = [image.get_nx(), image.get_ny(), image.get_nz()]//resolution
-        grid = make_density_at_vertex_grid(image, vox_counts, True)
-        #TODO construct centered grid
-        output_scaled_mrcfile(ndimage.zoom(mrc.data, scale_factor), out_file, mrc)
+        vox_counts = scale_int_list([image.get_nz(), image.get_ny(), image.get_nx()], scale_factor)
+        array = make_new_density_array(vox_counts, mrc.header, image)
+        write_array_to_mrcfil(array, out_file, mrc.header)
 
-def write_grid_to_mrcfil(grid, out_file, origin):
+def write_array_to_mrcfil(array, out_file, header):
     """
     write out a scaled mrc file
         Args:
-            grid (MRCImage): density at vertex grid
+            array (np.array): array of voxels
             out_file (pathlib.Path) the output file
-            origin ([float]) the origin of the original grid
+            header (mrc.header) header from original mrc file
     """
-    # TODO convert grid to np array & work out new origin
-    # with mrcfile.new(out_file, overwrite=True) as mrc:
-    #     mrc.set_data(data)
-    #     mrc.header.origin = original_mrc.header.origin
-    pass
+    print(f"Origin {header.origin}")
+    print(f"array shape {array.shape}")
 
-def refine_volume_data(in_file, out_file, resolution):
-    """
-    simplify and smooth volume data in file
-        Args:
-            in_file (pathlib.Path) the input file
-            out_file (pathlib.Path) the output file
-            resolution (float) the new resolution
-    """
-    with mrcfile.open(in_file, mode='r+') as mrc:
-        scale_factor=(mrc.voxel_size.tolist()[0])/resolution
-        output_scaled_mrcfile(ndimage.zoom(mrc.data, scale_factor), out_file, mrc)
-
-    return scale_factor
-
-def output_scaled_mrcfile(data, out_file, original_mrc):
-    """
-    write out a scaled mrc file
-        Args:
-            data (numpy.ndarray): the volume data
-            out_file (pathlib.Path) the output file
-            original_mrc (mrcfile.File) the original input file
-    """
     with mrcfile.new(out_file, overwrite=True) as mrc:
-        mrc.set_data(data)
-        mrc.header.origin = original_mrc.header.origin
-        old_vox = original_mrc.voxel_size.tolist()
-        new_list =[]
-        nx_2 = mrc.header.nx
-        ny_2 = mrc.header.ny
-        nz_2 = mrc.header.nz
-        scale_x = nx_2/original_mrc.header.nx
-        scale_y = ny_2/original_mrc.header.ny
-        scale_z = nz_2/original_mrc.header.nz
-        new_list.append((1/scale_x)*old_vox[0]*(nx_2/(nx_2-1)))
-        new_list.append((1/scale_y)*old_vox[1]*(ny_2/(ny_2-1)))
-        new_list.append((1/scale_z)*old_vox[2]*(nz_2/(nz_2-1)))
-        mrc.voxel_size = tuple(new_list)
-
-        # not sure if doing different scale for each dimension necessary.
-        # maybe fine to just use scale_x for all?
+        mrc.set_data(array)
+        mrc.header.origin = header.origin
+        mrc.header.cella = header.cella
+        mrc.header.cellb = header.cellb

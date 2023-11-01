@@ -79,12 +79,12 @@ def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, star
 
     return progress_test
 
-def make_density_at_vertex_grid(image, counts, progress):
+def make_density_at_vertex_grid(image, counts=None, progress=True):
     """
     Converts image into voxels with densities at vertices.
     Args:
         image (MRCImage): the input file
-        counts ([int, int, int]): voxel counts on x, y and z axis
+        counts ([int, int, int]): voxel counts on x, y and z axis, if not
         progress (bool): if true print out progress
     Returns:
         (Grid)
@@ -96,12 +96,19 @@ def make_density_at_vertex_grid(image, counts, progress):
     end = [image.cell_size[0]+start[0],
            image.cell_size[1]+start[1],
            image.cell_size[2]+start[2]]
+
     image_counts =[image.get_nx(), image.get_ny(), image.get_nz()]
+
+    if counts is None:
+        counts = [x-1 for x in image_counts]
 
     grid = Grid(counts, start, end, image_counts)
     if progress:
         print("Grid object constructed.", file=sys.stdout)
+        print("Making vertices ...", file=sys.stdout)
+
     grid.build_grid(image)
+
     if progress:
         print("Vertices constructed", file=sys.stdout)
 
