@@ -53,9 +53,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         super().__init__(parent)
         self.setupUi(self)
 
-        ## internal state
-        self._show_peak_nodes = False
-
         ## model
         self._model = None
 
@@ -109,6 +106,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._model = tm.TetModel(tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
 
+            self._model.find_peak_nodes()
+
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
             self.display_total_surface_area()
@@ -150,6 +149,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
             self._model = tm.TetModel(tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
+
+            self._model.find_peak_nodes()
 
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
@@ -488,11 +489,11 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         """
         responde to request to show/hide peak nodes
         """
-        self._show_peak_nodes = not self._show_peak_nodes
+        self._tetViewer.toggle_show_peak_nodes()
 
-        if self._show_peak_nodes:
+        if self._tetViewer.get_show_peak_nodes():
             self._actionShowPeakNodes.setText("Hide peak nodes")
         else:
             self._actionShowPeakNodes.setText("Show peak nodes")
 
-        print(f"Show peak {self._show_peak_nodes}")
+        print(f"Show peak {self._tetViewer.get_show_peak_nodes()}")
