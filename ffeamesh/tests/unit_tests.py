@@ -1,5 +1,4 @@
 """
-
  This file is part of the FFEA simulation package
 
  Copyright (c) by the Theory and Development FFEA teams,
@@ -26,7 +25,7 @@
 """
 import unittest
 
-#from tests.test_io import TestIO
+from ffeamesh.tests.testreadtetgen import TestReadTetgen
 
 def make_suite():
     """
@@ -36,7 +35,9 @@ def make_suite():
     """
     suite = unittest.TestSuite()
 
-    #suite.addTest(TestIO('test_write_read'))
+    suite.addTest(TestReadTetgen('test_read_nodes'))
+    suite.addTest(TestReadTetgen('test_read_tets'))
+    suite.addTest(TestReadTetgen('test_read_tets'))
 
     return suite
 
