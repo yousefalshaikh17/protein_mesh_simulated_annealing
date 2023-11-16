@@ -48,7 +48,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'fft_smooth = ffeamesh.scripts.fft_smooth:main',        
+            'fft_smooth = ffeamesh.scripts.fft_smooth:main',
             'five_tets = ffeamesh.scripts.five_tets:main',
             'make_test_mrc_file = ffeamesh.scripts.make_test_mrcfile:main',
             'make_tet_mesh_examples = ffeamesh.scripts.make_tet_mesh_examples:main',
@@ -58,10 +58,11 @@ setup(
             'mrc_image_stats = ffeamesh.scripts.mrc_image_stats:main',
             'mrc_threshold = ffeamesh.scripts.mrc_threshold:main',
             'mrc_voxel_size = ffeamesh.scripts.mrc_voxel_size:main',
-            'sim_anneal = ffeamesh.scripts.sim_anneal:main',            
+            'sim_anneal = ffeamesh.scripts.sim_anneal:main',
             'six_tets = ffeamesh.scripts.six_tets:main',
             'zoom = ffeamesh.scripts.zoom:main',
-            'tgv = ffeamesh.app_tgv.tgv:main'
+            'tgv = ffeamesh.app_tgv.tgv:main',
+            'unit_test = ffeamesh.tests.unit_test'
         ]
     }
     )
