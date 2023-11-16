@@ -62,7 +62,7 @@ setup(
             'six_tets = ffeamesh.scripts.six_tets:main',
             'zoom = ffeamesh.scripts.zoom:main',
             'tgv = ffeamesh.app_tgv.tgv:main',
-            'unit_test = ffeamesh.tests.unit_test'
+            'unit_test = ffeamesh.tests.unit_tests'
         ]
     }
     )
