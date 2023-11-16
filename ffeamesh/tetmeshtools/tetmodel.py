@@ -149,3 +149,38 @@ class TetModel():
         tw.write_tetgen_nodes(path, self._surface.get_nodes())
         tw.write_tetgen_faces(path, self._surface.get_faces())
         tw.write_tetgen_elements(path, self._tets.get_tets())
+
+    def find_peak_nodes(self):
+        """
+        fill list with array indices of nodes beloning to only one tet
+        """
+        node_indices = self._tets.get_nodes().keys()
+        inclusion_counts = {index:[] for index in node_indices}
+
+        for index, tet in self._tets.get_tets().items():
+            inclusion_counts[tet.vert0].append(index)
+            inclusion_counts[tet.vert1].append(index)
+            inclusion_counts[tet.vert2].append(index)
+            inclusion_counts[tet.vert3].append(index)
+
+        lengths = []
+        for value in inclusion_counts.values():
+            lengths.append(len(value))
+
+        print(f" Min {min(lengths)}\n Max {max(lengths)}")
+
+    def node_to_triang(self):
+        """
+        make map of nodes to faces in which they are included
+        """
+        # dict of tet indices to list of nodes used as vertices
+        node_indices = self._surface.get_surface_nodes().keys()
+        inclusion_counts = {index:[] for index in node_indices}
+
+        for key, face in self._surface.get_faces().items():
+            inclusion_counts[face.vert0].append(key)
+            inclusion_counts[face.vert1].append(key)
+            inclusion_counts[face.vert1].append(key)
+
+
+

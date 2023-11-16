@@ -111,28 +111,36 @@ def read_node_file(input_file):
     Throws:
         ValueError if problem
     """
+    with input_file.open('r', newline='') as file:
+        return read_node_text(file)
+
+def read_node_text(text_stream):
+    """
+    read a text stream of tetgen nodes data
+    Args:
+        text_stream (io.TextIOWrapper)
+    """
     decomment = make_decomment("#")
 
-    with input_file.open('r', newline='') as file:
-        reader = csv.reader(decomment(file), delimiter=' ')
-        row = next(reader)
+    reader = csv.reader(decomment(text_stream), delimiter=' ')
+    row = next(reader)
+    row = [x for x in row if x != '']
+    meta_data = ts.NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
+
+    if meta_data.dimension != 3:
+        raise ValueError(f"File input is not 3D.")
+
+    points = {}
+    for row in reader:
         row = [x for x in row if x != '']
-        meta_data = ts.NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
+        index = int(row[0])
+        points[index] = ts.NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
 
-        if meta_data.dimension != 3:
-            raise ValueError(f"File {input_file} is not 3D.")
-
-        points = {}
-        for row in reader:
-            row = [x for x in row if x != '']
-            index = int(row[0])
-            points[index] = ts.NodePoint(index, float(row[1]),  float(row[2]), float(row[3]))
-
-        if len(points) != meta_data.points:
-            req = meta_data.points
-            act = len(points)
-            er_m = f"File {input_file} should have {req} points, but {act} were found!"
-            raise ValueError(er_m)
+    if len(points) != meta_data.points:
+        req = meta_data.points
+        act = len(points)
+        er_m = f"File input should have {req} points, but {act} were found!"
+        raise ValueError(er_m)
 
     return meta_data, points
 
