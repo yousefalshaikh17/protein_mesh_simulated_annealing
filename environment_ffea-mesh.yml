@@ -3,6 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - pip<24.0
   - vtk
   - numpy<1.23.0
   - scipy
