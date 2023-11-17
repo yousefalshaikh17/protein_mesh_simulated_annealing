@@ -59,7 +59,7 @@ class TetViewer(qw.QOpenGLWidget):
     def __init__(self, parent=None):
         """initalize the window"""
         self.parent = parent
-        qw.QOpenGLWidget.__init__(self, parent)
+        super().__init__(parent)
 
         ## the state
         self._state = TetViewerState()
