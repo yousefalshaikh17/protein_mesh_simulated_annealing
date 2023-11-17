@@ -46,9 +46,6 @@ class TetViewerState():
         self._edges_width = 1
         self._perspective = True
 
-        ## highlight peak nodes
-        self._show_peak_nodes = False
-
     def reset(self):
         """
         reset the shift and rotation
@@ -265,18 +262,6 @@ class TetViewerState():
             return True
 
         return False
-
-    def toggle_show_peak_nodes(self):
-        """
-        flip the show peak nodes flag
-        """
-        self._show_peak_nodes = not self._show_peak_nodes
-
-    def get_show_peak_nodes(self):
-        """
-        get the show peak nodes flag
-        """
-        return self._show_peak_nodes
 
     def save_setup(self, file_path):
         """

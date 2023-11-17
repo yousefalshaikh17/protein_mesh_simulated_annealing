@@ -333,7 +333,6 @@
     <addaction name="_actionWhiteBackground"/>
     <addaction name="_actionGrayBackground"/>
     <addaction name="separator"/>
-    <addaction name="_actionShowPeakNodes"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -392,11 +391,6 @@
   <action name="_actionGrayBackground">
    <property name="text">
     <string>Gray background</string>
-   </property>
-  </action>
-  <action name="_actionShowPeakNodes">
-   <property name="text">
-    <string>Show peak nodes</string>
    </property>
   </action>
  </widget>
@@ -718,22 +712,6 @@
    <signal>triggered()</signal>
    <receiver>TetgenViewerMain</receiver>
    <slot>background_white()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>421</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>_actionShowPeakNodes</sender>
-   <signal>triggered()</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>toggle_peak_nodes()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

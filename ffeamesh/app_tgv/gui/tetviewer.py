@@ -515,15 +515,3 @@ class TetViewer(qw.QOpenGLWidget):
         if self._model is not None and self._state.get_current_tet() is not None:
             self._state.center_on_tet()
             self.update()
-
-    def toggle_show_peak_nodes(self):
-        """
-        flip the show peak nodes flag
-        """
-        self._state.toggle_show_peak_nodes()
-
-    def get_show_peak_nodes(self):
-        """
-        get the show peak nodes flag
-        """
-        return self._state.get_show_peak_nodes()

@@ -106,8 +106,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             self._model = tm.TetModel(tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
 
-            self._model.find_peak_nodes()
-
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
             self.display_total_surface_area()
@@ -149,8 +147,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
             self._model = tm.TetModel(tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
-
-            self._model.find_peak_nodes()
 
             self.list_tets(tet_props)
             self.display_total_volume(tet_props)
@@ -483,17 +479,3 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         responde to request for gray background
         """
         self._tetViewer.change_background("Gray")
-
-    @qc.pyqtSlot()
-    def toggle_peak_nodes(self):
-        """
-        responde to request to show/hide peak nodes
-        """
-        self._tetViewer.toggle_show_peak_nodes()
-
-        if self._tetViewer.get_show_peak_nodes():
-            self._actionShowPeakNodes.setText("Hide peak nodes")
-        else:
-            self._actionShowPeakNodes.setText("Show peak nodes")
-
-        print(f"Show peak {self._tetViewer.get_show_peak_nodes()}")
