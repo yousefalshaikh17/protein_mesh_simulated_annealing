@@ -38,6 +38,9 @@
 import sys
 import argparse
 import pathlib
+import cProfile
+import pstats
+import io
 from ffeamesh.maketets import convert_mrc_to_tets
 
 def get_args():
@@ -174,6 +177,8 @@ def main():
         print(error_message, file=sys.stderr)
         return
 
+    pr = cProfile.Profile()
+    pr.enable()
     convert_mrc_to_tets(args.input,
                         args.output,
                         args.threshold,
@@ -184,6 +189,12 @@ def main():
                         args.vox_counts,
                         args.low_vertices,
                         args.use_six_tets)
+    pr.disable()
+    s = io.StringIO()
+    sortby = pstats.SortKey.CUMULATIVE
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats(10)
+    print(s.getvalue())
 
 if __name__ == "__main__":
     main()
