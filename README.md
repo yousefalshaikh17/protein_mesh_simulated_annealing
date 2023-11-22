@@ -64,19 +64,19 @@ Now install the cpt tools into the cpt environment:
 
 Execution of the visualizer:
 
-`tgv.py`
+`tgv`
 
 Execution of a command line script is in this format when you download the mvc file called filename.
 
-` mrc_header_info.py -i filename`
+`mrc_header_info -i filename`
 
 And to get help on how to use a script:
 
-` mrc_header_info.py --help`
+`mrc_header_info --help`
 
 If you want to use them to write your own python scripts you can now import them into a script.
 
-`import cpt`
+`import ffeamesh.<import name>....`
 
 ## Managing The ffea_mesh Environment:
 

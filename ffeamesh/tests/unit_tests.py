@@ -37,7 +37,7 @@ def make_suite():
 
     suite.addTest(TestReadTetgen('test_read_nodes'))
     suite.addTest(TestReadTetgen('test_read_tets'))
-    suite.addTest(TestReadTetgen('test_read_tets'))
+    suite.addTest(TestReadTetgen('test_read_faces'))
 
     return suite
 
