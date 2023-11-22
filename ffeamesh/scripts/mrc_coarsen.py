@@ -30,7 +30,7 @@
 """
 # set up linting
 # pylint: disable = import-error
-
+import sys
 import argparse
 import pathlib
 import mrcfile
@@ -40,11 +40,11 @@ import ffeamesh.mrclininterpolate as mi
 
 from ffeamesh.utility import voxel_size
 
-def check_counts(input):
+def check_counts(in_str):
     """
     check the numbers of voxels are greter than zero
     """
-    my_int = int(input)
+    my_int = int(in_str)
     if my_int < 1:
         raise ValueError("number of voxels must be greater than zero")
     return my_int
@@ -99,8 +99,10 @@ def write_array_to_mrcfile(array, out_file, header, origin, cell_size, voxel_cou
 
         mrc.header.nx = voxel_counts[0]
         mrc.header.mx = voxel_counts[0]
+
         mrc.header.ny = voxel_counts[1]
         mrc.header.my = voxel_counts[1]
+
         mrc.header.nz = voxel_counts[2]
         mrc.header.mz = voxel_counts[2]
 
@@ -174,12 +176,21 @@ def main(input_file, output_file, voxel_counts):
         print(new_cell_size)
         print(new_vox_size)
 
-        array = make_data_array(image, voxel_counts, new_vox_size, new_origin)
-        write_array_to_mrcfile(array, output_file, mrc.header, new_origin, new_cell_size, voxel_counts)
+        array = make_data_array(image,
+                                voxel_counts,
+                                new_vox_size,
+                                new_origin)
+
+        write_array_to_mrcfile(array,
+                               output_file,
+                               mrc.header,
+                               new_origin,
+                               new_cell_size,
+                               voxel_counts)
 
 if __name__ == "__main__":
     args = get_args()
     if len(args.voxelcounts) != 3:
-        exit("You must provide exactly 3 voxel counts")
+        sys.exit("You must provide exactly 3 voxel counts")
 
     main(args.input, args.output, args.voxelcounts)
