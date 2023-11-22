@@ -152,9 +152,6 @@ The following scrips are available:
 
 ## Usage
 
-As these are simply scripts there is no installation required other than the
- [prerequisites](\ref prerequisites).
-
 ### mrc_to_tets
 
 five_tets & six_tets input MRC files and processes them to produce volumetric mesh
@@ -185,10 +182,10 @@ In order to run five or six_tets there are three required flags:
 
    * `-6`, `--use_six_tets`    decompose into six tets, default 5
 
-  * `-m` {1,2,3,4}`, `--low_vertices {1,2,3,4}`
+   * `-m {1,2,3,4}`, `--low_vertices {1,2,3,4}`
                number vertices above isovalue for tet to be included in mesh (default: 2)
 
-  `-n VOX_COUNTS X Y Z`, `--vox_counts VOX_COUNTS X Y Z`
+   * `-n VOX_COUNTS X Y Z`, `--vox_counts VOX_COUNTS X Y Z`
                voxel size for tets, if not used same as image, enter x y & z in Angstroms
 
 The `-n` option allows the coursness of the mesh to be specifed, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
