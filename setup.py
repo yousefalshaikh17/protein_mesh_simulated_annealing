@@ -2,10 +2,7 @@
 """
 setup.py
 
-File to compile c and prepare python for a pip install.
-
----------------------------------------
-
+pip install the scripts
 
   This file is part of the FFEA simulation package
 
