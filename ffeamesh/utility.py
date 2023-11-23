@@ -103,34 +103,3 @@ def print_voxel_stats(points, tet_connectities):
 
     for vol, count in vol_histo.bin_counts.items():
         print(f"Volume {vol}: {count} tets")
-
-## storage for a voxel
-DVector = namedtuple("DVector", "dx, dy, dz")
-
-def voxel_size(mrc):
-    """
-    cacluate the voxel size
-    Args:
-        mrc (mrcfile): source data
-    Returns
-        DVector
-    """
-    delta_x = mrc.header.cella.x/mrc.header.mx
-    delta_y = mrc.header.cella.y/mrc.header.my
-    delta_z = mrc.header.cella.z/mrc.header.mz
-    return DVector(delta_x, delta_y, delta_z)
-
-def verbose_output(mrc, points, tet_connectivities, nvoxel):
-    """
-    print description of the output
-    Args:
-        mrc (mrcfile): source file
-        points [float, float, float] list): the coordinates of the vertices
-        tet_connectivities ([int, int, int int] list): tets map to vertices
-        nvoxel (int): the number of voxels transformed
-    """
-    print(f"Number of voxels {nvoxel}")
-    v_size = voxel_size(mrc)
-    vol = v_size.dx * v_size.dx * v_size.dx
-    print(f"Voxel size in image ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
-    print_voxel_stats(points, tet_connectivities)

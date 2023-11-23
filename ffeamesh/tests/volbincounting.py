@@ -26,7 +26,36 @@
 # set up linting
 # pylint: disable = import-error
 
-from ffeamesh.fivetets import VolumeBins
+import unittest
+from ffeamesh.utility import VolumeBins
+
+class TestVolBins(unittest.TestCase):
+    """
+    tests of Tetgen file reader
+    """
+
+    def setUp(self):
+        """
+        build a full test class
+        """
+        pass
+
+    def tearDown(self):
+        """
+        clean up
+        """
+        pass
+
+    def test_nodepoint_to_edge_array(self):
+        """
+        test NodePoint to_edge_arry
+        """
+        vol_bins = VolumeBins()
+
+        for i in [1.0, 1.23, 1.7, 2.3, 1.1, 2.7]:
+            vol_bins.add(i)
+
+        self.assertEqual()
 
 def main():
     """
@@ -43,8 +72,8 @@ def main():
     print("3.0 => 1")
 
     print("Was:")
-    for bucket, count in vol_bins.bin_counts.items():
-        print(f"{bucket} => {count}")
+    for bin, count in vol_bins.bin_counts.items():
+        print(f"{bin} => {count}")
 
 if __name__ == '__main__':
     main()

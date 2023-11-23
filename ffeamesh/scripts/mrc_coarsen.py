@@ -38,7 +38,7 @@ import numpy as np
 
 import ffeamesh.mrclininterpolate as mi
 
-from ffeamesh.utility import voxel_size
+from ffeamesh.mrc_utility import voxel_size
 
 def check_counts(in_str):
     """

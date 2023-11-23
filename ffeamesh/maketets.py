@@ -42,9 +42,9 @@ import sys
 from time import process_time
 import mrcfile
 
-from ffeamesh import utility
 import ffeamesh.voxels2tets_utility as v2t
 import ffeamesh.mrclininterpolate as mi
+from ffeamesh.mrc_utility import voxel_size
 
 from ffeamesh.grid import Grid
 
@@ -200,13 +200,25 @@ def convert_mrc_to_tets(input_file,
             return
 
         if verbose:
-            utility.verbose_output(mrc,
-                                   grid.get_vertices(),
-                                   grid.get_connectivities(),
-                                   grid.get_total_num_voxels())
+            verbose_output(mrc,
+                           grid.get_total_num_voxels())
 
         v2t.write_tets_to_files(grid.get_vertices(),
                                 grid.get_connectivities(),
                                 output_file,
                                 ffea_out,
                                 vtk_out)
+
+def verbose_output(mrc, nvoxel):
+    """
+    print description of the output
+    Args:
+        mrc (mrcfile): source file
+        points [float, float, float] list): the coordinates of the vertices
+        tet_connectivities ([int, int, int int] list): tets map to vertices
+        nvoxel (int): the number of voxels transformed
+    """
+    print(f"Number of voxels {nvoxel}")
+    v_size = voxel_size(mrc)
+    vol = v_size.dx * v_size.dx * v_size.dx
+    print(f"Voxel size in image ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
