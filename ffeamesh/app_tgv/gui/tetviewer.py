@@ -59,7 +59,7 @@ class TetViewer(qw.QOpenGLWidget):
     def __init__(self, parent=None):
         """initalize the window"""
         self.parent = parent
-        qw.QOpenGLWidget.__init__(self, parent)
+        super().__init__(parent)
 
         ## the state
         self._state = TetViewerState()
@@ -515,15 +515,3 @@ class TetViewer(qw.QOpenGLWidget):
         if self._model is not None and self._state.get_current_tet() is not None:
             self._state.center_on_tet()
             self.update()
-
-    def toggle_show_peak_nodes(self):
-        """
-        flip the show peak nodes flag
-        """
-        self._state.toggle_show_peak_nodes()
-
-    def get_show_peak_nodes(self):
-        """
-        get the show peak nodes flag
-        """
-        return self._state.get_show_peak_nodes()

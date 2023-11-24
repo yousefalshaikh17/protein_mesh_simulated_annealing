@@ -36,6 +36,9 @@ import numpy as np
 ## a data struct for the mrcfile cell size
 CellSize = namedtuple("CellSize", "x, y, z")
 
+## storage for a voxel
+VoxelSize = namedtuple("VoxelSize", "dx, dy, dz")
+
 ## a data struct for the mrcfile cell angles (degrees)
 CellAngles = namedtuple("CellAngles", 'alpha, beta, gamma')
 
@@ -118,3 +121,16 @@ def threshold_mrc_image(image, threshold):
     """
     tmp = np.array([0 if value<threshold else value for value in image.flatten()], dtype=np.float32)
     return tmp.reshape(image.shape)
+
+def voxel_size(mrc):
+    """
+    cacluate the voxel size
+    Args:
+        mrc (mrcfile): source data
+    Returns
+        VoxelSize
+    """
+    delta_x = mrc.header.cella.x/mrc.header.mx
+    delta_y = mrc.header.cella.y/mrc.header.my
+    delta_z = mrc.header.cella.z/mrc.header.mz
+    return VoxelSize(delta_x, delta_y, delta_z)

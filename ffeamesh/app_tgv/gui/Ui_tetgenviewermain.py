@@ -177,8 +177,6 @@ class Ui_TetgenViewerMain(object):
         self._actionWhiteBackground.setObjectName("_actionWhiteBackground")
         self._actionGrayBackground = QtWidgets.QAction(TetgenViewerMain)
         self._actionGrayBackground.setObjectName("_actionGrayBackground")
-        self._actionShowPeakNodes = QtWidgets.QAction(TetgenViewerMain)
-        self._actionShowPeakNodes.setObjectName("_actionShowPeakNodes")
         self.menuFile.addAction(self._actionLoad)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self._actionSaveImage)
@@ -195,7 +193,6 @@ class Ui_TetgenViewerMain(object):
         self.menuView.addAction(self._actionWhiteBackground)
         self.menuView.addAction(self._actionGrayBackground)
         self.menuView.addSeparator()
-        self.menuView.addAction(self._actionShowPeakNodes)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
 
@@ -220,7 +217,6 @@ class Ui_TetgenViewerMain(object):
         self._actionBlackBackground.triggered.connect(TetgenViewerMain.background_black) # type: ignore
         self._actionGrayBackground.triggered.connect(TetgenViewerMain.background_gray) # type: ignore
         self._actionWhiteBackground.triggered.connect(TetgenViewerMain.background_white) # type: ignore
-        self._actionShowPeakNodes.triggered.connect(TetgenViewerMain.toggle_peak_nodes) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(TetgenViewerMain)
 
     def retranslateUi(self, TetgenViewerMain):
@@ -254,5 +250,4 @@ class Ui_TetgenViewerMain(object):
         self._actionBlackBackground.setText(_translate("TetgenViewerMain", "Black background"))
         self._actionWhiteBackground.setText(_translate("TetgenViewerMain", "White background"))
         self._actionGrayBackground.setText(_translate("TetgenViewerMain", "Gray background"))
-        self._actionShowPeakNodes.setText(_translate("TetgenViewerMain", "Show peak nodes"))
 from ffeamesh.app_tgv.gui.tetviewer import TetViewer

@@ -31,13 +31,16 @@ class Vector3(list):
     """
 
     @classmethod
-    def make_from_list(cls, source):
+    def make_from_np_array(cls, source):
         """
         constructor from list
         Args:
+            cls (<class>): class specifier
             source ([float]): list of at least 3 floats
+        Returns
+            Vector3
         """
-        return cls(source[0], source[1], source[2])
+        return cls([source[0], source[1], source[2]])
 
     def dot(self, rhs):
         """
@@ -57,7 +60,7 @@ class Vector3(list):
         Returns:
             (Vector3)
         """
-        return Vector3.make_from_list(np.cross(self, rhs))
+        return Vector3.make_from_np_array(np.cross(self, rhs))
 
     def length(self):
         """
@@ -74,7 +77,7 @@ class Vector3(list):
             [float]
         """
         tmp = np.divide(self, self.length())
-        return Vector3.make_from_list(tmp)
+        return Vector3.make_from_np_array(tmp)
 
     def isclose(self, rhs):
         """

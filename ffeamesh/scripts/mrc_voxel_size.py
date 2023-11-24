@@ -29,7 +29,7 @@ import argparse
 import pathlib
 import mrcfile
 
-from ffeamesh.utility import voxel_size
+from ffeamesh.mrc_utility import voxel_size
 
 def get_args():
     """

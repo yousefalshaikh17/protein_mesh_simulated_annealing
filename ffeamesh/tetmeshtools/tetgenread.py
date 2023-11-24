@@ -80,7 +80,6 @@ def make_decomment(comment):
     Args:
         comment (str): the comment string
     """
-
     if comment is None or comment.isspace() or comment == '':
         return None
 
@@ -155,28 +154,36 @@ def read_face_file(input_file):
     Throws:
         ValueError if problem
     """
+    with input_file.open('r', newline='') as file:
+        return read_face_text(file)
+
+def read_face_text(text_stream):
+    """
+    read a text stream of tetgen face data
+    Args:
+        text_stream (io.TextIOWrapper)
+    """
     decomment = make_decomment("#")
 
-    with input_file.open('r', newline='') as file:
-        reader = csv.reader(decomment(file), delimiter=' ')
-        row = next(reader)
+    reader = csv.reader(decomment(text_stream), delimiter=' ')
+    row = next(reader)
+    row = [x for x in row if x != '']
+    meta_data = ts.FaceMetaData(int(row[0]), int(row[1]))
+
+    faces = {}
+    for row in reader:
         row = [x for x in row if x != '']
-        meta_data = ts.FaceMetaData(int(row[0]), int(row[1]))
+        faces[int(row[0])] = ts.Face(int(row[0]),
+                                        int(row[1]),
+                                        int(row[2]),
+                                        int(row[3]),
+                                        int(row[4]))
 
-        faces = {}
-        for row in reader:
-            row = [x for x in row if x != '']
-            faces[int(row[0])] = ts.Face(int(row[0]),
-                                         int(row[1]),
-                                         int(row[2]),
-                                         int(row[3]),
-                                         int(row[4]))
-
-        if len(faces) != meta_data.faces:
-            req = meta_data.faces
-            act = len(faces)
-            er_m = f"File {input_file} should have {req} faces, but {act} were found!"
-            raise ValueError(er_m)
+    if len(faces) != meta_data.faces:
+        req = meta_data.faces
+        act = len(faces)
+        er_m = f"File should have {req} faces, but {act} were found!"
+        raise ValueError(er_m)
 
     return meta_data, faces
 
@@ -191,40 +198,48 @@ def read_tet_file(input_file):
     Throws:
         ValueError if problem
     """
+    with input_file.open('r', newline='') as file:
+        return read_tet_text(file)
+
+def read_tet_text(text_stream):
+    """
+    read a text stream of tetgen element data
+    Args:
+        text_stream (io.TextIOWrapper)
+    """
     decomment = make_decomment("#")
 
-    with input_file.open('r', newline='') as file:
-        reader = csv.reader(decomment(file), delimiter=' ')
-        row = next(reader)
+    reader = csv.reader(decomment(text_stream), delimiter=' ')
+    row = next(reader)
+    row = [x for x in row if x != '']
+    meta_data = ts.TetMetaData(int(row[0]), int(row[1]), int(row[2]))
+
+    if meta_data.nodes != 4:
+        raise ValueError("This reader can only handle four nodes per tetrahedron.")
+
+    tets = {}
+    for row in reader:
         row = [x for x in row if x != '']
-        meta_data = ts.TetMetaData(int(row[0]), int(row[1]), int(row[2]))
+        index = int(row[0])
+        if meta_data.ra == 0:
+            tets[index] = ts.Tetrahedron4(index,
+                                          int(row[1]),
+                                          int(row[2]),
+                                          int(row[3]),
+                                          int(row[4]),
+                                          None)
+        else:
+            tets[index] = ts.Tetrahedron4(index,
+                                          int(row[1]),
+                                          int(row[2]),
+                                          int(row[3]),
+                                          int(row[4]),
+                                          int(row[5]))
 
-        if meta_data.nodes != 4:
-            raise ValueError("This reader can only handle four nodes per tetrahedron.")
-
-        tets = {}
-        for row in reader:
-            row = [x for x in row if x != '']
-            index = int(row[0])
-            if meta_data.ra == 0:
-                tets[index] = ts.Tetrahedron4(index,
-                                              int(row[1]),
-                                              int(row[2]),
-                                              int(row[3]),
-                                              int(row[4]),
-                                              None)
-            else:
-                tets[index] = ts.Tetrahedron4(index,
-                                              int(row[1]),
-                                              int(row[2]),
-                                              int(row[3]),
-                                              int(row[4],
-                                              int(row[5])))
-
-        if len(tets) != meta_data.tets:
-            req = meta_data.tets
-            act = len(tets)
-            er_m = f"File {input_file} should have {req} points, but {act} were found!"
-            raise ValueError(er_m)
+    if len(tets) != meta_data.tets:
+        req = meta_data.tets
+        act = len(tets)
+        er_m = f"File should have {req} tets, but {act} were found!"
+        raise ValueError(er_m)
 
     return meta_data, tets

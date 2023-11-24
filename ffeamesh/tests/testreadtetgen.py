@@ -58,18 +58,6 @@ class TestReadTetgen(unittest.TestCase):
         ## path to zip archive of test data
         self._archive = zipfile.ZipFile(path)
 
-        # ## the nodes file
-        # self._nodes_file = path.with_suffix(".1.node")
-        # test_existance(self._nodes_file)
-
-        # ## the elements file
-        # self._tets_file = path.with_suffix(".1.ele")
-        # test_existance(self._tets_file)
-
-        # ## the triangle surface file
-        # self._faces_file = path.with_suffix(".1.face")
-        # test_existance(self._faces_file)
-
     def tearDown(self):
         """
         clean up
@@ -91,19 +79,19 @@ class TestReadTetgen(unittest.TestCase):
         """
         test reading the elements files
         """
-        return
-        meta, tets  = tr.read_tet_file(self._tets_file)
+        with self._archive.open('sphere10.1.ele', 'r') as file:
+            meta, tets = tr.read_tet_text(TextIOWrapper(file))
 
-        self.assertIsInstance(tets, dict)
-        self.assertEqual(meta.tets, len(tets))
-        self.assertEqual(meta.nodes, 4)
+            self.assertIsInstance(tets, dict)
+            self.assertEqual(meta.tets, len(tets))
+            self.assertEqual(meta.nodes, 4)
 
-    def test_read_tets(self):
+    def test_read_faces(self):
         """
         test reading the elements files
         """
-        return
-        meta, faces = tr.read_face_file(self._faces_file)
+        with self._archive.open('sphere10.1.ele', 'r') as file:
+            meta, faces = tr.read_face_text(TextIOWrapper(file))
 
-        self.assertIsInstance(faces, dict)
-        self.assertEqual(meta.faces, len(faces))
+            self.assertIsInstance(faces, dict)
+            self.assertEqual(meta.faces, len(faces))
