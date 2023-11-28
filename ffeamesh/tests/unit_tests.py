@@ -27,6 +27,7 @@ import unittest
 
 from ffeamesh.tests.testreadtetgen import TestReadTetgen
 from ffeamesh.tests.testmeshprops import TestMeshProps
+from ffeamesh.tests.testtetprops import TestTetProps
 
 def make_suite():
     """
@@ -42,6 +43,9 @@ def make_suite():
     suite.addTest(TestMeshProps('test_tet_volume'))
     suite.addTest(TestMeshProps('test_nodepoint_to_edge_array'))
     suite.addTest(TestMeshProps('test_vector3'))
+    suite.addTest(TestTetProps('test_tet_volume'))
+    suite.addTest(TestTetProps('test_tet_area'))
+    suite.addTest(TestTetProps('test_triangle_area'))
 
     return suite
 

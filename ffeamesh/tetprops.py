@@ -96,7 +96,9 @@ def tet_volume(coords):
     for coord in coords[1:]:
         sides.append(coords[0].to_edge_array(coord))
 
-    return abs(np.dot(np.cross(sides[0], sides[1]), sides[2]))/6.0
+    # length = area of trapesium = area triangle * 2
+    tmp = np.cross(sides[0], sides[1])
+    return abs(np.dot(tmp, sides[2]))/6.0
 
 def areas(node_points, tets, tet_props):
     """

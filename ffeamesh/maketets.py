@@ -45,6 +45,8 @@ import mrcfile
 import ffeamesh.voxels2tets_utility as v2t
 import ffeamesh.mrclininterpolate as mi
 from ffeamesh.mrc_utility import voxel_size
+from ffeamesh.tetprops import tet_volume
+from ffeamesh.tetmeshtools.tetgenstructs import NodePoint
 
 from ffeamesh.grid import Grid
 
@@ -201,7 +203,10 @@ def convert_mrc_to_tets(input_file,
 
         if verbose:
             verbose_output(mrc,
-                           grid.get_total_num_voxels())
+                           grid.get_total_num_voxels(),
+                           grid.get_vertices(),
+                           grid.get_connectivities(),
+                           use_six_tets)
 
         v2t.write_tets_to_files(grid.get_vertices(),
                                 grid.get_connectivities(),
@@ -209,16 +214,36 @@ def convert_mrc_to_tets(input_file,
                                 ffea_out,
                                 vtk_out)
 
-def verbose_output(mrc, nvoxel):
+def verbose_output(mrc, nvoxels, vertices, tet_connectivities, six_tets):
     """
     print description of the output
     Args:
         mrc (mrcfile): source file
-        points [float, float, float] list): the coordinates of the vertices
+        nvoxels (int): total number of voxels
+        vertices [float, float, float] list): the coordinates of the vertices
         tet_connectivities ([int, int, int int] list): tets map to vertices
-        nvoxel (int): the number of voxels transformed
     """
-    print(f"Number of voxels {nvoxel}")
+    print(f"Number of voxels {nvoxels}")
     v_size = voxel_size(mrc)
-    vol = v_size.dx * v_size.dx * v_size.dx
-    print(f"Voxel size in image ({v_size.dx}, {v_size.dx}, {v_size.dx}), volume {vol}")
+    vol = v_size.dx * v_size.dy * v_size.dz
+    print(f"Voxel size in image ({v_size.dx}, {v_size.dy}, {v_size.dz}), volume {vol}")
+    if six_tets:
+        print("6 tets per voxel")
+        return
+
+    print("5 tets per voxel")
+    large = 0
+    # to seperate tets vol/3 from vol/6 use vol/4
+    limit = vol/4.0
+    for tet in tet_connectivities:
+        geom = []
+        for index in tet:
+            vert = vertices[index]
+            geom.append(NodePoint(index, vert[0], vert[1], vert[2]))
+
+        if tet_volume(geom) < limit:
+            large += 1
+
+    print(f"Number of tets with volume of {vol/3.0} is {large}")
+    print(f"Number of tets with volume of {vol/6.0} is {len(tet_connectivities)-large}")
+
