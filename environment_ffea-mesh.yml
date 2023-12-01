@@ -1,4 +1,4 @@
-name: ffea-mesh
+name: ffea-mesh2
 channels:
   - defaults
   - conda-forge
@@ -14,3 +14,4 @@ dependencies:
   - pyopengl
   - pyqt
   - pyrr
+  - biopython
