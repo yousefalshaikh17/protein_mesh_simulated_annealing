@@ -401,7 +401,11 @@ def get_args():
     """
     get the command line arguments
     """
-    parser = argparse.ArgumentParser("make density map from pdb")
+    description = """make a simulated MRC format electron density map from a
+PDB format list of atom locations, densities are calculated
+at the centre point of each voxel bases on VDW radii of the atoms"""
+
+    parser = argparse.ArgumentParser(description)
 
     parser.add_argument('-i',
                         '--input',
@@ -461,7 +465,8 @@ def run_pdb_to_mrc():
                   CellProps(bounds.get_cella(), angles),
                   args.output,
                   label,
-                  args.overwrite)
+                  args.overwrite,
+                  origin=bounds.get_origin())
 
 if __name__ == "__main__":
     run_pdb_to_mrc()

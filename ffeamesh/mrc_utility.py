@@ -77,7 +77,7 @@ def get_cell_angles(mrc):
                       mrc.header.cellb.beta,
                       mrc.header.cellb.gamma)
 
-def write_mrcfile(data, cell_props, out_file, label=None, overwrite=False):
+def write_mrcfile(data, cell_props, out_file, label=None, overwrite=False, origin=None):
     """
     write a numpy array to an mrc_file
     Args:
@@ -97,8 +97,15 @@ def write_mrcfile(data, cell_props, out_file, label=None, overwrite=False):
     with mrcfile.mmap(out_file, mode='w+') as mrc:
         mrc.set_data(data)
         mrc.update_header_from_data()
+
         if label is not None:
             mrc.header.label[0] = label
+
+        if origin is not None:
+            mrc.header.origin.x = origin[0]
+            mrc.header.origin.y = origin[1]
+            mrc.header.origin.z = origin[2]
+
         mrc.header.cella.x = cell_props.size.x
         mrc.header.cella.y = cell_props.size.y
         mrc.header.cella.z = cell_props.size.z

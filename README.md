@@ -45,6 +45,7 @@ This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 **[Prerequisites](#prerequisites)**<br>
 **[Installation](#istallation)**<br>
 **[Unit Tests](#unit-tests)**<br>
+**[Worked Example](#example)]**<br>
 
 ## Quick Start:
 
@@ -309,3 +310,19 @@ If unit_tests is called with no flags, all three tests will run. To run specific
       python unit_tests.py -t 1,3
 
 The command line will print out each test ran and state if they passed or failed.
+
+## Worked Example
+
+The file data/demo.mrc is a simulated MRC file based on the Protien Data Bank file ala_phe_ala.pdb available from https://gist.github.com/cstein/6699200.
+
+To see the information in the files header run
+
+`mrc_header_info -i .\data\demo.mrc`
+
+To see the statistics of the data in the image run
+
+`mrc_image_stats -i .\data\demo.mrc`
+
+To convert to a mesh using five tetrahedra per voxel, run:
+
+`mrc_to_tets -i .\data\demo.mrc -o demo -v -f -t 3.85 -w -V -p -m2 -n 10 10 10`

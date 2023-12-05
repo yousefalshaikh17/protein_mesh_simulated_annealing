@@ -49,10 +49,13 @@ class Grid():
         ## number of steps on x, y & z axis
         self._num_steps = counts
 
+        epsilon = np.float64(1.0e-10) # allow for rounding on conversion
+
         ## mimimum coordinates of image cube
-        self._start = [np.float64(x) for x in start]
+        self._start = [np.float64(x+epsilon) for x in start]
+
         ## maximum coordinates of image cube
-        self._end = [np.float64(x) for x in end]
+        self._end = [np.float64(x-epsilon) for x in end]
 
         ## offsets to allow for half voxel bound on linear interpolation
         self._offsets = []

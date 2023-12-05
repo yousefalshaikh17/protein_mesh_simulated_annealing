@@ -51,7 +51,7 @@ setup(
             'mrc_crop = ffeamesh.scripts.mrc_crop:main',
             'mrc_header_info = ffeamesh.scripts.mrc_header_info:main',
             'mrc_image_stats = ffeamesh.scripts.mrc_image_stats:main',
-            'mrc_to_tets = ffeamesh.scripts.mrc_to_test:main',
+            'mrc_to_tets = ffeamesh.scripts.mrc_to_tets:main',
             'mrc_threshold = ffeamesh.scripts.mrc_threshold:main',
             'mrc_voxel_size = ffeamesh.scripts.mrc_voxel_size:main',
             'tgv = ffeamesh.app_tgv.tgv:main'
