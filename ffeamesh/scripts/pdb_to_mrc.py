@@ -39,6 +39,8 @@ import itertools
 import sys
 import getpass
 import datetime
+import time
+import multiprocessing as multi
 import numpy as np
 
 import Bio.PDB
@@ -347,12 +349,13 @@ def output_details(input_file, atoms, bounds):
 
     print(f"\tSize of cell (x, y, z): ({del_x:.3f}, {del_y:.3f}, {del_z:.3f})")
 
-def make_mrc_data(atoms, model, print_progress=True):
+def make_mrc_data(atoms, model, proc_num, print_progress=True):
     """
     make the mrc data array
     Args:
         atoms [AtomBall]:
         model VoxelModel:
+        proc_num int: the process number
         print_progress bool: if true print every 1000 iterations
     """
     data = np.zeros(model.shape(), dtype=np.float32)
@@ -368,14 +371,76 @@ def make_mrc_data(atoms, model, print_progress=True):
                                                              index_z)
                 done = next(count)
                 if print_progress and (done%1000 == 0):
-                    print(f"\t{done} out of {total} voxels completed", file=sys.stdout)
+                    print(f"\tProcess {proc_num}: has completed {done} out of {total} voxels", file=sys.stdout)
 
     if print_progress:
-        print(f"\tFinished: {done} out of {total} voxels completed", file=sys.stdout)
+        print(f"\tProcess {proc_num} finished: {total} voxels completed", file=sys.stdout)
 
     return data
 
-##############################################
+def run_multiprocess(atoms, model):
+    """
+    run the density calculation in parallel
+    Args:
+        atoms [AtomBall]
+        model [VoxelModel]
+    Returns:
+        numpy.ndarray: the voxel densities
+    """
+    num_processors = multi.cpu_count()
+    if num_processors>2:
+        num_processors -= 1
+
+    chunk = int(len(atoms)/num_processors)
+    pool = multi.Pool(num_processors)
+    processes = []
+
+    t0 = time.time()
+    # distribute the atoms array across the processors
+    for count in range(num_processors):
+        start = count*chunk
+        if count == num_processors-1:
+            # final case must go to end of array to allow for rounding error in size of chunk
+            #data.append(make_mrc_data(atoms[start:], model))
+            proc_args = (atoms[start:], model, count)
+        else:
+            #data.append(make_mrc_data(atoms[start:(start+chunk)], model))
+            proc_args = (atoms[start:(start+chunk)], model, count)
+
+        processes.append(pool.apply_async(make_mrc_data, proc_args))
+
+    data = [p.get() for p in processes]
+    # add the densities in the arrays
+    total = data[0]
+    for tmp in data[1:]:
+        total = np.add(total, tmp)
+
+    print(f"Data completed elapsed time {time.time()-t0:.2f}s", file=sys.stdout)
+
+    return total
+
+def write_out_file(data, bounds, in_file, out_file):
+    """
+    write out the MRC file
+    Args:
+        data [AtomBall]
+        bounds SpaceBounds
+        in_file pathlib.Path
+        out_file pathlib.Path
+    """
+    label = f"From {str(in_file)}"
+    label += f" by {getpass.getuser()} on "
+    label += datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
+
+    angles = CellAngles(90.0, 90.0, 90.0)
+    write_mrcfile(data,
+                  CellProps(bounds.get_cella(), angles),
+                  out_file,
+                  label,
+                  out_file,
+                  origin=bounds.get_origin())
+
+    print(f"Data written to {out_file}", file=sys.stdout)
 
 def pdb_path_exists(file_name):
     """
@@ -454,19 +519,8 @@ def run_pdb_to_mrc():
         return
 
     model = VoxelModel(bounds, args.num_voxels[0], args.num_voxels[1], args.num_voxels[2])
-
-    data = make_mrc_data(atoms, model)
-    label = f"From {str(args.input)}"
-    label += f" by {getpass.getuser()} on "
-    label += datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
-
-    angles = CellAngles(90.0, 90.0, 90.0)
-    write_mrcfile(data,
-                  CellProps(bounds.get_cella(), angles),
-                  args.output,
-                  label,
-                  args.overwrite,
-                  origin=bounds.get_origin())
+    data = run_multiprocess(atoms, model)
+    write_out_file(data, bounds, args.input, args.output)
 
 if __name__ == "__main__":
     run_pdb_to_mrc()
