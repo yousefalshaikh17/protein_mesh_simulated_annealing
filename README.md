@@ -283,6 +283,8 @@ Install the package to the environment using pip
 
 `pip install --editable .`
 
+This will produce a directory called 'ffeamesh.egg-info', do not remove this directory.
+
 Make the documentation run doxygen
 
 `doxygen`
