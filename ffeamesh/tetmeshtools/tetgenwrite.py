@@ -39,7 +39,7 @@ def write_tetgen_elements(output_file, tets, comment=""):
         for index in tets:
             tet = tets[index]
             ele.write(f"{index} {tet.vert0} {tet.vert1} {tet.vert2} {tet.vert3}\n")
-        ele.write(comment)
+        ele.write(f"# {comment}")
 
 def write_tetgen_nodes(output_file, points, comment=""):
     """
@@ -57,7 +57,7 @@ def write_tetgen_nodes(output_file, points, comment=""):
         for index in points:
             point = points[index]
             node.write(f"{index} {point.x} {point.y} {point.z}\n")
-        node.write(comment)
+        node.write(f"# {comment}")
 
 def write_tetgen_faces(output_file, faces, comment=""):
     """
@@ -75,4 +75,4 @@ def write_tetgen_faces(output_file, faces, comment=""):
         for index in faces:
             face = faces[index]
             face_file.write(f"{index} {face.vert0} {face.vert1} {face.vert2} -1\n")
-        face_file.write(comment)
+        face_file.write(f"# {comment}")
