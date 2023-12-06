@@ -3,122 +3,12 @@
 # 'fix' tetgen files with nodes starting at zero
 import argparse
 import pathlib
-import csv
-import enum
 import itertools
 
 import ffeamesh.tetmeshtools.tetgenread as tr
 import ffeamesh.tetmeshtools.tetgenwrite as tw
 import ffeamesh.tetmeshtools.tetgenstructs as ts
 
-class TetgenFileTypes(enum.Enum):
-    """
-    enum of tetgen file types used in FFEA
-    """
-    NODE = ".1.node"
-    FACE = ".1.face"
-    ELE  = ".1.ele"
-
-def read_fix_bad_tets(file):
-    """
-    read and fix bad tets
-    Args
-        file (File)
-    Returns
-        [int]: file header
-        [[int, int, int, int, int]]: fixed tets
-    """
-    header = None
-    tets = []
-    reader = csv.reader(file,
-                        delimiter=' ',
-                        skipinitialspace=True)
-
-    header = [int(x) for x in next(reader)]
-    for line in reader:
-        if line[0][0] != "#":
-            tets.append([int(x)+1 for x in line])
-
-    return header, tets
-
-def read_fix_bad_faces(file):
-    """
-    read and fix bad nodes
-    Args
-        file (File)
-    Returns
-        [int]: file header
-        [[int, int, int, int, str]]: fixed faces
-    """
-    header = None
-    faces = []
-    reader = csv.reader(file,
-                        delimiter=' ',
-                        skipinitialspace=True)
-
-    header = [int(x) for x in next(reader)]
-    for line in reader:
-        if line[0][0] != "#":
-            faces.append([int(line[0])+1, int(line[1])+1, int(line[2])+1, int(line[3])+1, line[4]])
-
-    return header, faces
-
-def read_fix_bad_nodes(file):
-    """
-    read and fix bad nodes
-    Args
-        file (File)
-    Returns
-        [int]: file header
-        [[int, str, str, str]]: fixed nodes
-    """
-    header = None
-    nodes = []
-    reader = csv.reader(file,
-                        delimiter=' ',
-                        skipinitialspace=True)
-
-    header = [int(x) for x in next(reader)]
-    for line in reader:
-        if line[0][0] != "#":
-            nodes.append([int(line[0])+1] + line[1:])
-
-    return header, nodes
-
-def write_tetgen_file(file, header, data, source):
-    """
-    write header and nodes
-    """
-    writer = csv.writer(file, delimiter=' ', quotechar='#', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(header)
-    for row in data:
-        writer.writerow(row)
-
-    writer.writerow([f"Genderated by from_start_zero from {source}"])
-
-def convert_bad_file(stump, parent, file_type):
-    """
-    convert a faces file
-    Args:
-        stump (str): name stump
-        parnet (pathlib.Path): directory path
-        file_type (TetgenFileTypes)
-    """
-    input = parent.joinpath(stump).with_suffix(file_type.value)
-    output = parent.joinpath(stump+"_renum").with_suffix(file_type.value)
-
-    with input.open('r') as file:
-        if file_type == TetgenFileTypes.NODE:
-            header, nodes = read_fix_bad_nodes(file)
-        elif file_type == TetgenFileTypes.FACE:
-            header, nodes = read_fix_bad_faces(file)
-        elif file_type == TetgenFileTypes.ELE:
-            header, nodes = read_fix_bad_tets(file)
-
-    with output.open('w', newline='') as file:
-        write_tetgen_file(file, header, nodes, input.name)
-
-###################################################################
 def  reindex_tets(tets, map):
     """
     reindex the faces to start at one and ascend in steps of one, also use map to update the node indixes
