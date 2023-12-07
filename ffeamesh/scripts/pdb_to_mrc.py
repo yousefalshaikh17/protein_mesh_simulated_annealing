@@ -425,22 +425,19 @@ def process_message(message, connections, progress):
         connections[message[2]].close()
         del connections[message[2]]
 
-def run_pool(pool, model, atoms):
+def setup_processes(pool, processes, pipes, model, atoms, num_processors):
     """
-    run the pool of processes
+    distribute the atoms array across the processors
     Args:
         pool multiprocessing.pool.Pool
+        processes []
+        pipes []
         model VoxelModel
         atoms [AtomBall]
+        num_processors omt
     """
-    num_processors = pool._processes
-
     chunk = int(len(atoms)/num_processors)
-    processes = []
-    pipes = {}
-    progress = Progress(model.number_of_voxels(), len(atoms))
 
-    # distribute the atoms array across the processors
     for count in range(num_processors):
         start = count*chunk
         parent_conn, child_conn = multi.Pipe(False)
@@ -453,6 +450,13 @@ def run_pool(pool, model, atoms):
         processes.append(pool.apply_async(make_mrc_data, proc_args))
         pipes[count] = parent_conn
 
+def manage_processes(pipes, progress):
+    """
+    handel messages from the processes, and close pipes as needed
+    Args
+        pipes [multiprocessing.Pipe]
+        progress Progerss
+    """
     flag = True
     while flag:
         for label in list(pipes.keys()):
@@ -465,6 +469,22 @@ def run_pool(pool, model, atoms):
                 print(f"Warning, process {label} exited abnormally!", file=sys.stderr)
 
             flag = bool(pipes) # False if empty
+
+def run_pool(pool, model, atoms, num_processors):
+    """
+    run the pool of processes
+    Args:
+        pool multiprocessing.pool.Pool
+        model VoxelModel
+        atoms [AtomBall]
+        num_processors int
+    """
+    processes = []
+    pipes = {}
+    progress = Progress(model.number_of_voxels(), len(atoms))
+
+    setup_processes(pool, processes, pipes, model, atoms, num_processors)
+    manage_processes(pipes, progress)
 
     return [p.get() for p in processes]
 
@@ -483,7 +503,7 @@ def run_multiprocess(atoms, model):
 
     time_start = time.time()
     with multi.Pool(num_processors) as pool:
-        data = run_pool(pool, model, atoms)
+        data = run_pool(pool, model, atoms, num_processors)
 
     # add the densities in the arrays
     total = data[0]
