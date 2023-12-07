@@ -55,6 +55,33 @@ _atomic_rad ={'H': 1.2,
               'P': 1.8,
               'S': 1.8}
 
+class Progress():
+    """record progress in conversion"""
+
+    def __init__(self, num_voxels, num_atoms):
+        """
+        set up object
+        Args:
+            num_voxels int:
+            num_atoms int:
+        """
+        ## number of atom voxel calculations performed
+        self._done = 0
+
+        ## total numbe of atom voxel calculation
+        self._total = num_voxels * num_atoms
+
+    def advance(self, done):
+        """
+        add a number of atom voxel calculations to running total
+        Args:
+            done int: numbe of atom voxel calculations performed
+        Returns:
+            float: current percentage of total
+        """
+        self._done += done
+        return round(100.0*(self._done/self._total), 3)
+
 class AtomBall(typing.NamedTuple):
     """storage for an atom as radius and location"""
     radius: float
@@ -372,8 +399,8 @@ def make_mrc_data(atoms, model, proc_label, pipe):
                                                              index_z)
 
                 done = next(count)
-                if done%1000 == 0:
-                    pipe.send((count, proc_label))
+                if done%100 == 0:
+                    pipe.send((done*len(atoms), proc_label))
 
     pipe.send(('Fertig', proc_label))
     pipe.close()
@@ -390,7 +417,7 @@ def process_message(message, connections):
     if isinstance(message[0], int):
         print(f"Proc {message[1]} Done {message[0]}")
     else:
-        print(f"Proc {message[1]} has finished")
+        print(f"Proc {message[1]} has finished {message[0]}")
         connections[message[1]].close()
         del connections[message[1]]
 
@@ -432,18 +459,16 @@ def run_multiprocess(atoms, model):
             try:
                 message = pipes[id].recv()
                 process_message(message, pipes)
-                #print(f"Completed {progress.advance()}%")
-                print(f"Proc {id} advanced")
+                print(f"Proc {id} advanced", file=sys.stdout)
             except EOFError:
                 pipes[id].close()
                 del pipes[id]
-                print(f"Warning, process {id} exited abnormally!")
+                print(f"Warning, process {id} exited abnormally!", file=sys.stderr)
 
             flag = bool(pipes) # False if empty
 
-    print("one")
     data = [p.get() for p in processes]
-    print("two")
+
     # add the densities in the arrays
     total = data[0]
     for tmp in data[1:]:
