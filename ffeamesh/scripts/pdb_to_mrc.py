@@ -66,10 +66,6 @@ class AtomBall(typing.NamedTuple):
         """string reper for user"""
         return f"<AtomBall, {self.radius}, ({self.x}, {self.y}, {self.z})>"
 
-    def __repr__(self):
-        """string reper for developer"""
-        return f"AtomBall({self.radius}, {self.x}, {self.y}, {self.z})"
-
 class SpaceBounds():
     """spatial bounds of collection of points"""
 
@@ -81,13 +77,19 @@ class SpaceBounds():
             y_coord (float): y coordinate of first point
             z_coord (float): z coordinate of first point
         """
+        ## low x bound
         self.low_x = x_coord
+        ## high x bound
         self.high_x = x_coord
 
+        ## low y bound
         self.low_y = y_coord
+        ## high y bound
         self.high_y = y_coord
 
+        ## low z bound
         self.low_z = z_coord
+        ## high z bound
         self.high_z = z_coord
 
     def add_point(self, x_coord, y_coord, z_coord):
