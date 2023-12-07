@@ -389,6 +389,7 @@ def make_mrc_data(atoms, model, proc_label, pipe):
     """
     data = np.zeros(model.shape(), dtype=np.float32)
     count = itertools.count(1)
+
     for index_z in range(model.num_z):
         for index_y in range(model.num_y):
             for index_x in range(model.num_x):
@@ -400,14 +401,15 @@ def make_mrc_data(atoms, model, proc_label, pipe):
 
                 done = next(count)
                 if done%100 == 0:
-                    pipe.send((done*len(atoms), proc_label))
+                    # emit the number of atom calculations done
+                    pipe.send((100*len(atoms), proc_label))
 
-    pipe.send(('Fertig', proc_label))
+    pipe.send(('Fertig', (done%100)*len(atoms), proc_label))
     pipe.close()
 
     return data
 
-def process_message(message, connections):
+def process_message(message, connections, progress):
     """
     handle a message
     Args:
@@ -415,11 +417,11 @@ def process_message(message, connections):
         connections Connections:
     """
     if isinstance(message[0], int):
-        print(f"Proc {message[1]} Done {message[0]}")
+        print(f"Conversion {progress.advance(message[0])}% complete.", end='\r')
     else:
-        print(f"Proc {message[1]} has finished {message[0]}")
-        connections[message[1]].close()
-        del connections[message[1]]
+        print(f"Process {message[2]} finished: conversion {progress.advance(message[1])}% complete.")
+        connections[message[2]].close()
+        del connections[message[2]]
 
 def run_multiprocess(atoms, model):
     """
@@ -438,6 +440,7 @@ def run_multiprocess(atoms, model):
     pool = multi.Pool(num_processors)
     processes = []
     pipes = {}
+    progress = Progress(model.number_of_voxels(), len(atoms))
 
     t0 = time.time()
     # distribute the atoms array across the processors
@@ -458,8 +461,7 @@ def run_multiprocess(atoms, model):
         for id in list(pipes.keys()):
             try:
                 message = pipes[id].recv()
-                process_message(message, pipes)
-                print(f"Proc {id} advanced", file=sys.stdout)
+                process_message(message, pipes, progress)
             except EOFError:
                 pipes[id].close()
                 del pipes[id]
