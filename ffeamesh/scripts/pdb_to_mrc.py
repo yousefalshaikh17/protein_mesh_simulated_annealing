@@ -71,7 +71,7 @@ class Progress():
         ## total numbe of atom voxel calculation
         self._total = num_voxels * num_atoms
 
-    def advance(self, done):
+    def __call__(self, done):
         """
         add a number of atom voxel calculations to running total
         Args:
@@ -415,34 +415,31 @@ def process_message(message, connections, progress):
     Args:
         message (int/str, int):
         connections Connections:
+        progress Progress: convert increment of operations to percentage of total
     """
     if isinstance(message[0], int):
-        print(f"Conversion {progress.advance(message[0])}% complete.", end='\r')
+        print(f"Conversion {progress(message[0]):.3f}% complete.", end='\r')
     else:
-        print(f"Process {message[2]} finished: conversion {progress.advance(message[1])}% complete.")
+        percent = progress(message[1])
+        print(f"Process {message[2]} finished: conversion {percent:.3f}% complete.")
         connections[message[2]].close()
         del connections[message[2]]
 
-def run_multiprocess(atoms, model):
+def run_pool(pool, model, atoms):
     """
-    run the density calculation in parallel
+    run the pool of processes
     Args:
+        pool multiprocessing.pool.Pool
+        model VoxelModel
         atoms [AtomBall]
-        model [VoxelModel]
-    Returns:
-        numpy.ndarray: the voxel densities
     """
-    num_processors = multi.cpu_count()
-    if num_processors>2:
-        num_processors -= 1
+    num_processors = pool._processes
 
     chunk = int(len(atoms)/num_processors)
-    pool = multi.Pool(num_processors)
     processes = []
     pipes = {}
     progress = Progress(model.number_of_voxels(), len(atoms))
 
-    t0 = time.time()
     # distribute the atoms array across the processors
     for count in range(num_processors):
         start = count*chunk
@@ -458,25 +455,42 @@ def run_multiprocess(atoms, model):
 
     flag = True
     while flag:
-        for id in list(pipes.keys()):
+        for label in list(pipes.keys()):
             try:
-                message = pipes[id].recv()
+                message = pipes[label].recv()
                 process_message(message, pipes, progress)
             except EOFError:
-                pipes[id].close()
-                del pipes[id]
-                print(f"Warning, process {id} exited abnormally!", file=sys.stderr)
+                pipes[label].close()
+                del pipes[label]
+                print(f"Warning, process {label} exited abnormally!", file=sys.stderr)
 
             flag = bool(pipes) # False if empty
 
-    data = [p.get() for p in processes]
+    return [p.get() for p in processes]
+
+def run_multiprocess(atoms, model):
+    """
+    run the density calculation in parallel
+    Args:
+        atoms [AtomBall]
+        model [VoxelModel]
+    Returns:
+        numpy.ndarray: the voxel densities
+    """
+    num_processors = multi.cpu_count()
+    if num_processors>2:
+        num_processors -= 1
+
+    time_start = time.time()
+    with multi.Pool(num_processors) as pool:
+        data = run_pool(pool, model, atoms)
 
     # add the densities in the arrays
     total = data[0]
     for tmp in data[1:]:
         total = np.add(total, tmp)
 
-    print(f"Data completed elapsed time {time.time()-t0:.2f}s", file=sys.stdout)
+    print(f"Data completed elapsed time {time.time()-time_start:.2f}s", file=sys.stdout)
 
     return total
 
