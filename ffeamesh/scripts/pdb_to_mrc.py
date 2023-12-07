@@ -351,17 +351,16 @@ def output_details(input_file, atoms, bounds):
 
     print(f"\tSize of cell (x, y, z): ({del_x:.3f}, {del_y:.3f}, {del_z:.3f})")
 
-def make_mrc_data(atoms, model, proc_num, print_progress=True):
+def make_mrc_data(atoms, model, proc_label, pipe):
     """
     make the mrc data array
     Args:
         atoms [AtomBall]:
         model VoxelModel:
-        proc_num int: the process number
-        print_progress bool: if true print every 1000 iterations
+        proc_label int: the process number
+        pipe multiprocessing.Pipe: communication to parent
     """
     data = np.zeros(model.shape(), dtype=np.float32)
-    total = model.number_of_voxels()
     count = itertools.count(1)
     for index_z in range(model.num_z):
         for index_y in range(model.num_y):
@@ -371,14 +370,29 @@ def make_mrc_data(atoms, model, proc_num, print_progress=True):
                                                              index_x,
                                                              index_y,
                                                              index_z)
-                done = next(count)
-                if print_progress and (done%1000 == 0):
-                    print(f"\tProcess {proc_num}: has completed {done} out of {total} voxels", file=sys.stdout)
 
-    if print_progress:
-        print(f"\tProcess {proc_num} finished: {total} voxels completed", file=sys.stdout)
+                done = next(count)
+                if done%1000 == 0:
+                    pipe.send((count, proc_label))
+
+    pipe.send(('Fertig', proc_label))
+    pipe.close()
 
     return data
+
+def process_message(message, connections):
+    """
+    handle a message
+    Args:
+        message (int/str, int):
+        connections Connections:
+    """
+    if isinstance(message[0], int):
+        print(f"Proc {message[1]} Done {message[0]}")
+    else:
+        print(f"Proc {message[1]} has finished")
+        connections[message[1]].close()
+        del connections[message[1]]
 
 def run_multiprocess(atoms, model):
     """
@@ -396,22 +410,40 @@ def run_multiprocess(atoms, model):
     chunk = int(len(atoms)/num_processors)
     pool = multi.Pool(num_processors)
     processes = []
+    pipes = {}
 
     t0 = time.time()
     # distribute the atoms array across the processors
     for count in range(num_processors):
         start = count*chunk
+        parent_conn, child_conn = multi.Pipe(False)
         if count == num_processors-1:
             # final case must go to end of array to allow for rounding error in size of chunk
-            #data.append(make_mrc_data(atoms[start:], model))
-            proc_args = (atoms[start:], model, count)
+            proc_args = (atoms[start:], model, count, child_conn)
         else:
-            #data.append(make_mrc_data(atoms[start:(start+chunk)], model))
-            proc_args = (atoms[start:(start+chunk)], model, count)
+            proc_args = (atoms[start:(start+chunk)], model, count, child_conn)
 
         processes.append(pool.apply_async(make_mrc_data, proc_args))
+        pipes[count] = parent_conn
 
+    flag = True
+    while flag:
+        for id in list(pipes.keys()):
+            try:
+                message = pipes[id].recv()
+                process_message(message, pipes)
+                #print(f"Completed {progress.advance()}%")
+                print(f"Proc {id} advanced")
+            except EOFError:
+                pipes[id].close()
+                del pipes[id]
+                print(f"Warning, process {id} exited abnormally!")
+
+            flag = bool(pipes) # False if empty
+
+    print("one")
     data = [p.get() for p in processes]
+    print("two")
     # add the densities in the arrays
     total = data[0]
     for tmp in data[1:]:
