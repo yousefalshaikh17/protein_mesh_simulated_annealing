@@ -99,7 +99,11 @@ def write_mrcfile(data, cell_props, out_file, label=None, overwrite=False, origi
         mrc.update_header_from_data()
 
         if label is not None:
-            mrc.header.label[0] = label
+            if isinstance(label, str):
+                mrc.header.label[0] = label
+            elif isinstance(label, list):
+                for index in range(min(8, len(label))):
+                    mrc.header.label[index] = label[index]
 
         if origin is not None:
             mrc.header.origin.x = origin[0]

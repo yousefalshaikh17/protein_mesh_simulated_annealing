@@ -529,9 +529,20 @@ def write_out_file(data, bounds, in_file, out_file):
         in_file pathlib.Path
         out_file pathlib.Path
     """
-    label = f"Simulated MRC: {str(in_file.name)}"
-    label += f" {getpass.getuser()} "
-    label += datetime.datetime.now().strftime("%d-%b-%Y")
+    label = []
+    label.append(f"Simulated MRC")
+    label.append(f"{in_file.name[:80]}")
+    if len(in_file.name) > 80:
+        message = 'Warning file name truncated to 80 characters'
+        label.append(message)
+        print(message, file=sys.stderr)
+    label.append(f"User: {getpass.getuser()}")
+    now = datetime.datetime.now()
+    dt_str =  'Date-time: '
+    dt_str += now.strftime("%d-%b-%Y %H:%M:%S")
+    dt_str += f" {now.astimezone().tzname()}"
+    label.append(dt_str)
+
 
     angles = CellAngles(90.0, 90.0, 90.0)
     write_mrcfile(data,
