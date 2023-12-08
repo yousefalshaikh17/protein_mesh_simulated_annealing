@@ -333,7 +333,7 @@ def read_pdb(file_path):
 
     return atoms
 
-def density_at(atoms, model, index_x, index_y, index_z):
+def density_at(atoms, model, index_x, index_y, index_z, soft=True):
     """
     make the mrc data field
     Args:
@@ -352,12 +352,12 @@ def density_at(atoms, model, index_x, index_y, index_z):
         distance = np.linalg.norm([voxel_ctr[0] - atom.x,
                                    voxel_ctr[1] - atom.y,
                                    voxel_ctr[2] - atom.z])
-
-        twice_rad = 2*atom.radius
         if distance < atom.radius:
             density += 1
-        elif distance < twice_rad:
-            density += (twice_rad-distance)/atom.radius
+        elif soft:
+            twice_rad = 2*atom.radius
+            if distance < twice_rad:
+                density += (twice_rad-distance)/atom.radius
 
     return density
 
@@ -378,12 +378,13 @@ def output_details(input_file, atoms, bounds):
 
     print(f"\tSize of cell (x, y, z): ({del_x:.3f}, {del_y:.3f}, {del_z:.3f})")
 
-def make_mrc_data(atoms, model, proc_label, pipe):
+def make_mrc_data(atoms, model, soft, proc_label, pipe):
     """
     make the mrc data array
     Args:
         atoms [AtomBall]:
         model VoxelModel:
+        soft bool: it true use soft spheres
         proc_label int: the process number
         pipe multiprocessing.Pipe: communication to parent
     """
@@ -397,7 +398,8 @@ def make_mrc_data(atoms, model, proc_label, pipe):
                                                              model,
                                                              index_x,
                                                              index_y,
-                                                             index_z)
+                                                             index_z,
+                                                             soft)
 
                 done = next(count)
                 if done%100 == 0:
@@ -425,7 +427,7 @@ def process_message(message, connections, progress):
         connections[message[2]].close()
         del connections[message[2]]
 
-def setup_processes(pool, processes, pipes, model, atoms, num_processors):
+def setup_processes(pool, processes, pipes, model, atoms, soft, num_processors):
     """
     distribute the atoms array across the processors
     Args:
@@ -434,6 +436,7 @@ def setup_processes(pool, processes, pipes, model, atoms, num_processors):
         pipes []
         model VoxelModel
         atoms [AtomBall]
+        soft bool: if true use soft atoms
         num_processors omt
     """
     chunk = int(len(atoms)/num_processors)
@@ -443,9 +446,9 @@ def setup_processes(pool, processes, pipes, model, atoms, num_processors):
         parent_conn, child_conn = multi.Pipe(False)
         if count == num_processors-1:
             # final case must go to end of array to allow for rounding error in size of chunk
-            proc_args = (atoms[start:], model, count, child_conn)
+            proc_args = (atoms[start:], model, soft, count, child_conn)
         else:
-            proc_args = (atoms[start:(start+chunk)], model, count, child_conn)
+            proc_args = (atoms[start:(start+chunk)], model, soft, count, child_conn)
 
         processes.append(pool.apply_async(make_mrc_data, proc_args))
         pipes[count] = parent_conn
@@ -470,30 +473,32 @@ def manage_processes(pipes, progress):
 
             flag = bool(pipes) # False if empty
 
-def run_pool(pool, model, atoms, num_processors):
+def run_pool(pool, model, atoms, soft, num_processors):
     """
     run the pool of processes
     Args:
         pool multiprocessing.pool.Pool
         model VoxelModel
         atoms [AtomBall]
+        soft bool: if true use soft atoms
         num_processors int
     """
     processes = []
     pipes = {}
     progress = Progress(model.number_of_voxels(), len(atoms))
 
-    setup_processes(pool, processes, pipes, model, atoms, num_processors)
+    setup_processes(pool, processes, pipes, model, atoms, soft, num_processors)
     manage_processes(pipes, progress)
 
     return [p.get() for p in processes]
 
-def run_multiprocess(atoms, model):
+def run_multiprocess(atoms, model, soft):
     """
     run the density calculation in parallel
     Args:
         atoms [AtomBall]
         model [VoxelModel]
+        soft bool: if true use soft atoms
     Returns:
         numpy.ndarray: the voxel densities
     """
@@ -503,7 +508,7 @@ def run_multiprocess(atoms, model):
 
     time_start = time.time()
     with multi.Pool(num_processors) as pool:
-        data = run_pool(pool, model, atoms, num_processors)
+        data = run_pool(pool, model, atoms, soft, num_processors)
 
     # add the densities in the arrays
     total = data[0]
@@ -590,6 +595,11 @@ at the centre point of each voxel bases on VDW radii of the atoms"""
                         action="store_true",
                         help="if output file exists overwrite")
 
+    parser.add_argument("-s",
+                        "--soft_atoms",
+                        action="store_true",
+                        help="reduce density from one to zero between one and two VDW radii")
+
     return parser.parse_args()
 
 def run_pdb_to_mrc():
@@ -614,7 +624,7 @@ def run_pdb_to_mrc():
         return
 
     model = VoxelModel(bounds, args.num_voxels[0], args.num_voxels[1], args.num_voxels[2])
-    data = run_multiprocess(atoms, model)
+    data = run_multiprocess(atoms, model, args.soft_atoms)
     write_out_file(data, bounds, args.input, args.output)
 
 if __name__ == "__main__":
