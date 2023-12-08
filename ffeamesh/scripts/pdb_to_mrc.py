@@ -520,6 +520,32 @@ def run_multiprocess(atoms, model, soft=None):
 
     return total
 
+def make_mrc_label(in_file):
+    """
+    make array of label strings (max 80 character)
+    Args:
+        in_file (pathlib.Path)
+    Returns:
+        [str]
+    """
+    label = []
+
+    label.append(f"Simulated MRC")
+
+    label.append(f"{in_file.name[:80]}")
+    if len(in_file.name) > 80:
+        message = 'Warning file name truncated to 80 characters'
+        label.append(message)
+        print(message, file=sys.stderr)
+
+    label.append(f"User: {getpass.getuser()}")
+
+    now = datetime.datetime.now()
+    label.append(now.strftime("Date: %d-%b-%Y"))
+    label.append(now.strftime("Time: %H:%M:%S ") + now.astimezone().tzname())
+
+    return label
+
 def write_out_file(data, bounds, in_file, out_file):
     """
     write out the MRC file
@@ -529,20 +555,7 @@ def write_out_file(data, bounds, in_file, out_file):
         in_file pathlib.Path
         out_file pathlib.Path
     """
-    label = []
-    label.append(f"Simulated MRC")
-    label.append(f"{in_file.name[:80]}")
-    if len(in_file.name) > 80:
-        message = 'Warning file name truncated to 80 characters'
-        label.append(message)
-        print(message, file=sys.stderr)
-    label.append(f"User: {getpass.getuser()}")
-    now = datetime.datetime.now()
-    dt_str =  'Date-time: '
-    dt_str += now.strftime("%d-%b-%Y %H:%M:%S")
-    dt_str += f" {now.astimezone().tzname()}"
-    label.append(dt_str)
-
+    label = make_mrc_label(in_file)
 
     angles = CellAngles(90.0, 90.0, 90.0)
     write_mrcfile(data,
