@@ -333,7 +333,7 @@ def read_pdb(file_path):
 
     return atoms
 
-def density_at(atoms, model, index_x, index_y, index_z, soft=True):
+def density_at(atoms, model, index_x, index_y, index_z, soft=None):
     """
     make the mrc data field
     Args:
@@ -342,6 +342,7 @@ def density_at(atoms, model, index_x, index_y, index_z, soft=True):
         index_x int: array index of voxel
         index_y int: array index of voxel
         index_z int: array index of voxel
+        soft float: if not none exponential decay constant for soft atoms
     Returns:
         float density at ctr of voxel
     """
@@ -354,10 +355,10 @@ def density_at(atoms, model, index_x, index_y, index_z, soft=True):
                                    voxel_ctr[2] - atom.z])
         if distance < atom.radius:
             density += 1
-        elif soft:
+        elif soft is not None:
             twice_rad = 2*atom.radius
             if distance < twice_rad:
-                density += (twice_rad-distance)/atom.radius
+                density += np.exp(soft*(distance-atom.radius))
 
     return density
 
@@ -384,7 +385,7 @@ def make_mrc_data(atoms, model, soft, proc_label, pipe):
     Args:
         atoms [AtomBall]:
         model VoxelModel:
-        soft bool: it true use soft spheres
+        soft float: if not none exponential decay constant for soft atoms
         proc_label int: the process number
         pipe multiprocessing.Pipe: communication to parent
     """
@@ -436,7 +437,7 @@ def setup_processes(pool, processes, pipes, model, atoms, soft, num_processors):
         pipes []
         model VoxelModel
         atoms [AtomBall]
-        soft bool: if true use soft atoms
+        soft float: if not none exponential decay constant for soft atoms
         num_processors omt
     """
     chunk = int(len(atoms)/num_processors)
@@ -480,7 +481,7 @@ def run_pool(pool, model, atoms, soft, num_processors):
         pool multiprocessing.pool.Pool
         model VoxelModel
         atoms [AtomBall]
-        soft bool: if true use soft atoms
+        soft float: if not none exponential decay constant for soft atoms
         num_processors int
     """
     processes = []
@@ -492,13 +493,13 @@ def run_pool(pool, model, atoms, soft, num_processors):
 
     return [p.get() for p in processes]
 
-def run_multiprocess(atoms, model, soft):
+def run_multiprocess(atoms, model, soft=None):
     """
     run the density calculation in parallel
     Args:
         atoms [AtomBall]
         model [VoxelModel]
-        soft bool: if true use soft atoms
+        soft float: if not none exponential decay constant for soft atoms
     Returns:
         numpy.ndarray: the voxel densities
     """
@@ -562,6 +563,23 @@ def pdb_path_exists(file_name):
 
     return path
 
+def negative_float(text):
+    """
+    convert string to float and ensure negative
+    Args:
+        text str:
+    Returns
+        float < 0.0
+    Raises
+        ValueError
+    """
+    number = float(text)
+
+    if number >= 0.0:
+        raise ValueError(f"Exp decay constant must be less than zero")
+
+    return number
+
 def get_args():
     """
     get the command line arguments
@@ -571,6 +589,7 @@ PDB format list of atom locations, densities are calculated
 at the centre point of each voxel bases on VDW radii of the atoms"""
 
     parser = argparse.ArgumentParser(description)
+    subparser = parser.add_subparsers(required=False)
 
     parser.add_argument('-i',
                         '--input',
@@ -595,10 +614,14 @@ at the centre point of each voxel bases on VDW radii of the atoms"""
                         action="store_true",
                         help="if output file exists overwrite")
 
-    parser.add_argument("-s",
-                        "--soft_atoms",
-                        action="store_true",
-                        help="reduce density from one to zero between one and two VDW radii")
+    soft_p = subparser.add_parser("soft",
+                                help="use exponential decay of atmo density outside of VDW radius")
+
+    soft_p.add_argument('-e',
+                        '--exp_const',
+                        type=negative_float,
+                        default = -2.0,
+                        help='a in exp(a*r) for density outside VDW radius')
 
     return parser.parse_args()
 
@@ -607,6 +630,9 @@ def run_pdb_to_mrc():
     get pdb file from user an run pdb to mrc on it
     """
     args = get_args()
+    soft_atoms = None
+    if hasattr(args, "exp_const"):
+        soft_atoms = args.exp_const
 
     # validate number of voxels
     if args.num_voxels is not None:
@@ -624,7 +650,7 @@ def run_pdb_to_mrc():
         return
 
     model = VoxelModel(bounds, args.num_voxels[0], args.num_voxels[1], args.num_voxels[2])
-    data = run_multiprocess(atoms, model, args.soft_atoms)
+    data = run_multiprocess(atoms, model, soft_atoms)
     write_out_file(data, bounds, args.input, args.output)
 
 if __name__ == "__main__":
