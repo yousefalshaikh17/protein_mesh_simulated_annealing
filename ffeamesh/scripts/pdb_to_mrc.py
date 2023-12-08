@@ -529,9 +529,9 @@ def write_out_file(data, bounds, in_file, out_file):
         in_file pathlib.Path
         out_file pathlib.Path
     """
-    label = f"From {str(in_file)}"
-    label += f" by {getpass.getuser()} on "
-    label += datetime.datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    label = f"Simulated MRC: {str(in_file.name)}"
+    label += f" {getpass.getuser()} "
+    label += datetime.datetime.now().strftime("%d-%b-%Y")
 
     angles = CellAngles(90.0, 90.0, 90.0)
     write_mrcfile(data,
