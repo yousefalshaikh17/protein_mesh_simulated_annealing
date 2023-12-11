@@ -119,20 +119,17 @@ The following scrips are available:
 
    * **mrc_voxel_size.py** - print an MRC file's voxel size
 
-   * **mrc_density_section.py** - run a density scan across an mrc file
-    on  x, y and z axis printing out locations and image densities
+   * **pdb_to_mrc.py** - simulate a cryo-em MRC file from a protien data base (PDB) using Van der Walls spheres.
 
 ### Filter
-
-   * **fft_smooth.py** - Smoooths density data in a mrc fileusing a fast fourier transform function.
 
    * **mrc_crop.py** - crops 3D mrc image file data
 
    * **mrc_threshold.py** - reads a mrc file and set all voxels less than than the
     thershold to zero, then outputs to a new file
 
-   * **zoom.py** - Coarsens MRC files to a user-defined resolution and
-    outputs them as a new .mrc file. Can be called by tet_from_pix.
+   * **mrc_coarsen.py** - Coarsens MRC files to a user-defined resolution and
+    outputs them as a new .mrc file.
 
 ### Meshing
 
@@ -210,29 +207,6 @@ In the output directory defined by `-o` or `--output`, the following files will
    * [outputname].1.face
    * [outputname].1.node
    * [outputname].vtk
-
-### zoom
-
-zoom inputs MRC files and allows a user to coarsen them to a defined
- resolution, and outputs them as a new MRC file. This is seperated from
- five or six_tets as a standalone script for users that only wish to coarsen an
- MRC file, rather than go through the whole process of producing volumetric
- mesh files.
-
-To get started quickly, the usage message can be viewed with the following command:
-
-      python zoom.py -h
-
-In order to run tet_from_pix to produce volumetric mesh files, there are three
-required flags:
-
-   * '-h', '--help'  show help message and exit
-
-   * '-i', '--input' input file
-
-   * '-o', '--output' output file
-
-   * '-r', '--resolution' factor by which to coarsen input MRC.
 
 ## Prerequisites
 
@@ -315,16 +289,14 @@ The command line will print out each test ran and state if they passed or failed
 
 ## Worked Example
 
-The file data/demo.mrc is a simulated MRC file based on the Protien Data Bank file ala_phe_ala.pdb available from https://gist.github.com/cstein/6699200.
+Because publicly availabe PDB files are more common than cryo-em MRC files, in this example a MRC is simulated from a PDB. The example uses the small plant protien crambin (3nir.pdb) a available from [https://www.rcsb.org/structure/3NIR](https://www.rcsb.org/structure/3NIR).
 
-To see the information in the files header run
+1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o 3nir.mrc -o 3nir.mrc -n 15 15 15 -w soft`
 
-`mrc_header_info -i .\data\demo.mrc`
+2. To see the information in the files header run `mrc_header_info -i <path>\3nir.mrc`
 
-To see the statistics of the data in the image run
+3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
 
-`mrc_image_stats -i .\data\demo.mrc`
+4. To convert to a mesh in tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 3.85 -w -V -p -m2 -n 10 10 10`
 
-To convert to a mesh using five tetrahedra per voxel, run:
-
-`mrc_to_tets -i .\data\demo.mrc -o demo -v -f -t 3.85 -w -V -p -m2 -n 10 10 10`
+5. View the mesh run `tgv -i <paht>\3nir`

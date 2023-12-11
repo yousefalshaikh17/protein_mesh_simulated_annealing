@@ -638,14 +638,14 @@ at the centre point of each voxel bases on VDW radii of the atoms"""
                         action="store_true",
                         help="if output file exists overwrite")
 
-    soft_p = subparser.add_parser("soft",
-                                help="use exponential decay of atmo density outside of VDW radius")
+    help="use exponential decay of electron density outside VDW radii run soft -h for details"
+    soft_p = subparser.add_parser("soft", help=help)
 
     soft_p.add_argument('-e',
                         '--exp_const',
                         type=negative_float,
-                        default = -2.0,
-                        help='a in exp(a*r) for density outside VDW radius')
+                        default = -6.0,
+                        help='a in exp(a*r) for density outside VDW radius (default -6)')
 
     return parser.parse_args()
 

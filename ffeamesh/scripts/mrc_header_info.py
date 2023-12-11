@@ -64,7 +64,13 @@ def main():
 
     with mrcfile.mmap(args.input, 'r') as mrc:
         for item in mrc.header.dtype.names:
-            print(f"{item} => {mrc.header[item]}")
+            if item != 'label':
+                print(f"{item} => {mrc.header[item]}")
+            else:
+                print(type(item))
+                for index, label_s in enumerate(mrc.header[item]):
+                    if label_s:
+                        print(f'Label {index}:\t{label_s.decode()}')
 
 if __name__ == "__main__":
     main()

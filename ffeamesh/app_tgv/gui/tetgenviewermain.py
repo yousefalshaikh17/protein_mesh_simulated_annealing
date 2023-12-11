@@ -166,8 +166,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         Args:
             file_path (pathlib.Path): the file
         """
-        print(f"set title {file_path}")
-
         if file_path is None:
             self.setWindowTitle(TetgenViewerMain.window_title)
 
