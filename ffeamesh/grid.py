@@ -31,6 +31,7 @@ from itertools import product, count
 import numpy as np
 
 import ffeamesh.voxels2tets_utility as v2t
+from ffeamesh.voxelsize import VoxelSize
 
 class Grid():
     """
@@ -389,6 +390,18 @@ class Grid():
         getter for the offsets
         """
         return self._offsets
+
+    def get_voxel_size(self):
+        """
+        getter for the voxel size
+        Returns
+            VoxelSize: the x, y and z extents
+        """
+        del_x = np.abs(self._end[0] - self._start[0])/self._num_steps[0]
+        del_y = np.abs(self._end[1] - self._start[1])/self._num_steps[1]
+        del_z = np.abs(self._end[2] - self._start[2])/self._num_steps[2]
+
+        return VoxelSize(del_x, del_y, del_z)
 
     def __len__(self):
         """

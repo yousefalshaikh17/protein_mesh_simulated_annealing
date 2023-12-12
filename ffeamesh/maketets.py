@@ -203,9 +203,7 @@ def convert_mrc_to_tets(input_file,
 
         if verbose:
             verbose_output(mrc,
-                           grid.get_total_num_voxels(),
-                           grid.get_vertices(),
-                           grid.get_connectivities(),
+                           grid,
                            use_six_tets)
 
         v2t.write_tets_to_files(grid.get_vertices(),
@@ -214,36 +212,54 @@ def convert_mrc_to_tets(input_file,
                                 ffea_out,
                                 vtk_out)
 
-def verbose_output(mrc, nvoxels, vertices, tet_connectivities, six_tets):
+def verbose_output(mrc, grid, six_tets):
     """
     print description of the output
     Args:
         mrc (mrcfile): source file
-        nvoxels (int): total number of voxels
-        vertices [float, float, float] list): the coordinates of the vertices
-        tet_connectivities ([int, int, int int] list): tets map to vertices
+        grid (Grid): mesh object
+        six_tets (bool): if true gird uses 6 tetrahedra per voxel
     """
-    print(f"Number of voxels {nvoxels}")
-    v_size = voxel_size(mrc)
-    vol = v_size.dx * v_size.dy * v_size.dz
-    print(f"Voxel size in image ({v_size.dx}, {v_size.dy}, {v_size.dz}), volume {vol}")
+    print("\nSummary\n============")
+
+    print(f"Number of voxels in mesh {grid.get_total_num_voxels()}")
+    iv_size = voxel_size(mrc)
+    message  = f"Voxel size in MRC image ({iv_size.dx}, {iv_size.dy}, {iv_size.dz})"
+    message += f", volume {iv_size.dx * iv_size.dy * iv_size.dz}"
+    print(message)
+
+    mv_size = grid.get_voxel_size()
+    vol = mv_size.dx * mv_size.dy * mv_size.dz
+    print(f"Voxel size in mesh ({mv_size.dx}, {mv_size.dy}, {mv_size.dz}), volume {vol}")
+
     if six_tets:
         print("6 tets per voxel")
+        print(f"Number of tets with volume of {vol/6} is {len(grid.get_connectivities())}")
         return
 
     print("5 tets per voxel")
+    verbose_output_five_tets(grid, vol)
+
+def verbose_output_five_tets(grid, vol):
+    """
+    output the number of tets in each size
+    Args:
+        grid (Grid): mesh
+        vol (float): volume of one mesh voxel
+    """
     large = 0
     # to seperate tets vol/3 from vol/6 use vol/4
     limit = vol/4.0
-    for tet in tet_connectivities:
+
+    for tet in grid.get_connectivities():
         geom = []
         for index in tet:
-            vert = vertices[index]
+            vert = grid.get_vertices()[index]
             geom.append(NodePoint(index, vert[0], vert[1], vert[2]))
 
-        if tet_volume(geom) < limit:
+        if tet_volume(geom) > limit:
             large += 1
 
     print(f"Number of tets with volume of {vol/3.0} is {large}")
-    print(f"Number of tets with volume of {vol/6.0} is {len(tet_connectivities)-large}")
+    print(f"Number of tets with volume of {vol/6.0} is {len(grid.get_connectivities())-large}")
 

@@ -33,11 +33,12 @@ from collections import namedtuple
 import mrcfile
 import numpy as np
 
+from ffeamesh.voxelsize import VoxelSize
+
 ## a data struct for the mrcfile cell size
 CellSize = namedtuple("CellSize", "x, y, z")
 
-## storage for a voxel
-VoxelSize = namedtuple("VoxelSize", "dx, dy, dz")
+
 
 ## a data struct for the mrcfile cell angles (degrees)
 CellAngles = namedtuple("CellAngles", 'alpha, beta, gamma')
