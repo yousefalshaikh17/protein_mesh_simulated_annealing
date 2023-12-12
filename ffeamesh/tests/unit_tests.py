@@ -46,6 +46,7 @@ def make_suite():
     suite.addTest(TestTetProps('test_tet_volume'))
     suite.addTest(TestTetProps('test_tet_area'))
     suite.addTest(TestTetProps('test_triangle_area'))
+    suite.addTest(TestTetProps('test_edges_to_area_ratio_squared'))
 
     return suite
 

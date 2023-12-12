@@ -36,7 +36,12 @@ class TestTetProps(unittest.TestCase):
         """
         build a full test class
         """
-        pass
+        self.verts = [[0.0, 0.0, 0.0],
+                      [0.0, 1.0, 0.0],
+                      [0.0, 0.0, 1.0],
+                      [1.0, 0.0, 0.0]]
+
+        self.nodes = [NodePoint(0, x[0], x[1], x[2]) for x in self.verts]
 
     def tearDown(self):
         """
@@ -46,38 +51,28 @@ class TestTetProps(unittest.TestCase):
 
     def test_tet_volume(self):
         """
-        test reading the nodes files
+        test the tetrahedron volume calculation
         """
-        verts = [[0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0],
-                 [0.0, 0.0, 1.0],
-                 [1.0, 0.0, 0.0]]
-
-        nodes = [NodePoint(0, x[0], x[1], x[2]) for x in verts]
-        vol = tp.tet_volume(nodes)
+        vol = tp.tet_volume(self.nodes)
         self.assertAlmostEqual(vol, 0.1666666666, msg="tetprops.tet_volume")
 
     def test_tet_area(self):
         """
-        test reading the nodes files
+        test the tetrahedron area calculation
         """
-        verts = [[0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0],
-                 [0.0, 0.0, 1.0],
-                 [1.0, 0.0, 0.0]]
-
-        nodes = [NodePoint(0, x[0], x[1], x[2]) for x in verts]
-        area = round(tp.tet_area(nodes), 3)
+        area = round(tp.tet_area(self.nodes), 3)
         self.assertAlmostEqual(area, 2.366, msg="tetprops.tet_area")
 
     def test_triangle_area(self):
         """
-        test reading the nodes files
+        test the triangle area calculation
         """
-        verts = [[0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0],
-                 [0.0, 0.0, 1.0]]
-
-        nodes = [NodePoint(0, x[0], x[1], x[2]) for x in verts]
-        area = tp.area_of_triangle(nodes)
+        area = tp.area_of_triangle(self.nodes)
         self.assertAlmostEqual(area, 0.50000, msg="tetprops.triangle_area")
+
+    def test_edges_to_area_ratio_squared(self):
+        """
+        test the calculation of perimiter length to area
+        """
+        ratio = tp.edges_to_area_ratio_squared(self.nodes)
+        self.assertAlmostEqual(ratio, 23.31370849, msg="tetprops.edges_to_area_ratio_squared")

@@ -155,7 +155,7 @@ def total_volume(node_points, tets):
 
 def get_tet_props(node_points, tets):
     """
-    lists shortest side of each tet
+    gets sortest side, volumes & areas
     Args:
         node_points ([NodePoint]): the vertices
         tets ([Tetrahedron4]): the tets
