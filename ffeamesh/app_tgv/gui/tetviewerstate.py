@@ -21,17 +21,17 @@ import json
 
 import ffeamesh.tetprops as tp
 
-## z for centring
-CTR_Z = 1350.0
-
 class TetViewerState():
     """
     storage for the current viewing state
     """
-    def __init__(self):
+    def __init__(self, view_ctr_z=1350.0):
         """
         initalize the state
+        Args:
+            view_ctr_z (float): the start z value for the view
         """
+        self._CTR_Z = view_ctr_z
         self._surface_ctr = None
         self._current_tet_ctr = None
         self._current_tet_nodes = None
@@ -122,7 +122,7 @@ class TetViewerState():
         self._current_ctr = self._current_tet_ctr
         self._shift = (self._current_tet_ctr[0],
                        self._current_tet_ctr[1],
-                       CTR_Z)
+                       self._CTR_Z)
 
     def center_on_surface(self):
         """
@@ -131,7 +131,7 @@ class TetViewerState():
         self._current_ctr = self._surface_ctr
         self._shift = (self._surface_ctr[0],
                        self._surface_ctr[1],
-                       CTR_Z)
+                       self._CTR_Z)
 
     def set_current_tet(self, tet):
         """
