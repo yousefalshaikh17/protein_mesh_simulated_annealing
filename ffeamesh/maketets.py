@@ -224,17 +224,17 @@ def verbose_output(mrc, grid, six_tets):
 
     print(f"Number of voxels in mesh {grid.get_total_num_voxels()}")
     iv_size = voxel_size(mrc)
-    message  = f"Voxel size in MRC image ({iv_size.dx}, {iv_size.dy}, {iv_size.dz})"
-    message += f", volume {iv_size.dx * iv_size.dy * iv_size.dz}"
+    message  = f"Voxel size in MRC image ({iv_size.dx:.3f}, {iv_size.dy:.3f}, {iv_size.dz:.3f})"
+    message += f", volume {iv_size.dx * iv_size.dy * iv_size.dz:.3f}"
     print(message)
 
     mv_size = grid.get_voxel_size()
     vol = mv_size.dx * mv_size.dy * mv_size.dz
-    print(f"Voxel size in mesh ({mv_size.dx}, {mv_size.dy}, {mv_size.dz}), volume {vol}")
+    print(f"Voxel size in mesh ({mv_size.dx:.3f}, {mv_size.dy:.3f}, {mv_size.dz:3f}), volume {vol:.3f}")
 
     if six_tets:
         print("6 tets per voxel")
-        print(f"Number of tets with volume of {vol/6} is {len(grid.get_connectivities())}")
+        print(f"Number of tets with volume of {vol/6:.3f} is {len(grid.get_connectivities())}")
         return
 
     print("5 tets per voxel")
@@ -260,6 +260,5 @@ def verbose_output_five_tets(grid, vol):
         if tet_volume(geom) > limit:
             large += 1
 
-    print(f"Number of tets with volume of {vol/3.0} is {large}")
-    print(f"Number of tets with volume of {vol/6.0} is {len(grid.get_connectivities())-large}")
-
+    print(f"Number of tets with volume of {vol/3.0:.3f} is {large}")
+    print(f"Number of tets with volume of {vol/6.0:.3f} is {len(grid.get_connectivities())-large}")
