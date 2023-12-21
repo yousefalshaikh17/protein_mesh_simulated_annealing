@@ -40,6 +40,18 @@ class TetModel():
         """
         return self._surface.get_surface_ctr()
 
+    def get_bounding_sphere(self):
+        """
+        get the bounding sphere of model
+        Returns
+            [float, float, float]: centre
+            float: radius
+        """
+        ctr = self._surface.get_surface_ctr()
+        radius = 0.0
+
+        return ctr, radius
+
     def get_face_edges(self):
         """
         get array of face edges
