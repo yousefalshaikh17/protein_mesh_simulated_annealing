@@ -136,15 +136,21 @@ class TetViewer(qw.QOpenGLWidget):
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
+        # TODO remvoe the print statemsnts
         # general shift as input by user
         shift = self._state.get_shift()
+        print(f"Eye: 0.0, 0.0, {self._state.get_look_z()}")
+        print(f"At: 0.0, 0.0, 0.0")
+        print(f"SHIFT >> {-shift[0]}, {-shift[1]}, {-shift[2]}")
         gl.glTranslate(-shift[0], -shift[1], -shift[2])
+        #gl.glTranslate(0.0, 0.0, -shift[2])
 
         ctr = self._state.get_current_ctr()
+        print(f"CTR: {ctr[0]}, {ctr[1]}, {ctr[2]}")
         gl.glTranslate(ctr[0], ctr[1], ctr[2])
         gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
         gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
-        gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
+        gl.glTranslate(ctr[0], ctr[1], ctr[2])
 
         scale = (1.0, 1.0, 1.0)
         if self._state.display_current_tet():
@@ -419,7 +425,20 @@ class TetViewer(qw.QOpenGLWidget):
             model (TetModel)
         """
         self._model = model
-        ctr = self._model.get_surface().get_surface_ctr()
+
+        ctr = self._model.get_ctr()
+
+        #ctr, radius = self._model.get_bounding_sphere()
+        #radius = radius*1.1
+        #view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
+        #print(f">>>>>>>>>>>> {ctr[2]} {radius}, {view_distance:.3f} {self._state.get_shift()[2]}")
+        #self._state.set_look_z(view_distance)
+        # TODO set self.viewer._CTR_Z here
+        # 1. get bounding sphere r
+        # 2. inc r 10%
+        # 3. h = r/np.tan(view_angle/2)
+        # 4. self.viewer.set_ctr_z(ctr[2] + h)
+
         self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
         self._state.centre_on_surface()
         self._state.clear_current_tet()

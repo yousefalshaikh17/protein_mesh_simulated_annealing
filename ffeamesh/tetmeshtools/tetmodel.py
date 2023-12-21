@@ -34,7 +34,7 @@ class TetModel():
         """
         return None
 
-    def get_model_ctr(self):
+    def get_ctr(self):
         """
         get the geometric ctr of the model
         """
