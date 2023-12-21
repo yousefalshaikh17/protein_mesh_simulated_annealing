@@ -429,8 +429,8 @@ class TetViewer(qw.QOpenGLWidget):
         ctr, radius = self._model.get_bounding_sphere()
         radius = radius*1.1
 
-        #view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
-        #print(f">>>>>>>>>>>> {ctr[2]} {radius}, {view_distance:.3f} {self._state.get_shift()[2]}")
+        view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
+        print(f">>>>>>>>>>>> {view_distance:.3f} {self._state.get_shift()[2]}")
         #self._state.set_look_z(view_distance)
         # TODO set self.viewer._CTR_Z here
         # 1. get bounding sphere r

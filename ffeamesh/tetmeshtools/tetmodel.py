@@ -5,6 +5,7 @@
 # set up linting conditions
 # pylint: disable = import-error
 import pathlib
+import numpy as np
 
 import ffeamesh.tetmeshtools.tetgenwrite as tw
 
@@ -48,9 +49,9 @@ class TetModel():
             float: radius
         """
         ctr = self._surface.get_surface_ctr()
-        radius = 0.0
+        lengths = [np.linalg.norm(np.subtract(node.to_array(), ctr)) for node in self._surface.get_surface_nodes().values()]
 
-        return ctr, radius
+        return ctr, max(lengths)
 
     def get_face_edges(self):
         """
