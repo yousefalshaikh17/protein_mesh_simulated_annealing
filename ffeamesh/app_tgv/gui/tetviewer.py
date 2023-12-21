@@ -107,7 +107,10 @@ class TetViewer(qw.QOpenGLWidget):
         aspect = width / float(height)
 
         if self._state.perspective_view():
-            glu.gluPerspective(45.0, aspect, 1.0, 3000.0)
+            glu.gluPerspective(self._state.get_field_of_view(),
+                               aspect,
+                               1.0,
+                               3000.0)
         else:
             gl.glOrtho(-500.0, 500.0, -500.0, 500.0, 15.0, 3000.0)
 

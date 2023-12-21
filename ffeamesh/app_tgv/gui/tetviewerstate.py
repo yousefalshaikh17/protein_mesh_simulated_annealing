@@ -45,6 +45,7 @@ class TetViewerState():
         self._look_z = -1500.0
         self._edges_width = 1
         self._perspective = True
+        self._field_of_view = 45.0
 
     def reset(self):
         """
@@ -247,6 +248,25 @@ class TetViewerState():
             z_coord: float
         """
         self._look_z = z_coord
+
+    def get_field_of_view(self):
+        """
+        getter for fov
+        Returns:
+            float
+        """
+        return self._field_of_view
+
+    def set_field_of_view(self, fov):
+        """
+        set the field of view
+        Args:
+            float
+        """
+        if  not (0.0 < fov < 90.0):
+            raise ValueError(f"Attempt to set field of view outside (0, 90) {fov} degrees")
+
+        self._field_of_view = fov
 
     def set_display_current_tet(self, flag):
         """
