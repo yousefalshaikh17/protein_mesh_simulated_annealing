@@ -115,7 +115,7 @@ class TetViewerState():
         """
         return self._current_ctr
 
-    def center_on_tet(self):
+    def centre_on_tet(self):
         """
         set the current ctr to be a tet
         """
@@ -124,7 +124,7 @@ class TetViewerState():
                        self._current_tet_ctr[1],
                        self._CTR_Z)
 
-    def center_on_surface(self):
+    def centre_on_surface(self):
         """
         set the current ctr to be a surface
         """
@@ -163,7 +163,7 @@ class TetViewerState():
             z_coord: float
         """
         self._surface_ctr = (x_coord, y_coord, z_coord)
-        self.center_on_surface()
+        self.centre_on_surface()
 
     def get_euler_x(self):
         """

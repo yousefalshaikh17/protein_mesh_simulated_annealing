@@ -418,7 +418,7 @@ class TetViewer(qw.QOpenGLWidget):
         self._model = model
         ctr = self._model.get_surface().get_surface_ctr()
         self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
-        self._state.center_on_surface()
+        self._state.centre_on_surface()
         self._state.clear_current_tet()
 
     @qc.pyqtSlot(int)
@@ -487,7 +487,7 @@ class TetViewer(qw.QOpenGLWidget):
         callback for click of ctr mesh button
         """
         if self._model is not None:
-            self._state.center_on_surface()
+            self._state.centre_on_surface()
             self.update()
 
     @qc.pyqtSlot()
@@ -496,7 +496,7 @@ class TetViewer(qw.QOpenGLWidget):
         callback for click of ctr tet button
         """
         if self._model is not None and self._state.get_current_tet() is not None:
-            self._state.center_on_tet()
+            self._state.centre_on_tet()
             self.update()
 
     @qc.pyqtSlot(bool)
@@ -513,5 +513,5 @@ class TetViewer(qw.QOpenGLWidget):
         callback for click of ctr tet button
         """
         if self._model is not None and self._state.get_current_tet() is not None:
-            self._state.center_on_tet()
+            self._state.centre_on_tet()
             self.update()
