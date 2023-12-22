@@ -154,15 +154,15 @@ class TetViewer(qw.QOpenGLWidget):
 
         scale = (1.0, 1.0, 1.0)
         if self._state.display_current_tet():
-            self.draw_selected_tet(scale)
+            self.draw_selected_tet()
         if self._show_lattice:
-            self.draw_triangle_outline(scale)
+            self.draw_triangle_outline()
         if self._show_faces:
             self.draw_triangles(scale)
 
         gl.glPopMatrix()    # restore the previous modelview matrix
 
-    def draw_triangles(self, scale):
+    def draw_triangles(self, scale=(1.0, 1.0, 1.0)):
         """
         render the triangles
         Args:
@@ -224,7 +224,7 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glPopMatrix()
         gl.glDisable(gl.GL_BLEND)
 
-    def draw_triangle_outline(self, scale):
+    def draw_triangle_outline(self, scale=(1.0, 1.0, 1.0)):
         """
         render the triangles outlines
         Args:
@@ -252,7 +252,7 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glPopAttrib()
         gl.glPopMatrix()
 
-    def draw_selected_tet(self, scale):
+    def draw_selected_tet(self, scale=(1.0, 1.0, 1.0)):
         """
         draw the user selecte tet
         """
