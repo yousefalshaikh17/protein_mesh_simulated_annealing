@@ -139,7 +139,7 @@ class TetViewer(qw.QOpenGLWidget):
         # TODO remvoe the print statemsnts
         # general shift as input by user
         shift = self._state.get_shift()
-        print(f"Eye: 0.0, 0.0, {self._state.get_look_z()}")
+        print(f"\n=======\nEye: 0.0, 0.0, {self._state.get_look_z()}")
         print(f"At: 0.0, 0.0, 0.0")
         print(f"SHIFT >> {-shift[0]}, {-shift[1]}, {-shift[2]}")
         gl.glTranslate(-shift[0], -shift[1], -shift[2])
@@ -431,7 +431,7 @@ class TetViewer(qw.QOpenGLWidget):
 
         view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
         print(f">>>>>>>>>>>> {view_distance:.3f} {self._state.get_shift()[2]}")
-        #self._state.set_look_z(view_distance)
+        self._state.set_view_ctr_z(ctr[2] - view_distance)
         # TODO set self.viewer._CTR_Z here
         # 1. get bounding sphere r
         # 2. inc r 10%

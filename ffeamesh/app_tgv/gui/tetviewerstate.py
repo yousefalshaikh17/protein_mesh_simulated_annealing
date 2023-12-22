@@ -42,7 +42,7 @@ class TetViewerState():
         self._euler_y = 0.0
         self._clear_colour = None
         self._shift = (0.0, 0.0, 0.0)
-        self._look_z = -1500.0
+        self._look_z = -1.0
         self._edges_width = 1
         self._perspective = True
         self._field_of_view = 45.0
@@ -133,6 +133,14 @@ class TetViewerState():
         self._shift = (self._surface_ctr[0],
                        self._surface_ctr[1],
                        self._CTR_Z)
+
+    def set_view_ctr_z(self, ctr_z):
+        """
+        set the baseline for the z axis shift applied to the mode
+        Args:
+            ctr_z float: the value
+        """
+        self._CTR_Z = ctr_z
 
     def set_current_tet(self, tet):
         """
