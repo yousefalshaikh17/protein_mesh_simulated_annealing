@@ -25,7 +25,7 @@ class TetViewerState():
     """
     storage for the current viewing state
     """
-    def __init__(self, view_ctr_z=1350.0):
+    def __init__(self):
         """
         initalize the state
         Args:
