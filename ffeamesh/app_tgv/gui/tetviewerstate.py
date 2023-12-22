@@ -123,7 +123,7 @@ class TetViewerState():
         self._current_ctr = self._current_tet_ctr
         self._shift = (self._current_tet_ctr[0],
                        self._current_tet_ctr[1],
-                       self._CTR_Z)
+                       self._current_tet_ctr[2])
 
     def centre_on_surface(self):
         """
@@ -132,7 +132,7 @@ class TetViewerState():
         self._current_ctr = self._surface_ctr
         self._shift = (self._surface_ctr[0],
                        self._surface_ctr[1],
-                       self._CTR_Z)
+                       self._surface_ctr[2])
 
     def set_view_ctr_z(self, ctr_z):
         """

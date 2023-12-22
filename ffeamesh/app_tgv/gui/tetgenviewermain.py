@@ -436,7 +436,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):
         """
-        callback for the motion of a mouse with a button held
+        callback for selection of a new background
         """
         if not flag:
             return
