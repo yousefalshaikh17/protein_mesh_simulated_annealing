@@ -42,7 +42,7 @@ class TetViewerState():
         self._euler_y = 0.0
         self._clear_colour = None
         self._shift = (0.0, 0.0, 0.0)
-        self._look_z = -1.0
+        self._look_from_z = -1.0
         self._edges_width = 1
         self._perspective = True
         self._field_of_view = 45.0
@@ -241,21 +241,21 @@ class TetViewerState():
         """
         self._shift = (x_coord, y_coord, z_coord)
 
-    def get_look_z(self):
+    def get_look_from_z(self):
         """
         get the z componant of the look-from
         Returns
             float
         """
-        return self._look_z
+        return self._look_from_z
 
-    def set_look_z(self, z_coord):
+    def set_look_from_z(self, z_coord):
         """
         set the z componant of the look-from
         Args:
             z_coord: float
         """
-        self._look_z = z_coord
+        self._look_from_z = z_coord
 
     def get_field_of_view(self):
         """

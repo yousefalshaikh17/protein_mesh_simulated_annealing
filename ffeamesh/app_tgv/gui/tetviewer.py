@@ -132,14 +132,14 @@ class TetViewer(qw.QOpenGLWidget):
 
         gl.glPushMatrix()    # push the current matrix to the current stack
 
-        glu.gluLookAt(0.0, 0.0, self._state.get_look_z(),
+        glu.gluLookAt(0.0, 0.0, self._state.get_look_from_z(),
                       0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0)
 
         # TODO remvoe the print statemsnts
         # general shift as input by user
         shift = self._state.get_shift()
-        print(f"\n=======\nEye: 0.0, 0.0, {self._state.get_look_z()}")
+        print(f"\n=======\nEye: 0.0, 0.0, {self._state.get_look_from_z()}")
         print(f"At: 0.0, 0.0, 0.0")
         print(f"SHIFT >> {-shift[0]}, {-shift[1]}, {-shift[2]}")
         gl.glTranslate(-shift[0], -shift[1], -shift[2])
