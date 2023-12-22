@@ -31,7 +31,6 @@ class TetViewerState():
         Args:
             view_ctr_z (float): the start z value for the view
         """
-        self._CTR_Z = view_ctr_z
         self._surface_ctr = None
         self._current_tet_ctr = None
         self._current_tet_nodes = None
@@ -121,26 +120,12 @@ class TetViewerState():
         set the current ctr to be a tet
         """
         self._current_ctr = self._current_tet_ctr
-        self._shift = (self._current_tet_ctr[0],
-                       self._current_tet_ctr[1],
-                       self._current_tet_ctr[2])
 
     def centre_on_surface(self):
         """
         set the current ctr to be a surface
         """
         self._current_ctr = self._surface_ctr
-        self._shift = (self._surface_ctr[0],
-                       self._surface_ctr[1],
-                       self._surface_ctr[2])
-
-    def set_view_ctr_z(self, ctr_z):
-        """
-        set the baseline for the z axis shift applied to the mode
-        Args:
-            ctr_z float: the value
-        """
-        self._CTR_Z = ctr_z
 
     def set_current_tet(self, tet):
         """
@@ -229,6 +214,7 @@ class TetViewerState():
         Args:
             z_coord: float
         """
+        print(f"set_shift_z({z_coord})")
         self._shift = (self._shift[0], self._shift[1], z_coord)
 
     def set_shift(self, x_coord, y_coord, z_coord):

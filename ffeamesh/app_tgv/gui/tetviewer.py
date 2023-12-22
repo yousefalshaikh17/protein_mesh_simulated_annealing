@@ -152,13 +152,12 @@ class TetViewer(qw.QOpenGLWidget):
         gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
         gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
 
-        scale = (1.0, 1.0, 1.0)
         if self._state.display_current_tet():
             self.draw_selected_tet()
         if self._show_lattice:
             self.draw_triangle_outline()
         if self._show_faces:
-            self.draw_triangles(scale)
+            self.draw_triangles()
 
         gl.glPopMatrix()    # restore the previous modelview matrix
 
