@@ -62,7 +62,7 @@ def make_fractional_to_cartesian_conversion_function(mrc):
     make_fractional_to_cartesian_conversion_function(mrc)
     make a functor that will convert a point defined by fractional
     coordinates in the unit cell to cartesian coordinates
-    TODO imp for angles not 90 degrees
+    assumes angles are all 90 degrees
     Args:
         mrc (mrcfile): the mrc file
     Returns

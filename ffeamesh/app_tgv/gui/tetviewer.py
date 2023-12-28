@@ -140,17 +140,13 @@ class TetViewer(qw.QOpenGLWidget):
         shift = self._state.get_shift()
         gl.glTranslate(-shift[0], -shift[1], -shift[2])
 
+        # apply the current rotations (origin in model)
+        gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
+        gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
+
         # move mesh ctr to origin
         ctr = self._state.get_current_ctr()
         gl.glTranslate(-ctr[0], -ctr[1], -ctr[2])
-
-        print('\n==========')
-        print(f'Shift: {shift[0]:.3f}, {shift[0]:.3f}, {shift[0]:.3f}')
-        print(f'Ctr:   {ctr[0]:.3f} {ctr[0]:.3f}, {ctr[0]:.3f}')
-
-        # apply the current rotations
-        gl.glRotate(self._state.get_euler_x(), 1.0, 0.0, 0.0)
-        gl.glRotate(self._state.get_euler_y(), 0.0, 1.0, 0.0)
 
         if self._state.display_current_tet():
             self.draw_selected_tet()
@@ -378,7 +374,7 @@ class TetViewer(qw.QOpenGLWidget):
         new_z = shift[2] - float(del_y)
 
         self._mouse_position = mouse_position
-        # TODO work out correct limie
+        # TODO work out correct limit
         if new_z > -2000.0:
             self._state.set_shift_z(new_z)
 
@@ -430,14 +426,8 @@ class TetViewer(qw.QOpenGLWidget):
         radius = radius*1.1
 
         view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
-        print(f">>>>>>>>>>>> {view_distance:.3f} {self._state.get_shift()[2]}")
-        self._state.set_look_from_z(-view_distance)
-        # TODO set self.viewer._CTR_Z here
-        # 1. get bounding sphere r
-        # 2. inc r 10%
-        # 3. h = r/np.tan(view_angle/2)
-        # 4. self.viewer.set_ctr_z(ctr[2] + h)
 
+        self._state.set_look_from_z(-view_distance)
         self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
         self._state.centre_on_surface()
         self._state.clear_current_tet()
