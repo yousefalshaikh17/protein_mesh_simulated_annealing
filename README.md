@@ -284,7 +284,7 @@ The command line will print out each test ran and state if they passed or failed
 
 Because publicly availabe PDB files are more common than cryo-em MRC files, in this example a MRC is simulated from a PDB. The example uses the small plant protien crambin (3nir.pdb) a available from [https://www.rcsb.org/structure/3NIR](https://www.rcsb.org/structure/3NIR).
 
-1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o 3nir.mrc -o 3nir.mrc -n 15 15 15 -w soft`
+1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o <path>\3nir.mrc -n 15 15 15 -w soft`
 
 2. To see the information in the files header run `mrc_header_info -i <path>\3nir.mrc`
 
