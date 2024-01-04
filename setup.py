@@ -22,7 +22,7 @@ DISTUTILS_DEBUG=1
 setup(
     name='tetmeshtools',
     version='1.0.0',
-    author="J. Leng, J. Pickering, The FFEA Team",
+    author="J. Leng, J. Pickering",
     description ='Meshing tools developed for the Fluctuating Finite Element Analysis tool (FFEA).',
     url='https://github.com/jonathanHuwP/tet_mesh_tools',
     license='GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007',

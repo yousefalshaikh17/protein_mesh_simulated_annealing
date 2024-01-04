@@ -57,9 +57,9 @@ def get_args():
     get command line args
     """
     parser = argparse.ArgumentParser("""process MRC files and produces a regular
-        tetrahedral volumetric mesh for FFEA using the "marching tet" algorithm.
-        This is written out in the tetgen .ele, .face, and .node file format for
-        later use in FFEA, and .vtk for mesh analysis.
+        tetrahedral volumetric mesh using the "marching tet" algorithm.This is
+        written out in the tetgen .ele, .face, and .node file format, and .vtk
+        for mesh analysis.
 
         Joanna Leng (J.Leng@leeds.ac.uk),
         Jonathan Pickering (J.H.Pickering@leeds.ac.uk)""")

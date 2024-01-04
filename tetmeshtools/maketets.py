@@ -1,27 +1,16 @@
 """
- This file is part of the FFEA simulation package
+You should have received a copy of the GNU General Public License.
+If not, see <http://www.gnu.org/licenses/>.
 
- Copyright (c) by the Theory and Development FFEA teams,
- as they appear in the README.md file.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
- FFEA is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
- FFEA is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-
- To help us fund FFEA development, we humbly ask that you cite
- the research papers on the package.
-
-    Authors: Joanna Leng, Jonathan Pickering - University of Leeds
-    Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
+@copyright 2020
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 
       Vertex Indices:
          7+----------+6
@@ -141,7 +130,7 @@ def all_voxels_to_tets(image, counts, progress, use_six_tets=True):
 def convert_mrc_to_tets(input_file,
                         output_file,
                         threshold,
-                        ffea_out,
+                        tetgen_out,
                         vtk_out,
                         verbose,
                         progress,
@@ -154,7 +143,7 @@ def convert_mrc_to_tets(input_file,
         input_file (pathlib.Path): name of input file
         output_file (pathlib.Path): name stem for output files
         threshold (float): the threshold below which results are ignored (isosurface value)
-        ffea_out (bool): if true produce ffea input files (tetgen format)
+        tetgen_out (bool): if true produce tetgen format files
         vtk_out (bool): if true produce vtk file
         verbose (bool): if true give details of results
         progress (bool): if true print out progress
@@ -209,7 +198,7 @@ def convert_mrc_to_tets(input_file,
         v2t.write_tets_to_files(grid.get_vertices(),
                                 grid.get_connectivities(),
                                 output_file,
-                                ffea_out,
+                                tetgen_out,
                                 vtk_out)
 
 def verbose_output(mrc, grid, six_tets):

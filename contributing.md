@@ -1,4 +1,4 @@
-# How to contribute to FFEA Meshing
+# How to contribute to Tet Mesh Tools
 
 We want to thank you for your interest in contributing! The following guidelines to help you better understand how to best contribute to the project.
 

@@ -1,27 +1,16 @@
 """
- This file is part of the FFEA simulation package
+You should have received a copy of the GNU General Public License.
+If not, see <http://www.gnu.org/licenses/>.
 
- Copyright (c) by the Theory and Development FFEA teams,
- as they appear in the README.md file.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
- FFEA is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
- FFEA is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-
- To help us fund FFEA development, we humbly ask that you cite
- the research papers on the package.
-
-    Authors: Joanna Leng, Jonathan Pickering - University of Leeds
-    Emails: J.Leng@leeds.ac.uk, J.H.Pickering@leeds.ac.uk
+@copyright 2020
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 
         Vertex Indices:
          7+----------+6
@@ -255,14 +244,14 @@ def make_vertex_values(x_index, y_index, z_index, mrc):
 
     return values
 
-def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, vtk_out):
+def write_tets_to_files(points_list, tets_connectivity, output_file, tetgen_out, vtk_out):
     """
-    Sets it up so data goes to the ffea writer and the vtk writer correctly.
+    Sets it up so data goes to the tetgen format writer and the vtk writer correctly.
     Args:
         points_list (float*3 list): 3d coordinates of the points forming the tets
         tets_connectivity (int*4 list): for each tet the indices of its vertices in the points list
         output_file (pathlib.Path): name stem for ouput files
-        ffea_out (bool): if true write ffea input files
+        tetgen_out (bool): if true write tegen fromat files
         vtk_out (bool): if true write a vtk file
     Returns:
         None
@@ -287,13 +276,13 @@ def write_tets_to_files(points_list, tets_connectivity, output_file, ffea_out, v
     if vtk_out:
         vtk_write.vtk_output(vtk_grid, output_file)
 
-    # write tetgen file for ffea input
-    if ffea_out:
-        ffea_output(vtk_grid, points_np, tets_connectivity, output_file)
+    # write tetgen file for tetgen input
+    if tetgen_out:
+        tetgen_output(vtk_grid, points_np, tets_connectivity, output_file)
 
-def ffea_output(vtk_grid, points, tets_connectivity, output_file):
+def tetgen_output(vtk_grid, points, tets_connectivity, output_file):
     """
-    Constructs the faces and calls the ffea writer to output file.
+    Constructs the faces and calls the tetgen writer to output file.
     Args:
         vtk_grid (vtk.vtkUnstructuredGrid): vtk scene
         points (float np.ndarray): duplicate free list of vertices

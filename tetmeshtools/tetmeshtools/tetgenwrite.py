@@ -1,31 +1,21 @@
 """
- This file is part of the FFEA simulation package
+You should have received a copy of the GNU General Public License.
+If not, see <http://www.gnu.org/licenses/>.
 
- Copyright (c) by the Theory and Development FFEA teams,
- as they appear in the README.md file.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
- FFEA is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
- FFEA is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-
- To help us fund FFEA development, we humbly ask that you cite
- the research papers on the package.
-
-Authors: Joanna Leng, Jonathan Pickering, - University of Leeds (UK)
+@copyright 2023
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 
 def write_tetgen_elements(output_file, tets, comment=""):
     """
-    write ffea elements file .ele
+    write tetgen elements file .ele
     First line: <# of tetrahedra> <nodes per tetrahedron> <# of attributes>
     Remaining lines list of # of tetrahedra:
     <tetrahedron #> <node> <node> <node> <node> ... [attributes]
@@ -43,7 +33,7 @@ def write_tetgen_elements(output_file, tets, comment=""):
 
 def write_tetgen_nodes(output_file, points, comment=""):
     """
-    write ffea .node file
+    write tetgen .node file
     First line: <num points> <dimension (3)> <num attributes> <num boundary markers (0 or 1)>
     Remaining lines list # of points:
     <point #> <x> <y> <z>

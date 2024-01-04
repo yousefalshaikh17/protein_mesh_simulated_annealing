@@ -77,7 +77,7 @@ def main():
         try:
             model = None
             if args.mesh_file.suffix == ".vol":
-                model = fr.make_model_from_ffea(args.mesh_file)
+                model = fr.make_model_from_tetgen(args.mesh_file)
             else:
                 model = tr.make_model_from_tetgen(args.mesh_file)
 
