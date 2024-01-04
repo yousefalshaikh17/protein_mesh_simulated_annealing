@@ -15,23 +15,23 @@ authors:
 affiliations:
  - name: School of Computer Science, University of Leeds, Leeds, United Kingdom
    index: 1
-date: 31 October 2023
+date: 05 January 2024
 bibliography: paper.bib
 ---
 
 # Summary
 
-Fluctuating Finite Element Analysis (FFEA) is mesoscale modelling research software package and, in 2020 a combined assessment of software and research interests was performed involving users and developers [?].  This assessment found that meshing was the main bottleneck in the workflow, often taking six months or more. As a result, a Python tetrahedral mesh builder and viewer was developed to suite the mesoscale.
+Fluctuating Finite Element Analysis (FFEA) [D0SM00491J][SOLERNOU1005897][OLIVER2013147][PATARGIAS20572740] is mesoscale modelling research software package and, in 2020 a combined assessment of software and research interests was performed involving users and developers [JL2023].  This assessment found that meshing was the main bottleneck in the workflow, often taking six months or more. As a result, a Python tetrahedral mesh builder and viewer was developed to suite the mesoscale.
 
 # Statement of Need
 
-FFEA is a continuum mechanics package aimed at modelling the behaviour of proteins and other globular macromolecules [1, 2, 3, 4]. It implements a novel combination of finite element methods and stochastic thermal noise, which raise issues subtly different to tradition finite element methods, some of which relate to the tetrahedral meshes it employs.
+FFEA is a continuum mechanics package aimed at modelling the behaviour of proteins and other globular macromolecules. It implements a novel combination of finite element methods and stochastic thermal noise, which raise issues subtly different to tradition finite element methods, some of which relate to the tetrahedral meshes it employs.
 
-A typical system will consist of multiple globular proteins, with attached sugars and potentially water bonded protein surface, these are modelled from cryogenic electron microscope (cryo-em) images in Medical Research Council (MRC) format [5]. Surface refinement techniques used in the structural analyses of manufactured artefacts are not well suited to the irregularities of such systems, and give rise to many small tetrahedra, and very thin tetrahedra, called slither elements. The small and slither elements are problematic as the simulated thermal noise is particularly susceptible to numerical instability, resulting in very short simulation time steps and long calculations, typically 300 000 steps of 5x10-13 seconds. In any case the surfaces of large molecules are not well defined and current surface refinement methods are not ideal.
+A typical system will consist of multiple globular proteins, with attached sugars and potentially water bonded protein surface, these are modelled from cryogenic electron microscope (cryo-em) images in Medical Research Council (MRC) format [CHENG2015]. Surface refinement techniques used in the structural analyses of manufactured artefacts are not well suited to the irregularities of such systems, and give rise to many small tetrahedra, and very thin tetrahedra, called slither elements. The small and slither elements are problematic as the simulated thermal noise is particularly susceptible to numerical instability, resulting in very short simulation time steps and long calculations, typically 300 000 steps of 5x10-13 seconds. In any case the surfaces of large molecules are not well defined and current surface refinement methods are not ideal.
 
-Originally, the meshes were created from cryo-em images using TetGen [6] then manually edited and refined. Even so the meshes were very unstable, even with very small time steps the simulations crashed after a very short simulation time.  Also, the FFEA research team had problems visualising their meshes, as molecular visualization software does not visualize meshes and 3D visualization software was too complex for the biologists to use and identify the slither elements. A visualization tool was developed to suite these specific needs.
+Originally, the meshes were created from cryo-em images using TetGen [SI2015] then manually edited and refined. Even so the meshes were very unstable, even with very small time steps the simulations crashed after a very short simulation time.  Also, the FFEA research team had problems visualising their meshes, as molecular visualization software does not visualize meshes and 3D visualization software was too complex for the biologists to use and identify the slither elements. A visualization tool was developed to suite these specific needs.
 
-![The viewer’s user interface, showing a meshed model of myosin on the left, with the view controls below. On the right the table of properties of the tetrahedra is can be seen and the global properties of the mesh..\label{fig:example}](images/CGT_drawing_tab.png)
+![The viewer’s user interface, showing a meshed model of myosin on the left, with the view controls below. On the right the table of properties of the tetrahedra is can be seen and the global properties of the mesh..\label{fig:example}](images/??)
 
 # Design
 
@@ -58,12 +58,12 @@ The new meshes have been tested by a research student and are under further inve
 # For Developers
 
 Developers who wish to contribute to this or to any part of the FFEA software please contact the FFEA team, given in the documentation. The meshing package has been designed as a standalone package, so researchers can use adapt it for their own needs. We recommend researchers who want to extend the package start by copying the repository and setting up the virtual environment.
+
 A test suite is provided. Documentation has been developed using Doxygen to extract documentation from source code comments. The code has been developed using the Pylint static code analysis tool.
 
 # Availability
 
-The software can be obtained from GitHub [GitHub](https://github.com/jonathanHuwP/tet_mesh_tools) under the GNU General Public License (GPL)
-Version 3.
+The software can be obtained from GitHub [GitHub](https://github.com/jonathanHuwP/tet_mesh_tools) under the GNU General Public License (GPL) Version 3.
 
 # Acknowledgement
 
