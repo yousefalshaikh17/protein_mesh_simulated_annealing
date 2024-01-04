@@ -3,33 +3,25 @@
  five_tets.py
 
  A script that processes MRC files and produces a regular
- tetrahedral volumetric mesh for FFEA, with five tetrahedra
+ tetrahedral volumetric mesh, with five or six tetrahedra
  in each voxel, using the "marching tet" algorithm. This is
- written out in the tetgen .ele, .face, and .node file format
- for later use in FFEA, and .vtk for mesh analysis.
+ written out in the tetgen .ele, .face, and .node file format,
+ and .vtk for mesh analysis.
 
  ----------------------------
 
- This file is part of the FFEA simulation package
+You should have received a copy of the GNU General Public License.
+If not, see <http://www.gnu.org/licenses/>.
 
- Copyright (c) by the Theory and Development FFEA teams,
- as they appear in the README.md file.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
- FFEA is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
- FFEA is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-
- To help us fund FFEA development, we humbly ask that you cite
- the research papers on the package.
+@copyright 2020
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 
 """
 # set up linting
@@ -50,9 +42,8 @@ def get_args():
         (argparse.namespace)
     """
     description = ("process MRC files and produces a regular "
-        "tetrahedral volumetric mesh for FFEA using the \"marching tet\" algorithm. "
-        "This is written out in the tetgen .ele, .face, and .node file format for "
-        "later use in FFEA, and .vtk for mesh analysis."
+        "tetrahedral volumetric mesh using the \"marching tet\" algorithm. "
+        "This is written out in the tetgen .ele, .face, and .node file format, and .vtk for mesh analysis."
 
         "Coding:   Molly Gravett (bsmgr@leeds.ac.uk), "
         "Joanna Leng (J.Leng@leeds.ac.uk), "
@@ -143,7 +134,7 @@ def validate_command_line(args):
             if file.exists():
                 return f"Error: file {file} exists, use option -w to allow overwrite."
 
-        if args.ffea:
+        if args.ftetg:
             files = []
             files.append(args.output.with_suffix(".vtk"))
             files.append(args.output.with_suffix(".1.ele"))
@@ -154,8 +145,8 @@ def validate_command_line(args):
                     return f"Error: file {file} exists, use option -w to allow overwrite."
 
     # check that some output has been specified
-    if not args.vtk and not args.ffea:
-        return "Error: you must specify and output type (vtk and/or ffea)"
+    if not args.vtk and not args.ftetg:
+        return "Error: you must specify and output type (vtk and/or ftetg)"
 
     if args.vox_counts is not None:
         if len(args.vox_counts) != 3:
@@ -182,7 +173,7 @@ def main():
     convert_mrc_to_tets(args.input,
                         args.output,
                         args.threshold,
-                        args.ffea,
+                        args.ftetg,
                         args.vtk,
                         args.verbose,
                         args.progress,
