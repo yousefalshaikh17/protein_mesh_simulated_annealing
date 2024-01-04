@@ -1,29 +1,19 @@
 #!/usr/bin/env python
 """
-setup.py
-
 pip install the scripts
 
-  This file is part of the FFEA simulation package
+You should have received a copy of the GNU General Public License
+along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
 
-  Copyright (c) by the Theory and Development FFEA teams,
-  as they appear in the README.md file.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
-  FFEA is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
-  FFEA is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with FFEA.  If not, see <http://www.gnu.org/licenses/>.
-
-  To help us fund FFEA development, we humbly ask that you cite
-  the research papers on the package.
+@copyright 2020
+@author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 from setuptools import setup
 
