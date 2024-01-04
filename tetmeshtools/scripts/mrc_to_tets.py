@@ -76,12 +76,12 @@ def get_args():
     parser.add_argument("-v",
                         "--vtk",
                         action="store_true",
-                        help="produce vtk output.")
+                        help="output files in vtk format.")
 
     parser.add_argument("-f",
-                        "--ffea",
+                        "--ftetg",
                         action="store_true",
-                        help="produce ffea output.")
+                        help="output files in tetgen format.")
 
     parser.add_argument("-t",
                         "--threshold",

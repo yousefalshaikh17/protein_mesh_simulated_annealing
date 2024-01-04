@@ -1,7 +1,7 @@
-FFEA Meshing
-============
+tetrahedral Meshing Tools
+=========================
 
-ffea-meshing are a series of Python tools for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) tetrahrdral meshes.
+These Python tools were orignally developed to support tetrahrdral meshes for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) .
 
 The tools include:
     * a visualization tool that allows the user to interactively explore the tetrahedral mesh and select the worst and best elements using a number of recognised criteria.
@@ -22,7 +22,6 @@ This is version 1.0
 
 ## Copyright and License
 
-
 The algorithm and software in this project were developed by the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
 Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.gnu.org/licenses/
@@ -36,7 +35,7 @@ This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 ## Table of Contents
 
 **[Quick Start](#quick-start)**<br>
-**[Managing The ffea_mesh Environment](#managing-the-ffea_mesh-environment)**<br>
+**[Managing The tetmesht Environment](#managing-the-tetmesht-environment)**<br>
 **[Scripts](#scripts)**<br>
 **[Usage](#usage)**<br>
 **[Prerequisites](#prerequisites)**<br>
@@ -48,15 +47,15 @@ This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 
 Immediately below are a set of instructions that allow you to execute the cpt software quickly. There are no explanations of the steps here. Please look at the rest of the README file if you have any problems.
 
-This software uses Anaconda with Python 3.9 so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of ffea-meshing (the directory with the file README.md in it) and type the following the FIRST time you run the ffea-meshing software. Not all the instructions are required for later runs:
+This software uses Anaconda with Python 3.9 so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of tet_mesh_tools (the directory with the file README.md in it) and type the following the FIRST time you run the tet_mesh_tools software. Not all the instructions are required for later runs:
 
-`conda env create -f environment_ffea-mesh.yml`
+`conda env create -f environment_tetmesht.yml`
 
 Next, activate the cpt Anaconda environment using the following command:
 
-`conda activate ffea-mesh`
+`conda activate tetmesht`
 
-Now install the cpt tools into the cpt environment:
+Now install the tools into the environment:
 
 `pip install --editable . -v`
 
@@ -76,9 +75,9 @@ If you want to use them to write your own python scripts you can now import them
 
 `import tetmeshtools.<import name>....`
 
-## Managing The ffea_mesh Environment:
+## Managing The tetmesht Environment:
 
-The Anaconda environment, with all the necessary modules, can be set up using the environment_ffea-mesh.yml file.
+The Anaconda environment, with all the necessary modules, can be set up using the environment_tetmesht.yml file.
 
 We advise you to get your conda installation up to date before you do this but this is not obligatory with the command:
 
@@ -90,19 +89,19 @@ To see what conda environments you have, run the command
 
 To create a new Anaconda environment for cpt, run the command
 
-`conda env create -f environment_ffea-mesh.yml`
+`conda env create -f environment_tetmesht.yml`
 
 To start using the environment, run the command
 
-`conda activate ffea-mesh.yml`
+`conda activate tetmesht.yml`
 
 To stop using that enviroment:
 
 `conda deactivate`
 
-To remove the environment, if you no longer want to use ffea-mesh:
+To remove the environment, if you no longer want to use tetmesht:
 
-`conda env remove --name ffea-mesh`
+`conda env remove --name tetmesht`
 
 ## Scripts
 
@@ -131,8 +130,7 @@ The following scrips are available:
 ### Meshing
 
    * **mrc_to_tets.py** - process MRC files and produces a regular tetrahedral volumetric
-    meshs for FFEA using the "marching tet" algorithm. Decomposition of the image voxels into 5 or 6 tetrohedra each is available. Output can be in the tetgen
-    .ele, .face, and .node file format and/or the .vtk format.
+    meshs using the "marching tet" algorithm. Decomposition of the image voxels into 5 or 6 tetrohedra each is available. Output can be in the tetgen .ele, .face, and .node file format and/or the .vtk format.
 
 ### Test Files
 
@@ -141,16 +139,12 @@ The following scrips are available:
    * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
     and output in VTK format. 5 and 6 tetrahedra decompositions are available.
 
-### Modify Mesh
-
-   * **sim_anneal.py** - optimizes a tetrahedral mesh using simulated annealing
-
 ## Usage
 
 ### mrc_to_tets
 
 five_tets & six_tets input MRC files and processes them to produce volumetric mesh
- files for use with FFEA. VTK files can also be produced for mesh analysis, using vtk based tools such as ParaView.
+ files. VTK files can also be produced for mesh analysis, using vtk based tools such as ParaView.
 
 To get started quickly, the usage message can be viewed with the following command:
 
@@ -163,9 +157,9 @@ In order to run five or six_tets there are three required flags:
    * `-i`, `--input` input file
    * `-o`, `--output` output file name root, (no suffix)
 
-   * `-v`, `--vtk`     produce vtk output.
+   * `-v`, `--vtk`     output files in vtk format.
 
-   * `-f`, `--ffea`    produce ffea output.
+   * `-f`, `--ftetg`    output files in tetgen format.
 
    * `-t` THRESHOLD, `--threshold` lower filter for voxels, default zero
 
@@ -232,7 +226,7 @@ In the output directory defined by `-o` or `--output`, the following files will
 
 Get a copy of the latest version from bitbucket by running
 
-`git clone https://bitbucket.org/FFEA/ffea-meshing.git/`
+`git clone https://github.com/jonathanHuwP/tet_mesh_tools`
 
 or, if you alreay have cloned
 
@@ -240,15 +234,15 @@ or, if you alreay have cloned
 
 If you have an old conda environment remove it.
 
-`conda env remove --name ffea-mesh`
+`conda env remove --name tetmesht`
 
 Create a new environment
 
-`conda env create -f .\environment_ffea-mesh.yml`
+`conda env create -f .\environment_tetmesht.yml`
 
 Activate the environment
 
-`conda activate ffea-mesh`
+`conda activate tetmesht`
 
 Install the package to the environment using pip
 
@@ -262,13 +256,13 @@ Make the documentation run doxygen
 
 ## Unit Tests
 
-The directory `tests` contain unit tests for developers working on ffea-meshing.
+The directory `tests` contain unit tests for developers working on tet_mesh_tools.
  Inside is a script called `unit_tests.py` which executes the tests, and the
  required input and output files for these tests.
 
 To get started quickly, the usage message can be viewed with the following command:
 
-      python unit_tests.py -h
+`python tetmeshtools/tests/unit_tests.py -h``
 
 There are three unit tests, which are as follows:
 
@@ -280,7 +274,7 @@ If unit_tests is called with no flags, all three tests will run. To run specific
  tests, use the `t` or `--test` flag with the number(s) of test(s). For example,
  to run tests 1 and 3, run the following command:
 
-      python unit_tests.py -t 1,3
+`python tetmeshtools/tests/unit_tests.py -t 1,3``
 
 The command line will print out each test ran and state if they passed or failed.
 
@@ -296,4 +290,4 @@ Because publicly availabe PDB files are more common than cryo-em MRC files, in t
 
 4. To convert to a mesh in tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 3.85 -w -V -p -m2 -n 10 10 10`
 
-5. View the mesh run `tgv -i <paht>\3nir`
+5. View the mesh run `tgv -i <path>\3nir`

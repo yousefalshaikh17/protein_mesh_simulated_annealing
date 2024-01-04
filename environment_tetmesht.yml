@@ -1,4 +1,4 @@
-name: ffea-mesh
+name: tetmesht
 channels:
   - defaults
   - conda-forge

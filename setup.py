@@ -22,9 +22,9 @@ DISTUTILS_DEBUG=1
 setup(
     name='tetmeshtools',
     version='1.0.0',
-    author="The FFEA Team",
-    description ='Meshing tools for the Fluctuating Finite Element Analysis tool (FFEA).',
-    url='http://ffea.bitbucket.com',
+    author="J. Leng, J. Pickering, The FFEA Team",
+    description ='Meshing tools developed for the Fluctuating Finite Element Analysis tool (FFEA).',
+    url='https://github.com/jonathanHuwP/tet_mesh_tools',
     license='GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007',
     packages=['tetmeshtools'],
     install_requires=[
