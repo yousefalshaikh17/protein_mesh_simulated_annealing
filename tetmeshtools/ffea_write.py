@@ -25,22 +25,22 @@
 Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers - University of Leeds (UK)
 """
 
-def write_ffea_output(output_file, tet_array, points, faces, original_ids, comment=""):
+def write_tetgen_output(output_file, tet_array, points, faces, original_ids, comment=""):
     """
-    write the ffea input files
+    write the tetgen files
     Args:
-        nvoxel (int): number of voxels
+        output_file (pathlib.Path): file
         tet_array (int*4 list): for each tet the indices of its vertices in the points list
         points (float np.ndarray): duplicate free list of vertices
         faces (int np.ndarray): connectivity of face polygons
         original_ids (int []): index of surface point in the surface faces's points array
         comment (str): any user comment
     """
-    write_ffea_elements(output_file, tet_array, comment)
-    write_ffea_nodes(output_file, points, comment)
-    write_ffea_faces(output_file, faces, original_ids, comment)
+    write_tetgen_elements(output_file, tet_array, comment)
+    write_tetgen_nodes(output_file, points, comment)
+    write_tetgen_faces(output_file, faces, original_ids, comment)
 
-def write_ffea_elements(output_file, tet_array, comment=""):
+def write_tetgen_elements(output_file, tet_array, comment=""):
     """
     write tetgen elements file .ele
     First line: <# of tetrahedra> <nodes per tetrahedron> <# of attributes>
@@ -58,9 +58,9 @@ def write_ffea_elements(output_file, tet_array, comment=""):
             ele.write(f"{i+1} {tet[0]+1} {tet[1]+1} {tet[2]+1} {tet[3]+1}\n")
         ele.write(comment)
 
-def write_ffea_nodes(output_file, points, comment=""):
+def write_tetgen_nodes(output_file, points, comment=""):
     """
-    write ffea .node file
+    write tetgen .node file
     First line: <num points> <dimension (3)> <num attributes> <num boundary markers (0 or 1)>
     Remaining lines list # of points:
     <point #> <x> <y> <z>
@@ -75,9 +75,9 @@ def write_ffea_nodes(output_file, points, comment=""):
             node.write(f"{i+1} {point[0]} {point[1]} {point[2]}\n")
         node.write(comment)
 
-def write_ffea_faces(output_file, faces, ids, comment=""):
+def write_tetgen_faces(output_file, faces, ids, comment=""):
     """
-    write .face file
+    write a tetgen .face file
     First line: <# of faces> <boundary marker (0 or 1)>
     Remaining lines list of # of faces:
     <face #> <node> <node> <node> [boundary marker]
