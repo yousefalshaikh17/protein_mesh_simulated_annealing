@@ -1,7 +1,7 @@
 tetrahedral Meshing Tools
 =========================
 
-These Python tools were orignally developed to support tetrahrdral meshes for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) .
+These Python tools were orignally developed to support tetrahrdral meshes for [FFEA](https://bitbucket.org/FFEA/ffea/downloads/), the authors graetfully acknolege the help and support of the FFEA team.
 
 The tools include:
     * a visualization tool that allows the user to interactively explore the tetrahedral mesh and select the worst and best elements using a number of recognised criteria.
