@@ -25,15 +25,15 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
-import ffeamesh.tetmeshtools.tetgenread as tr
-import ffeamesh.tetmeshtools.tetgenstructs as ts
-import ffeamesh.tetmeshtools.ffeavolfilereader as fr
-import ffeamesh.tetprops as tp
-import ffeamesh.tetmeshtools.tetmodel as tm
-import ffeamesh.tetmeshtools.trisurface as tris
-import ffeamesh.tetmeshtools.tetmesh as tmes
+import tetmeshtools.tetmeshtools.tetgenread as tr
+import tetmeshtools.tetmeshtools.tetgenstructs as ts
+import tetmeshtools.tetmeshtools.ffeavolfilereader as fr
+import tetmeshtools.tetprops as tp
+import tetmeshtools.tetmeshtools.tetmodel as tm
+import tetmeshtools.tetmeshtools.trisurface as tris
+import tetmeshtools.tetmeshtools.tetmesh as tmes
 
-from ffeamesh.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
+from tetmeshtools.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
     """the viewers main window"""

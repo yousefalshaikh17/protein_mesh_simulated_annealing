@@ -43,10 +43,10 @@ import numpy as np
 
 import vtk
 from vtkmodules.util import numpy_support
-from ffeamesh import vtk_write
-import ffeamesh.coord_utility as cu
-from ffeamesh.ffea_write import write_ffea_output
-import ffeamesh.vtk_utility as vtk_u
+from tetmeshtools import vtk_write
+import tetmeshtools.coord_utility as cu
+from tetmeshtools.ffea_write import write_ffea_output
+import tetmeshtools.vtk_utility as vtk_u
 
 class PruneLevel(enum.IntEnum):
     """

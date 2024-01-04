@@ -24,8 +24,8 @@
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
 import unittest
-import ffeamesh.tetprops as tp
-from ffeamesh.tetmeshtools.tetgenstructs import NodePoint
+import tetmeshtools.tetprops as tp
+from tetmeshtools.tetmeshtools.tetgenstructs import NodePoint
 
 class TestTetProps(unittest.TestCase):
     """

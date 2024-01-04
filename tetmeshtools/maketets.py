@@ -42,13 +42,13 @@ import sys
 from time import process_time
 import mrcfile
 
-import ffeamesh.voxels2tets_utility as v2t
-import ffeamesh.mrclininterpolate as mi
-from ffeamesh.mrc_utility import voxel_size
-from ffeamesh.tetprops import tet_volume
-from ffeamesh.tetmeshtools.tetgenstructs import NodePoint
+import tetmeshtools.voxels2tets_utility as v2t
+import tetmeshtools.mrclininterpolate as mi
+from tetmeshtools.mrc_utility import voxel_size
+from tetmeshtools.tetprops import tet_volume
+from tetmeshtools.tetmeshtools.tetgenstructs import NodePoint
 
-from ffeamesh.grid import Grid
+from tetmeshtools.grid import Grid
 
 def make_progress_test(end_x, end_y, end_z, steps=10, start_x=0, start_y=0, start_z=0):
     """

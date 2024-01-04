@@ -36,9 +36,9 @@ import pathlib
 import mrcfile
 import numpy as np
 
-import ffeamesh.mrclininterpolate as mi
+import tetmeshtools.mrclininterpolate as mi
 
-from ffeamesh.mrc_utility import voxel_size
+from tetmeshtools.mrc_utility import voxel_size
 
 def check_counts(in_str):
     """

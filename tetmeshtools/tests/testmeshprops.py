@@ -28,9 +28,9 @@
 
 import unittest
 import numpy as np
-import ffeamesh.tetprops as tp
-import ffeamesh.tetmeshtools.tetgenstructs as tgs
-import ffeamesh.vector3 as v3
+import tetmeshtools.tetprops as tp
+import tetmeshtools.tetmeshtools.tetgenstructs as tgs
+import tetmeshtools.vector3 as v3
 
 class TestMeshProps(unittest.TestCase):
     """

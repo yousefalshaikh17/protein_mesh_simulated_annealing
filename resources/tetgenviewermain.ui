@@ -398,7 +398,7 @@
   <customwidget>
    <class>TetViewer</class>
    <extends>QWidget</extends>
-   <header>ffeamesh.app_tgv.gui.tetviewer</header>
+   <header>tetmeshtools.app_tgv.gui.tetviewer</header>
   </customwidget>
  </customwidgets>
  <resources/>

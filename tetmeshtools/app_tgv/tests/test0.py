@@ -22,8 +22,8 @@
 
  @author: jonathan pickering, joanna leng 26 Jan 23
 """
-import ffeamesh.tetmeshtools.tetgenstructs as ts
-import ffeamesh.tetmeshtools.tetgenread as tr
+import tetmeshtools.tetmeshtools.tetgenstructs as ts
+import tetmeshtools.tetmeshtools.tetgenread as tr
 
 def test_uniformity():
     """

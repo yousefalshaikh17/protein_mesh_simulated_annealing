@@ -33,7 +33,7 @@ from collections import namedtuple
 import mrcfile
 import numpy as np
 
-from ffeamesh.voxelsize import VoxelSize
+from tetmeshtools.voxelsize import VoxelSize
 
 ## a data struct for the mrcfile cell size
 CellSize = namedtuple("CellSize", "x, y, z")

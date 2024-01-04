@@ -21,7 +21,7 @@ import pathlib
 import argparse
 import csv
 
-import ffeamesh.optimizemesh.simanneal as sa
+import tetmeshtools.optimizemesh.simanneal as sa
 
 class SimAnnealParameters():
     """

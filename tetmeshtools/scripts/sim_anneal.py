@@ -20,12 +20,12 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import sys
 import mrcfile
 
-import ffeamesh.tetmeshtools.tetgenread as tr
-import ffeamesh.tetmeshtools.ffeavolfilereader as fr
-import ffeamesh.optimizemesh.costfunction as cf
-import ffeamesh.optimizemesh.simanneal as sa
-import ffeamesh.comlinesupport as cl
-import ffeamesh.mrclininterpolate as mi
+import tetmeshtools.tetmeshtools.tetgenread as tr
+import tetmeshtools.tetmeshtools.ffeavolfilereader as fr
+import tetmeshtools.optimizemesh.costfunction as cf
+import tetmeshtools.optimizemesh.simanneal as sa
+import tetmeshtools.comlinesupport as cl
+import tetmeshtools.mrclininterpolate as mi
 
 def unpack_weights(weights_list):
     """

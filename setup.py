@@ -20,13 +20,13 @@ from setuptools import setup
 DISTUTILS_DEBUG=1
 
 setup(
-    name='ffeamesh',
+    name='tetmeshtools',
     version='1.0.0',
     author="The FFEA Team",
     description ='Meshing tools for the Fluctuating Finite Element Analysis tool (FFEA).',
     url='http://ffea.bitbucket.com',
     license='GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007',
-    packages=['ffeamesh'],
+    packages=['tetmeshtools'],
     install_requires=[
         'argparse',
         'numpy',
@@ -35,16 +35,16 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'make_test_mrc_file = ffeamesh.scripts.make_test_mrcfile:main',
-            'make_tet_mesh_examples = ffeamesh.scripts.make_tet_mesh_examples:main',
-            'mrc_coarsen = ffeamesh.scripts.mrc_coarsen:main',
-            'mrc_crop = ffeamesh.scripts.mrc_crop:main',
-            'mrc_header_info = ffeamesh.scripts.mrc_header_info:main',
-            'mrc_image_stats = ffeamesh.scripts.mrc_image_stats:main',
-            'mrc_to_tets = ffeamesh.scripts.mrc_to_tets:main',
-            'mrc_threshold = ffeamesh.scripts.mrc_threshold:main',
-            'mrc_voxel_size = ffeamesh.scripts.mrc_voxel_size:main',
-            'tgv = ffeamesh.app_tgv.tgv:main'
+            'make_test_mrc_file = tetmeshtools.scripts.make_test_mrcfile:main',
+            'make_tet_mesh_examples = tetmeshtools.scripts.make_tet_mesh_examples:main',
+            'mrc_coarsen = tetmeshtools.scripts.mrc_coarsen:main',
+            'mrc_crop = tetmeshtools.scripts.mrc_crop:main',
+            'mrc_header_info = tetmeshtools.scripts.mrc_header_info:main',
+            'mrc_image_stats = tetmeshtools.scripts.mrc_image_stats:main',
+            'mrc_to_tets = tetmeshtools.scripts.mrc_to_tets:main',
+            'mrc_threshold = tetmeshtools.scripts.mrc_threshold:main',
+            'mrc_voxel_size = tetmeshtools.scripts.mrc_voxel_size:main',
+            'tgv = tetmeshtools.app_tgv.tgv:main'
         ]
     }
     )

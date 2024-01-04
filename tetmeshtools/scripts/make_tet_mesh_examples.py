@@ -48,8 +48,8 @@ import argparse
 import numpy as np
 import vtk.util.numpy_support
 
-import ffeamesh.vtk_utility as vtk_u
-from ffeamesh import vtk_write
+import tetmeshtools.vtk_utility as vtk_u
+from tetmeshtools import vtk_write
 
 def unit_cube_coords():
     """

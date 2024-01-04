@@ -25,8 +25,8 @@ import sys
 import PyQt5.QtCore as qc
 import PyQt5.QtWidgets as qw
 
-#from ffeamesh.app_tgv.tgvapp import TGVApp
-from ffeamesh.app_tgv.gui.tetgenviewermain import TetgenViewerMain
+#from tetmeshtools.app_tgv.tgvapp import TGVApp
+from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
 class TGVApp(qw.QApplication):
     """

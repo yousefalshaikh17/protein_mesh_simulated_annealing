@@ -19,7 +19,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = import-error
 import json
 
-import ffeamesh.tetprops as tp
+import tetmeshtools.tetprops as tp
 
 class TetViewerState():
     """

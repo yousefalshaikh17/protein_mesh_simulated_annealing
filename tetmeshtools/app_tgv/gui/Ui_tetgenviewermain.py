@@ -250,4 +250,4 @@ class Ui_TetgenViewerMain(object):
         self._actionBlackBackground.setText(_translate("TetgenViewerMain", "Black background"))
         self._actionWhiteBackground.setText(_translate("TetgenViewerMain", "White background"))
         self._actionGrayBackground.setText(_translate("TetgenViewerMain", "Gray background"))
-from ffeamesh.app_tgv.gui.tetviewer import TetViewer
+from tetmeshtools.app_tgv.gui.tetviewer import TetViewer

@@ -28,7 +28,7 @@
 import collections
 import numpy as np
 
-from ffeamesh.vector3 import Vector3
+from tetmeshtools.vector3 import Vector3
 
 ## data structure for metadata line of tetgen .node file
 ## number of points, dimension, number of attributes and boundary markers

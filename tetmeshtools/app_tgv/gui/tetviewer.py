@@ -30,8 +30,8 @@ import PyQt5.QtGui as qg
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
-from ffeamesh.app_tgv.gui.sphere import Sphere
-from ffeamesh.app_tgv.gui.tetviewerstate import TetViewerState
+from tetmeshtools.app_tgv.gui.sphere import Sphere
+from tetmeshtools.app_tgv.gui.tetviewerstate import TetViewerState
 
 #TODO use call to parent in paint in place of checkbox linked variables
 

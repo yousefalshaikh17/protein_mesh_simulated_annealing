@@ -28,7 +28,7 @@ import pathlib
 import zipfile
 from io import TextIOWrapper
 
-import ffeamesh.tetmeshtools.tetgenread as tr
+import tetmeshtools.tetmeshtools.tetgenread as tr
 
 def test_existance(file_path):
     """
@@ -52,7 +52,7 @@ class TestReadTetgen(unittest.TestCase):
         build a full test class
         """
         path = pathlib.Path(pathlib.Path.cwd())
-        path = path.joinpath("ffeamesh\\tests\\data\\sphere10.zip")
+        path = path.joinpath("tetmeshtools\\tests\\data\\sphere10.zip")
         test_existance(path)
 
         ## path to zip archive of test data

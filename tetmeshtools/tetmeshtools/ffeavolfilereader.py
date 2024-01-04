@@ -26,10 +26,10 @@
 """
 # set up linting conditions
 # pylint: disable = import-error
-import ffeamesh.tetmeshtools.tetgenstructs as ts
-import ffeamesh.tetmeshtools.trisurface as trs
-import ffeamesh.tetmeshtools.tetmesh as tm
-import ffeamesh.tetmeshtools.tetmodel as tmod
+import tetmeshtools.tetmeshtools.tetgenstructs as ts
+import tetmeshtools.tetmeshtools.trisurface as trs
+import tetmeshtools.tetmeshtools.tetmesh as tm
+import tetmeshtools.tetmeshtools.tetmodel as tmod
 
 def make_model_from_ffea(mesh_file):
     """

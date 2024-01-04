@@ -45,7 +45,7 @@ import numpy as np
 
 import Bio.PDB
 
-from ffeamesh.mrc_utility import (CellSize, CellAngles, CellProps, write_mrcfile)
+from tetmeshtools.mrc_utility import (CellSize, CellAngles, CellProps, write_mrcfile)
 
 ## map of atomic radii (Wikipedia)
 _atomic_rad ={'H': 1.2,

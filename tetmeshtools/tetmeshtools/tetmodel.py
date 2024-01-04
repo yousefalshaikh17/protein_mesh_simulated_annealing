@@ -7,7 +7,7 @@
 import pathlib
 import numpy as np
 
-import ffeamesh.tetmeshtools.tetgenwrite as tw
+import tetmeshtools.tetmeshtools.tetgenwrite as tw
 
 class TetModel():
     """

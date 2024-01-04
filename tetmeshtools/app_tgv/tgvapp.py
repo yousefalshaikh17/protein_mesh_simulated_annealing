@@ -21,7 +21,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
 import PyQt5.QtWidgets as qw
 
-from ffeamesh.app_tgv.gui.tetgenviewermain import TetgenViewerMain
+from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
 class TGVApp(qw.QApplication):
     """

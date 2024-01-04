@@ -26,7 +26,7 @@
 # set up linting conditions
 # pylint: disable = import-error
 import numpy as np
-import ffeamesh.vector3 as v3
+import tetmeshtools.vector3 as v3
 
 def shortest_sides(node_points, tets, tet_props):
     """

@@ -30,7 +30,7 @@ dist/
 nppBackup/
 
 # files generated with pip install
-ffeamesh.egg-info/
+tetmeshtools.egg-info/
 
 # Unit test reports
 TEST*.xml

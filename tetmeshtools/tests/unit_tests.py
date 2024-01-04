@@ -25,9 +25,9 @@
 """
 import unittest
 
-from ffeamesh.tests.testreadtetgen import TestReadTetgen
-from ffeamesh.tests.testmeshprops import TestMeshProps
-from ffeamesh.tests.testtetprops import TestTetProps
+from tetmeshtools.tests.testreadtetgen import TestReadTetgen
+from tetmeshtools.tests.testmeshprops import TestMeshProps
+from tetmeshtools.tests.testtetprops import TestTetProps
 
 def make_suite():
     """

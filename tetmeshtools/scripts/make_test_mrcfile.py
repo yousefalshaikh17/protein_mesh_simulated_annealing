@@ -40,8 +40,8 @@ from datetime import datetime
 import getpass
 import numpy as np
 
-from ffeamesh.mrc_utility import (CellSize, CellAngles, CellProps, write_mrcfile)
-from ffeamesh.comlinesupport import (positive_int, positive_float)
+from tetmeshtools.mrc_utility import (CellSize, CellAngles, CellProps, write_mrcfile)
+from tetmeshtools.comlinesupport import (positive_int, positive_float)
 
 class Voxtest(Enum):
     """

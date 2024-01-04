@@ -26,8 +26,8 @@
 # pylint: disable = import-error
 import numpy as np
 
-from ffeamesh.tetmeshtools.linesegment import LineSegment
-import ffeamesh.tetprops as tp
+from tetmeshtools.tetmeshtools.linesegment import LineSegment
+import tetmeshtools.tetprops as tp
 
 class TriSurface():
     """

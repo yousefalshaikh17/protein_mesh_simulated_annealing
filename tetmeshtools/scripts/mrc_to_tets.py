@@ -41,7 +41,7 @@ import pathlib
 # import cProfile
 # import pstats
 # import io
-from ffeamesh.maketets import convert_mrc_to_tets
+from tetmeshtools.maketets import convert_mrc_to_tets
 
 def get_args():
     """

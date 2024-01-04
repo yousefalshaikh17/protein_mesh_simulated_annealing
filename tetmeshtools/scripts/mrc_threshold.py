@@ -39,7 +39,7 @@ import sys
 import datetime
 import getpass
 import mrcfile
-from ffeamesh.mrc_utility import (threshold_mrc_image,
+from tetmeshtools.mrc_utility import (threshold_mrc_image,
                                   get_cell_props,
                                   write_mrcfile)
 

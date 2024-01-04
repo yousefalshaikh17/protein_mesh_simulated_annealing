@@ -30,8 +30,8 @@ import sys
 from itertools import product, count
 import numpy as np
 
-import ffeamesh.voxels2tets_utility as v2t
-from ffeamesh.voxelsize import VoxelSize
+import tetmeshtools.voxels2tets_utility as v2t
+from tetmeshtools.voxelsize import VoxelSize
 
 class Grid():
     """
