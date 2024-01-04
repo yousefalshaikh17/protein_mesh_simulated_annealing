@@ -44,6 +44,7 @@ setup(
             'mrc_to_tets = tetmeshtools.scripts.mrc_to_tets:main',
             'mrc_threshold = tetmeshtools.scripts.mrc_threshold:main',
             'mrc_voxel_size = tetmeshtools.scripts.mrc_voxel_size:main',
+            'pdb_to_mrc = tetmeshtools.scripts.pdb_to_mrc:main',
             'tgv = tetmeshtools.app_tgv.tgv:main'
         ]
     }

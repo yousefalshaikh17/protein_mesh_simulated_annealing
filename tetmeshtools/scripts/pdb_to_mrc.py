@@ -649,7 +649,7 @@ at the centre point of each voxel bases on VDW radii of the atoms"""
 
     return parser.parse_args()
 
-def run_pdb_to_mrc():
+def main():
     """
     get pdb file from user an run pdb to mrc on it
     """
@@ -678,4 +678,4 @@ def run_pdb_to_mrc():
     write_out_file(data, bounds, args.input, args.output)
 
 if __name__ == "__main__":
-    run_pdb_to_mrc()
+    main()

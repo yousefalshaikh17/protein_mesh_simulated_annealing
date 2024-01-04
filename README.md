@@ -43,7 +43,7 @@ This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 **[Unit Tests](#unit-tests)**<br>
 **[Worked Example](#example)]**<br>
 
-## Quick Start:
+## Quick Start
 
 Immediately below are a set of instructions that allow you to execute the cpt software quickly. There are no explanations of the steps here. Please look at the rest of the README file if you have any problems.
 
@@ -83,9 +83,11 @@ To produce the Ui_tetgenviewermain.py file you have to use the PyQt pyuic5 progr
 
 'pyuic5 .\resources\tetgenviewermain.ui -o .\tetmeshtools\app_tgv\gui\Ui_tetgenviewermain.py'
 
-## Managing The tetmesht Environment:
+## Installation
 
-The Anaconda environment, with all the necessary modules, can be set up using the environment_tetmesht.yml file.
+This software was written to be run in a conda enviroment.
+
+### Managing The tetmesht Environment:
 
 We advise you to get your conda installation up to date before you do this but this is not obligatory with the command:
 
@@ -95,15 +97,39 @@ To see what conda environments you have, run the command
 
 `conda env list`
 
-To create a new Anaconda environment for cpt, run the command
+### Installing the Tools
 
-`conda env create -f environment_tetmesht.yml`
+Get a copy of the latest version from GitHub by running
 
-To start using the environment, run the command
+`git clone https://github.com/jonathanHuwP/tet_mesh_tools`
 
-`conda activate tetmesht.yml`
+or, if you alreay have cloned
 
-To stop using that enviroment:
+`git pull`
+
+If you have an old conda environment remove it.
+
+`conda env remove --name tetmesht`
+
+Create a new environment
+
+`conda env create -f .\environment_tetmesht.yml`
+
+Activate the environment
+
+`conda activate tetmesht`
+
+Install the package to the environment using pip
+
+`pip install --editable .`
+
+This will produce a directory called 'tetmeshtools.egg-info', do not move, rename or delete this directory.
+
+Make the documentation run doxygen
+
+`doxygen`
+
+To stop using the enviroment:
 
 `conda deactivate`
 
@@ -229,38 +255,6 @@ In the output directory defined by `-o` or `--output`, the following files will
 
    * [pylint](https://pypi.org/project/pylint/)
      Required for development
-
-## Installation
-
-Get a copy of the latest version from bitbucket by running
-
-`git clone https://github.com/jonathanHuwP/tet_mesh_tools`
-
-or, if you alreay have cloned
-
-`git pull`
-
-If you have an old conda environment remove it.
-
-`conda env remove --name tetmesht`
-
-Create a new environment
-
-`conda env create -f .\environment_tetmesht.yml`
-
-Activate the environment
-
-`conda activate tetmesht`
-
-Install the package to the environment using pip
-
-`pip install --editable .`
-
-This will produce a directory called 'tetmeshtools.egg-info', do not move, rename or delete this directory.
-
-Make the documentation run doxygen
-
-`doxygen`
 
 ## Unit Tests
 

@@ -68,5 +68,6 @@ tmp/*
 *.1.ele
 *.1.face
 *.vtk
+*.mrc
 
 tmp/*
