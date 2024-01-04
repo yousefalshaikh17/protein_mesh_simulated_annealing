@@ -20,7 +20,7 @@
  To help us fund FFEA development, we humbly ask that you cite
  the research papers on the package.
 
- Write tetrohedrons out to ffea input files, (tetgen file format).
+ Write tetrohedrons out to tetgen file format.
 
 Authors: Joanna Leng, Jonathan Pickering, Molly Gravett, Jarvellis Rogers - University of Leeds (UK)
 """
@@ -42,7 +42,7 @@ def write_ffea_output(output_file, tet_array, points, faces, original_ids, comme
 
 def write_ffea_elements(output_file, tet_array, comment=""):
     """
-    write ffea elements file .ele
+    write tetgen elements file .ele
     First line: <# of tetrahedra> <nodes per tetrahedron> <# of attributes>
     Remaining lines list of # of tetrahedra:
     <tetrahedron #> <node> <node> <node> <node> ... [attributes]
