@@ -75,6 +75,14 @@ If you want to use them to write your own python scripts you can now import them
 
 `import tetmeshtools.<import name>....`
 
+### Qt User Interface
+
+The user interface of the viewer is written in Qt, using PyQt5. To change the main window itself edit the `resources/tetgenviewermain.ui` file. Editing is best done using QtDesigner, which can be run from the command line by typing `designer`. If callback function names are changed then manual editing is required.
+
+To produce the Ui_tetgenviewermain.py file you have to use the PyQt pyuic5 program.
+
+'pyuic5 .\resources\tetgenviewermain.ui -o .\tetmeshtools\app_tgv\gui\Ui_tetgenviewermain.py'
+
 ## Managing The tetmesht Environment:
 
 The Anaconda environment, with all the necessary modules, can be set up using the environment_tetmesht.yml file.
