@@ -168,8 +168,6 @@ The following scrips are available:
 
 ### Test Files
 
-   * **make_test_mrcfile.py** - makes simple mrc image file for use in testing
-
    * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
     and output in VTK format. 5 and 6 tetrahedra decompositions are available.
 
