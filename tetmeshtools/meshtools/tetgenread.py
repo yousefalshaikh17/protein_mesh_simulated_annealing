@@ -15,11 +15,11 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # set up linting conditions
 # pylint: disable = import-error
 import csv
-import tetmeshtools.tetmeshtools.tetgenread as tr
-import tetmeshtools.tetmeshtools.tetgenstructs as ts
-import tetmeshtools.tetmeshtools.trisurface as trs
-import tetmeshtools.tetmeshtools.tetmesh as tm
-import tetmeshtools.tetmeshtools.tetmodel as tmod
+import tetmeshtools.meshtools.tetgenread as tr
+import tetmeshtools.meshtools.tetgenstructs as ts
+import tetmeshtools.meshtools.trisurface as trs
+import tetmeshtools.meshtools.tetmesh as tm
+import tetmeshtools.meshtools.tetmodel as tmod
 
 def make_model_from_tetgen(file_root):
     """

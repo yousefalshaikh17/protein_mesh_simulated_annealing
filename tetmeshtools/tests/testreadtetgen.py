@@ -17,7 +17,7 @@ import pathlib
 import zipfile
 from io import TextIOWrapper
 
-import tetmeshtools.tetmeshtools.tetgenread as tr
+import tetmeshtools.meshtools.tetgenread as tr
 
 def test_existance(file_path):
     """

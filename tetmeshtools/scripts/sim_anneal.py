@@ -20,8 +20,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import sys
 import mrcfile
 
-import tetmeshtools.tetmeshtools.tetgenread as tr
-import tetmeshtools.tetmeshtools.ffeavolfilereader as fr
+import tetmeshtools.meshtools.tetgenread as tr
+import tetmeshtools.meshtools.ffeavolfilereader as fr
 import tetmeshtools.optimizemesh.costfunction as cf
 import tetmeshtools.optimizemesh.simanneal as sa
 import tetmeshtools.comlinesupport as cl

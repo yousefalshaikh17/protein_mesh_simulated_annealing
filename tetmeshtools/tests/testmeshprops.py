@@ -18,7 +18,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import unittest
 import numpy as np
 import tetmeshtools.tetprops as tp
-import tetmeshtools.tetmeshtools.tetgenstructs as tgs
+import tetmeshtools.meshtools.tetgenstructs as tgs
 import tetmeshtools.vector3 as v3
 
 class TestMeshProps(unittest.TestCase):

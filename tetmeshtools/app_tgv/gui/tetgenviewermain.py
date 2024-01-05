@@ -25,13 +25,13 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 
-import tetmeshtools.tetmeshtools.tetgenread as tr
-import tetmeshtools.tetmeshtools.tetgenstructs as ts
-import tetmeshtools.tetmeshtools.ffeavolfilereader as fr
+import tetmeshtools.meshtools.tetgenread as tr
+import tetmeshtools.meshtools.tetgenstructs as ts
+import tetmeshtools.meshtools.ffeavolfilereader as fr
 import tetmeshtools.tetprops as tp
-import tetmeshtools.tetmeshtools.tetmodel as tm
-import tetmeshtools.tetmeshtools.trisurface as tris
-import tetmeshtools.tetmeshtools.tetmesh as tmes
+import tetmeshtools.meshtools.tetmodel as tm
+import tetmeshtools.meshtools.trisurface as tris
+import tetmeshtools.meshtools.tetmesh as tmes
 
 from tetmeshtools.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 

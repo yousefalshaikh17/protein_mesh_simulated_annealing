@@ -15,7 +15,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = import-error
 import numpy as np
 
-from tetmeshtools.tetmeshtools.linesegment import LineSegment
+from tetmeshtools.meshtools.linesegment import LineSegment
 import tetmeshtools.tetprops as tp
 
 class TriSurface():

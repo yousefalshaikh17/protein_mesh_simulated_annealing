@@ -14,7 +14,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 """
 import unittest
 import tetmeshtools.tetprops as tp
-from tetmeshtools.tetmeshtools.tetgenstructs import NodePoint
+from tetmeshtools.meshtools.tetgenstructs import NodePoint
 
 class TestTetProps(unittest.TestCase):
     """

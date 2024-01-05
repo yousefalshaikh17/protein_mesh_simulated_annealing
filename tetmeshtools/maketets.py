@@ -35,7 +35,7 @@ import tetmeshtools.voxels2tets_utility as v2t
 import tetmeshtools.mrclininterpolate as mi
 from tetmeshtools.mrc_utility import voxel_size
 from tetmeshtools.tetprops import tet_volume
-from tetmeshtools.tetmeshtools.tetgenstructs import NodePoint
+from tetmeshtools.meshtools.tetgenstructs import NodePoint
 
 from tetmeshtools.grid import Grid
 
