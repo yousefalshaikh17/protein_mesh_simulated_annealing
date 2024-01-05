@@ -14,7 +14,9 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 """
 # set up linting
 # pylint: disable = import-error
-
+# the following avoids problem with vtk's c++
+# pylint: disable = no-member
+# pylint: disable = no-name-in-module
 import vtk.util.numpy_support
 
 def vtk_output(grid, output_file):

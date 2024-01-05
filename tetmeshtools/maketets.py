@@ -219,7 +219,9 @@ def verbose_output(mrc, grid, six_tets):
 
     mv_size = grid.get_voxel_size()
     vol = mv_size.dx * mv_size.dy * mv_size.dz
-    print(f"Voxel size in mesh ({mv_size.dx:.3f}, {mv_size.dy:.3f}, {mv_size.dz:3f}), volume {vol:.3f}")
+    message = f"Voxel size in mesh ({mv_size.dx:.3f}, {mv_size.dy:.3f}, {mv_size.dz:3f}),"
+    message += f" volume {vol:.3f}"
+    print(message)
 
     if six_tets:
         print("6 tets per voxel")

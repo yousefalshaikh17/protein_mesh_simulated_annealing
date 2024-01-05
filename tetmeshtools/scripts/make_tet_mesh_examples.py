@@ -30,6 +30,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 """
 # set up linting
 # pylint: disable = import-error
+# pylint: disable = no-member
+# pylint: disable = no-name-in-module
 import pathlib
 import argparse
 import numpy as np

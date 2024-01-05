@@ -14,6 +14,8 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 """
 # set up linting
 # pylint: disable = import-error
+# the following avoids problem with vtk's c++
+# pylint: disable = no-member
 
 import numpy as np
 import vtk

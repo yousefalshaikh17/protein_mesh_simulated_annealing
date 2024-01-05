@@ -290,6 +290,6 @@ Because publicly availabe PDB files are more common than cryo-em MRC files, in t
 
 3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
 
-4. To convert to a mesh in tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 3.85 -w -V -p -m2 -n 10 10 10`
+4. To convert to a mesh in tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 1.5 -w -V -p -m2 -n 10 10 10`
 
 5. View the mesh run `tgv -i <path>\3nir`
