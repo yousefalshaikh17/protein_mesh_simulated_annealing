@@ -1,16 +1,17 @@
 Tetrahedral Meshing Tools
 =========================
 
-These Python tools were orignally developed to support tetrahrdral meshes for the Fluctuating Finite Element Analysis [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) package, the authors graetfully acknowlege the help and support of the FFEA team.
+These Python tools were originally developed to support tetrahedral meshes for the Fluctuating Finite Element Analysis [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) package, the authors gratefully acknowledge the help and support of the FFEA team.
 
-The tools include:
-    * a visualization tool that allows the user to interactively explore the tetrahedral mesh and select the worst and best elements using a number of recognised criteria.
+The purpose is to convert Medical Research Council (MRC) files to tetrahedral mesh files in Tetgen format, view and analyse the results. FFEA output meshes in their own (.vol) format are also viewable.
 
-    * rescale mrc files (used to collect cryo-em data)
+The main tools comprise:
 
-    * convert mrc data into tetrahedral meshes using a 5 or 6 fold marching tetrahedron algorithm which results in a blocky surface
+    * an converter from MRC files, which are used to store cryogenic electron microscope (cryo-em) data, to tetrahedral mesh files, in Tetgen or VTK formats.
 
-    * optimisation vis simulated annealing to smooth the surface.
+    * a visualization tool that both allows the user to interactively explore the tetrahedral mesh and provides properties of the individual tetrahedra.
+
+    * tools for extracting data from MRC files and thresholding the files.
 
 This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
@@ -22,7 +23,7 @@ This is version 1.0
 
 ## Copyright and License
 
-The algorithm and software in this project were developed by Joanna Leng, Jonathan Picering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
+The algorithm and software in this project were developed by Joanna Leng, Jonathan Pickering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
 Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.gnu.org/licenses/.
 
@@ -30,7 +31,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ## Developed With
 
-This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
+The project was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems. PyQt5 was and pyopengl were used in the viewer.
 
 ## Table of Contents
 
@@ -46,9 +47,7 @@ This was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems.
 
 ## Quick Start
 
-Immediately below are a set of instructions that allow you to execute the cpt software quickly. There are no explanations of the steps here. Please look at the rest of the README file if you have any problems.
-
-This software uses Anaconda with Python 3.9 so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of tet_mesh_tools (the directory with the file README.md in it) and type the following the FIRST time you run the tet_mesh_tools software. Not all the instructions are required for later runs:
+This software runs in a Python 3.9 environment within Anaconda, so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of tet_mesh_tools (the directory with the file README.md in it) and type the following the FIRST time you run the tet_mesh_tools software. Not all the instructions are required for later runs:
 
 `conda env create -f environment_tetmesht.yml`
 
@@ -86,21 +85,21 @@ To produce the Ui_tetgenviewermain.py file you have to use the PyQt pyuic5 progr
 
 ## Installation
 
-This software was written to be run in a conda enviroment.
+This software was written to be run in a conda environment.
 
 ### Python Environment:
 
-We advise you to get your conda installation up to date before you do this but this is not obligatory with the command:
+We advise you to get your conda installation up to date before you do this, but this is not obligatory with the command:
 
 `conda update --all`
 
-To see what conda environments you have, run the command
+To see what conda environments you have, run the command.
 
 `conda env list`
 
 ### Installing the Tools
 
-Get a copy of the latest version from GitHub by running
+Get a copy of the latest version from GitHub by running.
 
 `git clone https://github.com/jonathanHuwP/tet_mesh_tools`
 
@@ -112,19 +111,19 @@ If you have an old conda environment remove it.
 
 `conda env remove --name tetmesht`
 
-Create a new environment
+Create a new environment.
 
 `conda env create -f .\environment_tetmesht.yml`
 
-Activate the environment
+Activate the environment.
 
 `conda activate tetmesht`
 
-Install the package to the environment using pip
+Install the package to the environment using pip.
 
 `pip install --editable .`
 
-This will produce a directory called 'tetmeshtools.egg-info', do not move, rename or delete this directory.
+This will produce a directory called 'tetmeshtools.egg-info', do not move, rename, or delete this directory.
 
 Make the documentation run doxygen
 
@@ -134,43 +133,43 @@ To stop using the enviroment:
 
 `conda deactivate`
 
-To remove the environment, if you no longer want to use tetmesht:
+To remove the environment:
 
 `conda env remove --name tetmesht`
 
 ## Scripts
 
-The following scrips are available:
+The following scrips are available, all will provide instructions if run from the command line with either '-h' or '--help' options:
 
 ### MRC Data
 
    * **mrc_header_info.py** - print the header from an MRC file
 
-   * **mrc_image_stats.py** - reads a mrc file and prints out its image intensity stats
+   * **mrc_image_stats.py** - reads an MRC file and prints out its image intensity stats
 
    * **mrc_voxel_size.py** - print an MRC file's voxel size
 
-   * **pdb_to_mrc.py** - simulate a cryo-em MRC file from a protien data base (PDB) using Van der Walls spheres.
+   * **pdb_to_mrc.py** - simulate a cryo-em MRC file from a protein data base (PDB) using Van der Walls spheres.
 
 ### Filter
 
-   * **mrc_crop.py** - crops 3D mrc image file data
+   * **mrc_crop.py** - crops 3D MRC image file data
 
-   * **mrc_threshold.py** - reads a mrc file and set all voxels less than than the
-    thershold to zero, then outputs to a new file
+   * **mrc_threshold.py** - reads an MRC file and set all voxels less than the threshold to zero, then outputs to a new file
 
-   * **mrc_coarsen.py** - Coarsens MRC files to a user-defined resolution and
-    outputs them as a new .mrc file.
+   * **mrc_coarsen.py** - Coarsens MRC files to a user-defined resolution and outputs them as a new MRC file.
 
 ### Meshing
 
-   * **mrc_to_tets.py** - process MRC files and produces a regular tetrahedral volumetric
-    meshs using the "marching tet" algorithm. Decomposition of the image voxels into 5 or 6 tetrohedra each is available. Output can be in the tetgen .ele, .face, and .node file format and/or the .vtk format.
+   * **mrc_to_tets.py** - process MRC files and produces a regular tetrahedral volumetric meshes using the "marching tetrahedra" algorithm. Decomposition of the image voxels into 5 or 6 tetrahedra each is available. Output can be in the Tetgen .ele, .face, and .node file format and/or the .vtk format.
 
-### Test Files
+### Viewing
 
-   * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra
-    and output in VTK format. 5 and 6 tetrahedra decompositions are available.
+   * **tgv.py** - run a viewer capable of rendering a three dimensional images of a mesh. Both Tetgen format files (.node, .ele, .face) and FFEA format files (.vol) can be read. Properties of the tetrahedra and overall mesh are also displayed. View modes are: the whole mesh; the outer surface as a wire frame; and any individual tetrahedron.
+
+### Make Example Mesh Files
+
+   * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra and output in VTK format. 5 and 6 tetrahedra decompositions are available.
 
 ## Usage
 
@@ -192,7 +191,7 @@ In order to run five or six_tets there are three required flags:
 
    * `-v`, `--vtk`     output files in vtk format.
 
-   * `-f`, `--ftetg`    output files in tetgen format.
+   * `-f`, `--ftetg`    output files in Tetgen format.
 
    * `-t` THRESHOLD, `--threshold` lower filter for voxels, default zero
 
@@ -210,9 +209,9 @@ In order to run five or six_tets there are three required flags:
    * `-n VOX_COUNTS X Y Z`, `--vox_counts VOX_COUNTS X Y Z`
                voxel size for tets, if not used same as image, enter x y & z in Angstroms
 
-The `-n` option allows the coursness of the mesh to be specifed, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
+The `-n` option allows the coarseness of the mesh to be specified, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
 
-The `-m` option specifes the maximum number of vertices that can be below the isovalue on a tetrhedron that is included in the mesh, specified by the PruneLevel enumeration. For example, if prune leve is set to 2 then tetraherda with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
+The `-m` option specifies the maximum number of vertices that can be below the isovalue on a tetrahedron that is included in the mesh, specified by the PruneLevel enumeration. For example, if prune level is set to 2 then tetrahedra with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
 
 ||0|1|2|3|4|
 |----|---|---|---|---|---|
@@ -223,9 +222,7 @@ The `-m` option specifes the maximum number of vertices that can be below the is
 
 **Table 1.** The rows specify the possible prune levels the user can choose. For each level the in the mesh, out of the mesh choice is specified for the five possible numbers of vertices a tetrahedron can have below the isovlue, from none to all four.
 
-In the output directory defined by `-o` or `--output`, the following files will
- be found after running tet_from_pix successfully, where [outputname] is the
- user-defined name of the output files:
+In the output directory defined by `-o` or `--output`, the following files will be found after running tet_from_pix successfully, where [outputname] is the user-defined name of the output files:
 
    * [outputname].1.ele
    * [outputname].1.face
@@ -257,38 +254,20 @@ In the output directory defined by `-o` or `--output`, the following files will
 
 ## Unit Tests
 
-The directory `tests` contain unit tests for developers working on tet_mesh_tools.
- Inside is a script called `unit_tests.py` which executes the tests, and the
- required input and output files for these tests.
+The directory `tests` contain unit tests for developers working on tet_mesh_tools. Inside is a script called `unit_tests.py` which executes the tests, this can be run by typing. 
 
-To get started quickly, the usage message can be viewed with the following command:
-
-`python tetmeshtools/tests/unit_tests.py -h``
-
-There are three unit tests, which are as follows:
-
-   1. Tests running tet_from_pix without coarsening the input MRC file.
-   2. Tests running mrc_zoom.
-   3. Tests running tet_from_pix with coarsening of the input MRC file.
-
-If unit_tests is called with no flags, all three tests will run. To run specific
- tests, use the `t` or `--test` flag with the number(s) of test(s). For example,
- to run tests 1 and 3, run the following command:
-
-`python tetmeshtools/tests/unit_tests.py -t 1,3``
-
-The command line will print out each test ran and state if they passed or failed.
+`python tetmeshtools/tests/unit_tests.py`
 
 ## Worked Example
 
-Because publicly availabe PDB files are more common than cryo-em MRC files, in this example a MRC is simulated from a PDB. The example uses the small plant protien crambin (3nir.pdb) a available from [https://www.rcsb.org/structure/3NIR](https://www.rcsb.org/structure/3NIR).
+Because publicly available PDB files are more common than cryo-em MRC files, in this example a MRC is simulated from a PDB. The example uses the small plant protein crambin (3nir.pdb) a available from [https://www.rcsb.org/structure/3NIR](https://www.rcsb.org/structure/3NIR).
 
 1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o <path>\3nir.mrc -n 15 15 15 -w soft`
 
-2. To see the information in the files header run `mrc_header_info -i <path>\3nir.mrc`
+2. To see the information in the file’s header run `mrc_header_info -i <path>\3nir.mrc`
 
 3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
 
-4. To convert to a mesh in tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 1.5 -w -V -p -m2 -n 10 10 10`
+4. To convert to a mesh in Tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 1.5 -w -V -p -m2 -n 10 10 10`
 
 5. View the mesh run `tgv -i <path>\3nir`
