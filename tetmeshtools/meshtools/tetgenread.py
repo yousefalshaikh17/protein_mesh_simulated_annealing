@@ -116,7 +116,7 @@ def read_node_text(text_stream):
     meta_data = ts.NodeMetaData(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
 
     if meta_data.dimension != 3:
-        raise ValueError(f"File input is not 3D.")
+        raise ValueError("File input is not 3D.")
 
     points = {}
     for row in reader:

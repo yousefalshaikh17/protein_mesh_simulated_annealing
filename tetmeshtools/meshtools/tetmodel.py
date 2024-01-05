@@ -49,7 +49,9 @@ class TetModel():
             float: radius
         """
         ctr = self._surface.get_surface_ctr()
-        lengths = [np.linalg.norm(np.subtract(node.to_array(), ctr)) for node in self._surface.get_surface_nodes().values()]
+
+        tmp = self._surface.get_surface_nodes().values()
+        lengths = [np.linalg.norm(np.subtract(node.to_array(), ctr)) for node in tmp]
 
         return ctr, max(lengths)
 
@@ -90,36 +92,6 @@ class TetModel():
         getter for the nodes forming a tet
         """
         return self._tets.get_tet_verts(index)
-
-    def get_tet_display_list(self, index):
-        """
-        get the indices for displaying a tet
-        Args:
-            index (int): tet's index
-        Returns
-            [int]: points array
-            [int]: edges array
-        """
-        # TODO no method get_tet in class
-        points = []
-        for point in self.get_tet(index):
-            points.append(point.index)
-
-        lines = []
-        lines.append(points[0])
-        lines.append(points[1])
-        lines.append(points[0])
-        lines.append(points[2])
-        lines.append(points[0])
-        lines.append(points[3])
-        lines.append(points[1])
-        lines.append(points[2])
-        lines.append(points[2])
-        lines.append(points[3])
-        lines.append(points[3])
-        lines.append(points[1])
-
-        return points, lines
 
     def get_edges(self):
         """
@@ -194,6 +166,3 @@ class TetModel():
             inclusion_counts[face.vert0].append(key)
             inclusion_counts[face.vert1].append(key)
             inclusion_counts[face.vert1].append(key)
-
-
-
