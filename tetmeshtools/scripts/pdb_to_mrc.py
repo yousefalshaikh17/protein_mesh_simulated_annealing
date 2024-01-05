@@ -518,7 +518,7 @@ def make_mrc_label(in_file):
     """
     label = []
 
-    label.append(f"Simulated MRC")
+    label.append("Simulated MRC")
 
     label.append(f"{in_file.name[:80]}")
     if len(in_file.name) > 80:
@@ -588,7 +588,7 @@ def negative_float(text):
     number = float(text)
 
     if number >= 0.0:
-        raise ValueError(f"Exp decay constant must be less than zero")
+        raise ValueError("Exp decay constant must be less than zero")
 
     return number
 
@@ -626,8 +626,8 @@ at the centre point of each voxel bases on VDW radii of the atoms"""
                         action="store_true",
                         help="if output file exists overwrite")
 
-    help="use exponential decay of electron density outside VDW radii run soft -h for details"
-    soft_p = subparser.add_parser("soft", help=help)
+    msg="use exponential decay of electron density outside VDW radii run soft -h for details"
+    soft_p = subparser.add_parser("soft", help=msg)
 
     soft_p.add_argument('-e',
                         '--exp_const',
