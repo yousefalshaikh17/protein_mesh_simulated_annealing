@@ -67,6 +67,6 @@ The software can be obtained from GitHub [GitHub](https://github.com/jonathanHuw
 
 # Acknowledgement
 
-Thank you to Molly Garvett, Oliver Harlen, Sarah Harris, Danial Read, Jarvellis Rogers and Yanlai Zhou. This work was supported by the EPSRC grant EP/R025819/1.
+Thank you to Molly Garvett, Oliver Harlen, Sarah Harris, Daniel Read, Jarvellis Rogers and Yanlai Zhou. This work was supported by the EPSRC grant EP/R025819/1.
 
 # References
