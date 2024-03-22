@@ -214,7 +214,6 @@ class TetViewerState():
         Args:
             z_coord: float
         """
-        print(f"set_shift_z({z_coord})")
         self._shift = (self._shift[0], self._shift[1], z_coord)
 
     def set_shift(self, x_coord, y_coord, z_coord):
