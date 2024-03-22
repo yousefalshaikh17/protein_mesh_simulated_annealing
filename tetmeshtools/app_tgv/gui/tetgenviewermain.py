@@ -62,7 +62,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         ## current source directory
         self._current_source = pathlib.Path.home()
 
-        if config_args.input is None:
+        if config_args is None or config_args.input is None:
             return
 
         if config_args.input.suffix == ".vol":
