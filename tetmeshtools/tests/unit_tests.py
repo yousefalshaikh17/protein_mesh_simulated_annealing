@@ -38,6 +38,12 @@ def make_suite():
     suite.addTest(TestTetProps('test_triangle_area'))
     suite.addTest(TestTetProps('test_edges_to_area_ratio_squared'))
     suite.addTest(TestGuiControls('test_initial_state'))
+    suite.addTest(TestGuiControls('test_sliders_limits'))
+
+    #TODO test enabled or visible etc before these tests.
+    #suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
+    suite.addTest(TestGuiControls('test_check_boxes'))
+
 
     return suite
 
