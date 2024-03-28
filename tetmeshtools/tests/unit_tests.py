@@ -41,7 +41,7 @@ def make_suite():
     suite.addTest(TestGuiControls('test_sliders_limits'))
 
     #TODO test enabled or visible etc before these tests.
-    #suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
+    suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
     suite.addTest(TestGuiControls('test_check_boxes'))
 
 

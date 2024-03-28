@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import PyQt5.QtWidgets as qw
 import PyQt5.Qt as qt
@@ -6,57 +7,63 @@ from PyQt5.QtTest import QTest, QSignalSpy
 
 from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
+app = qw.QApplication(sys.argv)
+
 class TestGuiControls(unittest.TestCase):
     """
     test the video control widget
     """
 
-    def setUp(self):
-        """
-        build a full test class
-        """
-        ## the QApplication
-        self.app = qw.QApplication([])
+    def setUp(self) -> None:
+        self.app = app.instance()
 
-        ## the widget
-        self._main = TetgenViewerMain()
-
-    def tearDown(self):
-        """
-        remove
-        """
-        del self._main
+    def tearDown(self) -> None:
+        self.app.closeAllWindows()
 
     def test_initial_state(self):
         """
         test initialized ok
         """
-        self.assertEqual(self._main._rotXSlider.value(), 0, "X-rotation Slider not initialized correctly")
-        self.assertEqual(self._main._rotYSlider.value(), 0, "Y-rotation Slider not initialized correctly")
+        main_win = TetgenViewerMain()
+        self.assertEqual(main_win._rotXSlider.value(), 0, "X-rotation Slider not initialized correctly")
+        self.assertEqual(main_win._rotYSlider.value(), 0, "Y-rotation Slider not initialized correctly")
 
     def test_sliders_limits(self):
         """
         test motion of sliders.
         """
-        self.assertEqual(self._main._rotXSlider.maximum(), 360, "X-rotation Slider maximum not 360")
-        self.assertEqual(self._main._rotXSlider.minimum(), 0, "X-rotation Slider minimum not 0")
-        self.assertEqual(self._main._rotYSlider.maximum(), 360, "Y-rotation Slider maximum not 360")
-        self.assertEqual(self._main._rotYSlider.minimum(), 0, "Y-rotation Slider minimum not 0")
+        main_win = TetgenViewerMain()
+        self.assertEqual(main_win._rotXSlider.maximum(), 360, "X-rotation Slider maximum not 360")
+        self.assertEqual(main_win._rotXSlider.minimum(), 0, "X-rotation Slider minimum not 0")
+        self.assertEqual(main_win._rotYSlider.maximum(), 360, "Y-rotation Slider maximum not 360")
+        self.assertEqual(main_win._rotYSlider.minimum(), 0, "Y-rotation Slider minimum not 0")
 
-    # def test_check_boxes_initial_states(self):
-    #     """
-    #     test the checkboxes.
-    #     """
-    #     message = "Show tet box bad initial state"
-    #     #self.assertTrue(self._main._tetViewer._showTetBox.isChecked(), message)
-    #     self.assertFalse(self._main._surfaceLatticeButton.isChecked(), 'Show lattice is initially checked')
+    def test_check_boxes_initial_states(self):
+        """
+        test the checkboxes.
+        """
+        main_win = TetgenViewerMain()
+        self.assertTrue(main_win._showTetBox.isChecked(), "Show tet box bad initial state")
+        self.assertFalse(main_win._surfaceLatticeButton.isChecked(), 'Show lattice is initially checked')
 
     def test_check_boxes(self):
         """
         test the checkboxes.
         """
-        old = self._main._tetViewer._show_faces
-        self._main._surfaceButton.setChecked(True)
-        QTest.mouseClick(self._main._surfaceButton, qt.Qt.LeftButton)
-        message = "Show faces button not changing state"
-        self.assertEqual(self._main._tetViewer._show_faces, old, message)
+        main_win = TetgenViewerMain()
+
+        spy0 = QSignalSpy(main_win._showTetBox.stateChanged)
+        spy1 = QSignalSpy(main_win._surfaceButton.stateChanged)
+        spy2 = QSignalSpy(main_win._surfaceLatticeButton.stateChanged)
+
+        QTest.mouseClick(main_win._showTetBox, qt.Qt.LeftButton)
+        QTest.mouseClick(main_win._surfaceButton, qt.Qt.LeftButton)
+        QTest.mouseClick(main_win._surfaceLatticeButton, qt.Qt.LeftButton)
+
+        self.assertEqual(len(spy0), 1, "_showTetBox: the wrong number of signals emitted")
+        self.assertEqual(len(spy1), 1, "_surfaceButton: the wrong number of signals emitted")
+        self.assertEqual(len(spy2), 1, "_surfaceLatticeButton: the wrong number of signals emitted")
+
+        self.assertEqual(spy0[0][0], qt.Qt.CheckState.Unchecked, "_showTetBox wrong check state")
+        self.assertEqual(spy1[0][0], qt.Qt.CheckState.Checked, "_showTetBox wrong check statee")
+        self.assertEqual(spy2[0][0], qt.Qt.CheckState.Checked, "_showTetBox wrong check state")

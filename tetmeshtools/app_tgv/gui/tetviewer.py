@@ -26,6 +26,7 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
+import PyQt5.Qt as qt
 
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
@@ -304,22 +305,28 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, flag):
+    def show_faces(self, check_state):
         """
         show the faces
         Args:
-            flag (bool)
+            check_state (Qt.CheckState)
         """
-        self._show_faces = flag
+        if check_state == qt.Qt.CheckState.Checked:
+            self._show_faces = True
+        else:
+            self._show_faces = False
         self.update()
 
-    def show_surface_lattice(self, flag):
+    def show_surface_lattice(self, check_state):
         """
         show the faces edges
         Args:
-            flag (bool)
+            check_state (Qt.CheckState)
         """
-        self._show_lattice = flag
+        if check_state == qt.Qt.CheckState.Checked:
+            self._show_lattice = True
+        else:
+            self._show_lattice = False
         self.update()
 
     def reset_view(self):
@@ -510,12 +517,17 @@ class TetViewer(qw.QOpenGLWidget):
             self._state.centre_on_tet()
             self.update()
 
-    @qc.pyqtSlot(bool)
-    def show_current_tet(self, flag):
+    @qc.pyqtSlot(int)
+    def show_current_tet(self, check_state):
         """
-        stop displaying current tet
+        tobggle display of current tet
+        Args:
+            check_state (Qt.CheckState)
         """
-        self._state.set_display_current_tet(flag)
+        if check_state == qt.Qt.CheckState.Unchecked:
+            self._state.set_display_current_tet(False)
+        else:
+            self._state.set_display_current_tet(True)
         self.update()
 
     @qc.pyqtSlot()
