@@ -534,8 +534,8 @@
   <connection>
    <sender>_surfaceButton</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>show_surface(int)</slot>
+   <receiver>_tetViewer</receiver>
+   <slot>show_faces(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>105</x>
@@ -550,7 +550,7 @@
   <connection>
    <sender>_surfaceLatticeButton</sender>
    <signal>stateChanged(int)</signal>
-   <receiver>TetgenViewerMain</receiver>
+   <receiver>_tetViewer</receiver>
    <slot>show_surface_lattice(int)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -205,8 +205,8 @@ class Ui_TetgenViewerMain(object):
         self._actionSaveTetData.triggered.connect(TetgenViewerMain.save_tet_data) # type: ignore
         self._actionSaveImage.triggered.connect(TetgenViewerMain.save_image) # type: ignore
         self._ctrTetButton.clicked.connect(self._tetViewer.centre_tet) # type: ignore
-        self._surfaceButton.stateChanged['int'].connect(TetgenViewerMain.show_surface) # type: ignore
-        self._surfaceLatticeButton.stateChanged['int'].connect(TetgenViewerMain.show_surface_lattice) # type: ignore
+        self._surfaceButton.stateChanged['int'].connect(self._tetViewer.show_faces) # type: ignore
+        self._surfaceLatticeButton.stateChanged['int'].connect(self._tetViewer.show_surface_lattice) # type: ignore
         self._ctrMeshButton.clicked.connect(self._tetViewer.centre_mesh) # type: ignore
         self._thicknessBox.valueChanged['int'].connect(self._tetViewer.set_thickness) # type: ignore
         self._actionSaveSetup.triggered.connect(TetgenViewerMain.save_setup) # type: ignore

@@ -363,18 +363,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._rotYSlider.setSliderPosition(0)
         self._rotYSlider.blockSignals(old_state)
 
-    @qc.pyqtSlot(int)
-    def show_surface(self, check_state):
-        """
-        callback for the show model surface widget
-        Args:
-            check_state (Qt.CheckState): the new state
-        """
-        if self._model is None:
-            return
-
-        self._tetViewer.show_faces(check_state)
-
     @qc.pyqtSlot()
     def save_setup(self):
         """
@@ -420,18 +408,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         file_path = pathlib.Path(name)
         self._tetViewer.load_setup(file_path)
-
-    @qc.pyqtSlot(int)
-    def show_surface_lattice(self, check_state):
-        """
-        callback for the show model surface edges widget
-        Args:
-            check_state (int): the new state
-        """
-        if self._model is None:
-            return
-
-        self._tetViewer.show_surface_lattice(check_state)
 
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):

@@ -305,6 +305,7 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
+    @qc.pyqtSlot(int)
     def show_faces(self, check_state):
         """
         show the faces
@@ -317,6 +318,7 @@ class TetViewer(qw.QOpenGLWidget):
             self._show_faces = False
         self.update()
 
+    @qc.pyqtSlot(int)
     def show_surface_lattice(self, check_state):
         """
         show the faces edges
