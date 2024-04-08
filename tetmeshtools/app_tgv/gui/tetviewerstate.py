@@ -318,7 +318,7 @@ class TetViewerState():
         Args:
             float
         """
-        if  not (0.0 < fov < 90.0):
+        if  not 0.0 < fov < 90.0:
             raise ValueError(f"Attempt to set field of view outside (0, 90) {fov} degrees")
 
         self._field_of_view = fov

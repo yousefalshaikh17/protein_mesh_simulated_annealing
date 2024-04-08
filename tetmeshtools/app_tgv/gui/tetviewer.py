@@ -34,8 +34,6 @@ import OpenGL.GLU as glu
 from tetmeshtools.app_tgv.gui.sphere import Sphere
 from tetmeshtools.app_tgv.gui.tetviewerstate import TetViewerState
 
-#TODO use call to parent in paint in place of checkbox linked variables
-
 class MouseStates(Enum):
     """
     possible states of the mouse input
@@ -527,12 +525,3 @@ class TetViewer(qw.QOpenGLWidget):
         else:
             self._state.set_display_current_tet(True)
         self.update()
-
-    @qc.pyqtSlot()
-    def centre_tet(self):
-        """
-        callback for click of ctr tet button
-        """
-        if self._model is not None and self._state.get_current_tet() is not None:
-            self._state.centre_on_tet()
-            self.update()

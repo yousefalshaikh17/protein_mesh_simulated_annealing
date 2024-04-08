@@ -30,9 +30,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import sys
 import argparse
 import pathlib
-# import cProfile
-# import pstats
-# import io
 from tetmeshtools.maketets import convert_mrc_to_tets
 
 def get_args():
@@ -43,7 +40,7 @@ def get_args():
     """
     description = ("process MRC files and produces a regular "
         "tetrahedral volumetric mesh using the \"marching tet\" algorithm. "
-        "This is written out in the tetgen .ele, .face, and .node file format, and .vtk for mesh analysis."
+        "Output in the tetgen .ele, .face, and .node file format, and .vtk for mesh analysis."
 
         "Coding:   Molly Gravett (bsmgr@leeds.ac.uk), "
         "Joanna Leng (J.Leng@leeds.ac.uk), "
