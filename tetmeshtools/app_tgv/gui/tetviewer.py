@@ -71,13 +71,6 @@ class TetViewer(qw.QOpenGLWidget):
         ## storage for show surfaces
         self._model = None
 
-        ## show/hide surface faces
-        self._show_faces = False
-
-        # TODO
-        # ## show/hide surface lattice
-        # self._show_lattice = False
-
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
 
@@ -154,7 +147,7 @@ class TetViewer(qw.QOpenGLWidget):
             self.draw_selected_tet()
         if self._state.get_show_lattice():
             self.draw_triangle_outline()
-        if self._show_faces:
+        if self._state.get_show_faces():
             self.draw_triangles()
 
         gl.glPopMatrix()    # restore the previous modelview matrix
@@ -314,9 +307,10 @@ class TetViewer(qw.QOpenGLWidget):
             check_state (Qt.CheckState)
         """
         if check_state == qt.Qt.CheckState.Checked:
-            self._show_faces = True
+            self._state.set_show_faces(True)
         else:
-            self._show_faces = False
+            self._state.set_show_faces(False)
+
         self.update()
 
     @qc.pyqtSlot(int)

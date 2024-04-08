@@ -70,6 +70,9 @@ class TetViewerState():
         ## if true show surface lattice
         self._show_lattice = False
 
+        ## if True show the surface faces
+        self._show_faces = False
+
         ## current field of view
         self._field_of_view = 45.0
 
@@ -80,6 +83,22 @@ class TetViewerState():
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._shift = (0.0, 0.0, 0.0)
+
+    def set_show_faces(self, flag):
+        """
+        setter fo the show faces flag
+        Args:
+            flga (bool): new value
+        """
+        self._show_faces = flag
+
+    def get_show_faces(self):
+        """
+        getter for the show faces flag
+        Reurns:
+            bool
+        """
+        return self._show_faces
 
     def set_show_lattice(self, flag):
         """

@@ -69,5 +69,5 @@ class TestGuiControls(unittest.TestCase):
         self.assertEqual(spy2[0][0], qt.Qt.CheckState.Checked, "_showTetBox wrong check state")
 
         self.assertFalse(main_win._tetViewer._state._display_current_tet, "viewer not changing _dispaly_current_tet")
-        self.assertTrue(main_win._tetViewer._show_faces, "viewer not changing _show_faces")
+        self.assertTrue(main_win._tetViewer._state._show_faces, "viewer not changing _show_faces")
         self.assertTrue(main_win._tetViewer._state._show_lattice, "viewer not changing _show_lattice")
