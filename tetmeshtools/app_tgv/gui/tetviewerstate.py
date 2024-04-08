@@ -40,9 +40,6 @@ class TetViewerState():
         ## list of vertices of current tet
         self._current_tet_nodes = None
 
-        ## if True display current tet
-        self._display_current_tet = True
-
         ## the currently selected tet
         self._current_ctr = None
 
@@ -67,6 +64,12 @@ class TetViewerState():
         ## if True use perspective projection, else orthogonal
         self._perspective = True
 
+        ## if True display current tet
+        self._display_current_tet = True
+
+        ## if true show surface lattice
+        self._show_lattice = False
+
         ## current field of view
         self._field_of_view = 45.0
 
@@ -77,6 +80,22 @@ class TetViewerState():
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._shift = (0.0, 0.0, 0.0)
+
+    def set_show_lattice(self, flag):
+        """
+        set a new value for the show lattice property
+        Args:
+            flag (bool): new value
+        """
+        self._show_lattice = flag
+
+    def get_show_lattice(self):
+        """
+        get current show lattice property
+        Returns:
+            bool
+        """
+        return self._show_lattice
 
     def set_edges_width(self, value):
         """

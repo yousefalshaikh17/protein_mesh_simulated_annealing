@@ -74,8 +74,9 @@ class TetViewer(qw.QOpenGLWidget):
         ## show/hide surface faces
         self._show_faces = False
 
-        ## show/hide surface lattice
-        self._show_lattice = False
+        # TODO
+        # ## show/hide surface lattice
+        # self._show_lattice = False
 
         self._mouse_state    = MouseStates.NONE
         self._mouse_position = None
@@ -151,7 +152,7 @@ class TetViewer(qw.QOpenGLWidget):
 
         if self._state.display_current_tet():
             self.draw_selected_tet()
-        if self._show_lattice:
+        if self._state.get_show_lattice():
             self.draw_triangle_outline()
         if self._show_faces:
             self.draw_triangles()
@@ -326,9 +327,10 @@ class TetViewer(qw.QOpenGLWidget):
             check_state (Qt.CheckState)
         """
         if check_state == qt.Qt.CheckState.Checked:
-            self._show_lattice = True
+            self._state.set_show_lattice(True)
         else:
-            self._show_lattice = False
+            self._state.set_show_lattice(False)
+
         self.update()
 
     def reset_view(self):

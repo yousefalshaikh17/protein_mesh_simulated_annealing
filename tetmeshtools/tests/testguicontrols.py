@@ -70,4 +70,4 @@ class TestGuiControls(unittest.TestCase):
 
         self.assertFalse(main_win._tetViewer._state._display_current_tet, "viewer not changing _dispaly_current_tet")
         self.assertTrue(main_win._tetViewer._show_faces, "viewer not changing _show_faces")
-        self.assertTrue(main_win._tetViewer._show_lattice, "viewer not changing _show_lattice")
+        self.assertTrue(main_win._tetViewer._state._show_lattice, "viewer not changing _show_lattice")
