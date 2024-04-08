@@ -25,7 +25,7 @@ This is version 1.0
 
 The algorithm and software in this project were developed by Joanna Leng, Jonathan Pickering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
-Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.gnu.org/licenses/.
+Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
@@ -43,7 +43,8 @@ The project was developed using Python 3.9 and Anaconda, Inc. on Windows 10 syst
 **[Prerequisites](#prerequisites)**<br>
 **[Installation](#istallation)**<br>
 **[Unit Tests](#unit-tests)**<br>
-**[Worked Example](#example)]**<br>
+**[Worked Example](#example)**<br>
+**[Coding Converntions](#coding)**<br>
 
 ## Quick Start
 
@@ -254,7 +255,7 @@ In the output directory defined by `-o` or `--output`, the following files will 
 
 ## Unit Tests
 
-The directory `tests` contain unit tests for developers working on tet_mesh_tools. Inside is a script called `unit_tests.py` which executes the tests, this can be run by typing. 
+The directory `tests` contain unit tests for developers working on tet_mesh_tools. Inside is a script called `unit_tests.py` which executes the tests, this can be run by typing.
 
 `python tetmeshtools/tests/unit_tests.py`
 
@@ -264,10 +265,14 @@ Because publicly available PDB files are more common than cryo-em MRC files, in 
 
 1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o <path>\3nir.mrc -n 15 15 15 -w soft`
 
-2. To see the information in the file’s header run `mrc_header_info -i <path>\3nir.mrc`
+2. To see the information in the fileï¿½s header run `mrc_header_info -i <path>\3nir.mrc`
 
 3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
 
 4. To convert to a mesh in Tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 1.5 -w -V -p -m2 -n 10 10 10`
 
 5. View the mesh run `tgv -i <path>\3nir`
+
+## Coding Converntions
+
+The main convention we observe it that all code should have a pylint score above 7.5.
