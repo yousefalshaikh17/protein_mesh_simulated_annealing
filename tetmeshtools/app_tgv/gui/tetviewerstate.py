@@ -31,19 +31,43 @@ class TetViewerState():
         Args:
             view_ctr_z (float): the start z value for the view
         """
+        ## geometric centre of surface
         self._surface_ctr = None
+
+        ## geometric centre of current tet
         self._current_tet_ctr = None
+
+        ## list of vertices of current tet
         self._current_tet_nodes = None
+
+        ## if True display current tet
         self._display_current_tet = True
+
+        ## the currently selected tet
         self._current_ctr = None
 
+        ## current rotation about x axis
         self._euler_x = 0.0
+
+        ## current rotation about y axis
         self._euler_y = 0.0
+
+        ## background colour
         self._clear_colour = None
+
+        ## current shift of view point
         self._shift = (0.0, 0.0, 0.0)
+
+        ## the z coordinate of the look from point
         self._look_from_z = -1.0
+
+        ## line width of lattice edges (when shown)
         self._edges_width = 1
+
+        ## if True use perspective projection, else orthogonal
         self._perspective = True
+
+        ## current field of view
         self._field_of_view = 45.0
 
     def reset(self):
