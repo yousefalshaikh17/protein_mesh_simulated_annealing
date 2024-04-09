@@ -15,5 +15,5 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 """
 from collections import namedtuple
 
-## storage for a voxel
+## storage for the dimensions of a voxel
 VoxelSize = namedtuple("VoxelSize", "dx, dy, dz")

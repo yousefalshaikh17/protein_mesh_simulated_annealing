@@ -1,4 +1,19 @@
 """
+functions used to convert a voxel array to a tetrahedron mesh
+
+    Vertex Indices:
+         7+----------+6
+         /|         /|
+        / |        / |
+      4+----------+5 |
+       |  |       |  |         Axes:
+       | 3+-------|--+2        z  y
+       | /        | /          | /
+       |/         |/           |/
+      0+----------+1           +----x
+
+----------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -12,17 +27,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
 @copyright 2020
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
-
-        Vertex Indices:
-         7+----------+6
-         /|         /|
-        / |        / |
-      4+----------+5 |
-       |  |       |  |         Axes:
-       | 3+-------|--+2        z  y
-       | /        | /          | /
-       |/         |/           |/
-      0+----------+1           +----x
 """
 # set up linting
 # pylint: disable = import-error
