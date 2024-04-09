@@ -1,4 +1,10 @@
 """
+storage, access and writer for the data in a Medical Research Council (MRC) format
+file (https://www.ccpem.ac.uk/mrc_format/mrc2014.php). Reading is provided by
+package 'mrcfile'.
+
+-------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,8 +30,6 @@ from tetmeshtools.voxelsize import VoxelSize
 
 ## a data struct for the mrcfile cell size
 CellSize = namedtuple("CellSize", "x, y, z")
-
-
 
 ## a data struct for the mrcfile cell angles (degrees)
 CellAngles = namedtuple("CellAngles", 'alpha, beta, gamma')

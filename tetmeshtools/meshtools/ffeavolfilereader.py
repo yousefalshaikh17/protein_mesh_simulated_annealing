@@ -1,4 +1,9 @@
 """
+Reader for a mesh stored in the Fluctuating Finite Element Analysis (FFEA) input
+file format (https://ffea.bitbucket.io/).
+
+--------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.

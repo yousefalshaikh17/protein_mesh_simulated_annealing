@@ -1,4 +1,8 @@
 """
+script running all unit tests
+
+--------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -13,6 +17,9 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting
+# pylint: disable = import-error
+
 import unittest
 
 from tetmeshtools.tests.testreadtetgen import TestReadTetgen
@@ -40,11 +47,8 @@ def make_suite():
     suite.addTest(TestTetProps('test_edges_to_area_ratio_squared'))
     suite.addTest(TestGuiControls('test_initial_state'))
     suite.addTest(TestGuiControls('test_sliders_limits'))
-
-    #TODO test enabled or visible etc before these tests.
     suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
     suite.addTest(TestGuiControls('test_check_boxes'))
-
 
     return suite
 
