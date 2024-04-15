@@ -48,12 +48,6 @@ class TestReadTetgen(unittest.TestCase):
         ## path to zip archive of test data
         self._archive = zipfile.ZipFile(path)
 
-    def tearDown(self):
-        """
-        clean up
-        """
-        pass
-
     def test_read_nodes(self):
         """
         test reading the nodes files

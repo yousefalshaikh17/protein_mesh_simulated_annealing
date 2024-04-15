@@ -1,5 +1,5 @@
 """
-output a tetrahedron mesh in VTK format (https://vtk.org/)
+output a tetrahedron mesh in Visualization Toolkit (VTK) format (https://vtk.org/)
 
 -----------------------------------------
 

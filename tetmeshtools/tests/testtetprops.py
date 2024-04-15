@@ -33,12 +33,6 @@ class TestTetProps(unittest.TestCase):
 
         self.nodes = [NodePoint(0, x[0], x[1], x[2]) for x in self.verts]
 
-    def tearDown(self):
-        """
-        clean up
-        """
-        pass
-
     def test_tet_volume(self):
         """
         test the tetrahedron volume calculation

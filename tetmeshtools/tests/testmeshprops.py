@@ -27,26 +27,14 @@ class TestMeshProps(unittest.TestCase):
     tests of Tetgen file reader
     """
 
-    def setUp(self):
-        """
-        build a full test class
-        """
-        pass
-
-    def tearDown(self):
-        """
-        clean up
-        """
-        pass
-
     def test_nodepoint_to_edge_array(self):
         """
         test NodePoint to_edge_arry
         """
-        p1 = tgs.NodePoint(0, 1.0, 1.0, 1.0)
-        p2 = tgs.NodePoint(0, 2.0, 2.0, 2.0)
+        point1 = tgs.NodePoint(0, 1.0, 1.0, 1.0)
+        point2 = tgs.NodePoint(0, 2.0, 2.0, 2.0)
 
-        result = p1.to_edge_array(p2)
+        result = point1.to_edge_array(point2)
         self.assertAlmostEqual(result,
                                [1.0, 1.0, 1.0],
                                msg="tetmeshtools.tetgenstructs.to_edge_array")

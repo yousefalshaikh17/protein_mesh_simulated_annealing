@@ -1,6 +1,6 @@
 """
-functions using the VTK toolkit (https://vtk.org/) to find the surface nodes
-of a tetrahdron mesh.
+functions using the Visualization Toolkit (VTK) (https://vtk.org/) to find the
+surface nodes of a tetrahdron mesh.
 
 ----------------------------------
 
