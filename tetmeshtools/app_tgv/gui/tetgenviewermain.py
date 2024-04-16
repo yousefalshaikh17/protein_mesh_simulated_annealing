@@ -1,4 +1,8 @@
 """
+main window of the tet viewer, subclasses QMainWindow
+
+----------------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -34,7 +38,7 @@ import tetmeshtools.meshtools.tetmesh as tmes
 from tetmeshtools.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
-    """the viewers main window"""
+    """main window of the tet viewer, subclasses QMainWindow"""
 
     ## the title for the window
     window_title = "TetgenViewer"
