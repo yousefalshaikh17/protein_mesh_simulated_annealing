@@ -1,4 +1,8 @@
 """
+container for a surface made of triangles
+
+------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -21,7 +25,7 @@ import tetmeshtools.tetprops as tp
 
 class TriSurface():
     """
-    container for a surface made of triangles
+    container for a surface made of triangles, defined by int reference to elements array
     """
 
     def __init__(self, nodes, faces):
@@ -33,6 +37,7 @@ class TriSurface():
         """
         ## the vertices of the faces
         self._nodes = nodes
+        print(f"Nodes {type(nodes)}")
 
         ## the connectivity dict{index => tetgenstruct.Face}
         self._faces = faces
@@ -183,6 +188,16 @@ class TriSurface():
             areas.append(tp.area_of_triangle(face_nodes, True))
 
         return areas
+
+    def get_model_limits(self):
+        """
+        get the min and max for the axis
+        Returns
+            (<min x>, <max x>, <min y>, <max y>, <min z>, <max z>)
+        """
+        pass
+        # self._nodes
+        # self._faces
 
     def __str__(self):
         """to string"""

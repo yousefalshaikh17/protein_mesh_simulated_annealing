@@ -1,4 +1,8 @@
 """
+subclass of QOpenGLWidget (drawing area) provides all drawing methods
+
+----------------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,7 +51,7 @@ class MouseStates(Enum):
 
 class TetViewer(qw.QOpenGLWidget):
     """
-    the view on graphics context
+    subclass of QOpenGLWidget (drawing area / graphics context) provides all drawing methods
     """
 
     ## notify that rotation user input needs to be reset
@@ -67,8 +71,17 @@ class TetViewer(qw.QOpenGLWidget):
         ## storage for show surfaces
         self._model = None
 
+        ## storage for the mouse button states (used in dragging & zooming)
         self._mouse_state    = MouseStates.NONE
+
+        ## storae for the current mouse position (used in dragging & zooming)
         self._mouse_position = None
+
+        ## the minimum z value allowed in zooming
+        self._min_z = -2000.0
+
+        ## the maximum z value allowd in zooming
+        self._max_z = 2000.0
 
         self.set_background()
 
@@ -375,8 +388,9 @@ class TetViewer(qw.QOpenGLWidget):
         new_z = shift[2] - float(del_y)
 
         self._mouse_position = mouse_position
-        # TODO work out correct limit
-        if new_z > -2000.0:
+
+        if self._max_z > new_z > self._min_z:
+            print(f"Z: {new_z}")
             self._state.set_shift_z(new_z)
 
         self.update()
@@ -456,6 +470,17 @@ class TetViewer(qw.QOpenGLWidget):
         """
         self._state.set_euler_y(float(val))
         self.update()
+
+    @qc.pyqtSlot(float, float)
+    def set_min_max_z(self, min_z, max_z):
+        """
+        set the minimum and maximum limits on the z axis
+        Args:
+            min_z (float): minimum allowed z value
+            max_z (float): maximum allowed z value
+        """
+        self._max_z = min_z
+        self._max_z = max_z
 
     @qc.pyqtSlot(qg.QMouseEvent)
     def mouseMoveEvent(self, event):

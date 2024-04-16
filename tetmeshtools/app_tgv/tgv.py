@@ -23,32 +23,7 @@ import sys
 import PyQt5.QtCore as qc
 import PyQt5.QtWidgets as qw
 
-#from tetmeshtools.app_tgv.tgvapp import TGVApp
-from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
-
-class TGVApp(qw.QApplication):
-    """
-    the application that runs the main window
-    """
-
-    def __init__(self, args, python_args):
-        """
-        initalize and run main window
-            Args:
-                args [string] the command line arguments
-                python_args (argparse.Namespace) argumens found by argparse
-         """
-        super().__init__(args)
-        self.setApplicationName("TetgenViewerMain")
-        self.setApplicationVersion("0.0.0")
-        self.setOrganizationName("School of Computer Science, University of Leeds, Leeds, UK")
-        self.setOrganizationDomain("leeds.ac.uk")
-
-        window = TetgenViewerMain(config_args=python_args)
-        window.resize(500, 300)
-        window.show()
-
-        self.exec_()
+from tetmeshtools.app_tgv.tgvapp import TGVApp
 
 def get_args():
     """
