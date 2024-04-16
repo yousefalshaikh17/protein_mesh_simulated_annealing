@@ -195,9 +195,21 @@ class TriSurface():
         Returns
             (<min x>, <max x>, <min y>, <max y>, <min z>, <max z>)
         """
-        pass
-        # self._nodes
-        # self._faces
+        nodes = self.get_surface_nodes().values()
+
+        x_values = [node.x for node in nodes]
+        min_x = min(x_values)
+        max_x = max(x_values)
+
+        y_values = [node.y for node in nodes]
+        min_y = min(y_values)
+        max_y = max(y_values)
+
+        z_values = [node.z for node in nodes]
+        min_z = min(z_values)
+        max_z = max(z_values)
+
+        return min_x, max_x, min_y, max_y, min_z, max_z
 
     def __str__(self):
         """to string"""
