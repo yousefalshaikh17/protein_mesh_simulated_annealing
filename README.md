@@ -265,7 +265,7 @@ Because publicly available PDB files are more common than cryo-em MRC files, in 
 
 1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o <path>\3nir.mrc -n 15 15 15 -w soft`
 
-2. To see the information in the file�s header run `mrc_header_info -i <path>\3nir.mrc`
+2. To see the information in the file's header run `mrc_header_info -i <path>\3nir.mrc`
 
 3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
 

@@ -41,7 +41,7 @@ def get_args():
                         "--input",
                         type=pathlib.Path,
                         required=False,
-                        help="input file: tetgen, root name; ffea, full inc .vol")
+                        help="input file: tetgen, root name or one of {node, ele, face}; ffea, full inc .vol")
 
     return parser.parse_args()
 
