@@ -83,6 +83,12 @@ class TetViewer(qw.QOpenGLWidget):
         ## the maximum z value allowd in zooming
         self._max_z = 2000.0
 
+        ## z coord of the near clipping plane
+        self._near_clip = 1.0
+
+        ## z coord of the far clipping plane
+        self._far_clip = 3000.0
+
         self.set_background()
 
     def initializeGL(self):
@@ -113,8 +119,8 @@ class TetViewer(qw.QOpenGLWidget):
         if self._state.perspective_view():
             glu.gluPerspective(self._state.get_field_of_view(),
                                aspect,
-                               1.0,
-                               3000.0)
+                               self._near_clip,
+                               self._far_clip)
         else:
             gl.glOrtho(-500.0, 500.0, -500.0, 500.0, 15.0, 3000.0)
 
