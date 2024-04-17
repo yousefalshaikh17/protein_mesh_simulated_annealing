@@ -41,7 +41,7 @@ import vtk
 from vtkmodules.util import numpy_support
 from tetmeshtools import vtk_write
 import tetmeshtools.coord_utility as cu
-from tetmeshtools.tetgen_write import write_tetgen_output
+from tetmeshtools.meshtools.tetgenwrite import write_tetgen_output
 import tetmeshtools.vtk_utility as vtk_u
 
 class PruneLevel(enum.IntEnum):

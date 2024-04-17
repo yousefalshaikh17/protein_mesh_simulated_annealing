@@ -72,3 +72,18 @@ def write_tetgen_faces(output_file, faces, comment=""):
             face = faces[index]
             face_file.write(f"{index} {face.vert0} {face.vert1} {face.vert2} -1\n")
         face_file.write(f"# {comment}")
+
+def write_tetgen_output(output_file, tet_array, points, faces, original_ids, comment=""):
+    """
+    write the tetgen files
+    Args:
+        output_file (pathlib.Path): file
+        tet_array (int*4 list): for each tet the indices of its vertices in the points list
+        points (float np.ndarray): duplicate free list of vertices
+        faces (int np.ndarray): connectivity of face polygons
+        original_ids (int []): index of surface point in the surface faces's points array
+        comment (str): any user comment
+    """
+    write_tetgen_elements(output_file, tet_array, comment)
+    write_tetgen_nodes(output_file, points, comment)
+    write_tetgen_faces(output_file, faces, original_ids, comment)
