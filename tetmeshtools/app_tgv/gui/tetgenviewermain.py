@@ -70,7 +70,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         if config_args.input.suffix == ".vol":
             self.load_ffea_file(config_args.input)
         else:
-            self.load_tetgen_files(config_args.input)
+            tetgen_root = self.make_tetgen_root(config_args.input)
+            self.load_tetgen_files(tetgen_root)
 
     def load_ffea_file(self, file_path):
         """
@@ -461,3 +462,26 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         responde to request for gray background
         """
         self._tetViewer.change_background("Gray")
+
+    @staticmethod
+    def make_tetgen_root(path):
+        """
+        ensures that a tetgen file name (suffix .1.<type>) is
+        converted to its root without the tetgen suffix
+        Args
+            path (pathlib.Path)
+        Returns
+            pathlib.Path
+        """
+        path_s = str(path)
+
+        if path_s.endswith('.1.node'):
+            return pathlib.Path(path_s.replace('.1.node', ''))
+
+        if path_s.endswith('.1.ele'):
+            return pathlib.Path(path_s.replace('.1.ele', ''))
+
+        if path_s.endswith('.1.face'):
+            return pathlib.Path(path_s.replace('.1.face', ''))
+
+        return path
