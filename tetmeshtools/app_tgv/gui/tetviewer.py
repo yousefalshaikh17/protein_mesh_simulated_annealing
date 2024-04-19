@@ -396,8 +396,6 @@ class TetViewer(qw.QOpenGLWidget):
 
         self._mouse_position = mouse_position
 
-        print(f"zoom: {self._min_z} < {effective_z} < {self._max_z})")
-
         if self._max_z > effective_z > self._min_z:
             self._state.set_shift_z(new_shift_z)
 
@@ -450,9 +448,7 @@ class TetViewer(qw.QOpenGLWidget):
 
         view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
 
-        #TODO
         self._max_z = ctr[2] - radius
-        print(f"Stuff {ctr[2]-view_distance} {ctr[2]-view_distance+radius}")
         self._min_z = ctr[2] - self._far_clip
 
         self._state.set_look_from_z(ctr[2]-view_distance)

@@ -147,13 +147,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             _, tets  = tr.read_tet_file(tet_files[2])
 
             tet_props = tp.get_tet_props(nodes, tets)
-
-            # TODO
-            # 1. add z limits to viewer
-            # 2. move to function and add to vol load
             surface = tris.TriSurface(nodes, faces)
-            print(surface.get_model_limits())
-
             self._model = tm.TetModel(surface,#tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
 

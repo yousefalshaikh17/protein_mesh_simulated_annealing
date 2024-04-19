@@ -37,7 +37,6 @@ class TriSurface():
         """
         ## the vertices of the faces
         self._nodes = nodes
-        print(f"Nodes {type(nodes)}")
 
         ## the connectivity dict{index => tetgenstruct.Face}
         self._faces = faces

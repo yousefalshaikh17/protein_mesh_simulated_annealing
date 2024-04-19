@@ -129,7 +129,6 @@ def make_data_array(image, voxel_counts, new_vox_size, new_origin):
                     raise ValueError(f"Point {coord} {index} outside image {distance}")
 
                 array[z_index, y_index, x_index] = density
-                #print(f"({x_coord:7.2f}, {y_coord:7.2f}, {z_coord:7.2f}) => {density}")
 
     return array
 
