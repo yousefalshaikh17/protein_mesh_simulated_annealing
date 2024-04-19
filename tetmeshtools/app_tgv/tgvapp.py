@@ -1,4 +1,8 @@
 """
+the application fthat runs the tetviewer
+
+-------------------------------------
+
 Licensed under the GNU General Public License, Version 3.0 (the "License"); you
 may not use this file except in compliance with the License. You may obtain a
 copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
@@ -23,7 +27,7 @@ from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
 class TGVApp(qw.QApplication):
     """
-    the application that runs the main window
+    the application fthat runs the tetviewer
     """
 
     def __init__(self, args, python_args):

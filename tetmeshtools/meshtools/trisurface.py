@@ -1,5 +1,5 @@
 """
-container for a surface made of triangles
+store for a tetgen surface triangle mesh
 
 ------------------------------------
 
