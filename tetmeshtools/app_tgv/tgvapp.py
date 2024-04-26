@@ -27,7 +27,7 @@ from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
 class TGVApp(qw.QApplication):
     """
-    the application fthat runs the tetviewer
+    the application that runs the tetviewer
     """
 
     def __init__(self, args, python_args):

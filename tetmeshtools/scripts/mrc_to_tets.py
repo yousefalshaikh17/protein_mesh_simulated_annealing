@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 """
- five_tets.py
-
  A script that processes MRC files and produces a regular
  tetrahedral volumetric mesh, with five or six tetrahedra
  in each voxel, using the "marching tet" algorithm. This is
