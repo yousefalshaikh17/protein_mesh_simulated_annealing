@@ -388,6 +388,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         file_path = pathlib.Path(name)
         self._tetViewer.save_setup(file_path)
+        qw.QMessageBox.information(self, "Save setup", f"Setup saved to {file_path}")
 
     @qc.pyqtSlot()
     def load_setup(self):
@@ -411,6 +412,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         file_path = pathlib.Path(name)
         self._tetViewer.load_setup(file_path)
+        qw.QMessageBox.information(self, "Load setup", f"Setup loaded from {file_path}")
 
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):
