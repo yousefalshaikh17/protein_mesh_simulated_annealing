@@ -17,6 +17,7 @@ import unittest
 from tetmeshtools.tests.testreadtetgen import TestReadTetgen
 from tetmeshtools.tests.testmeshprops import TestMeshProps
 from tetmeshtools.tests.testtetprops import TestTetProps
+from tetmeshtools.tests.testsimulatedannealing import TestSimulatedAnnealing
 
 def make_suite():
     """
@@ -36,6 +37,10 @@ def make_suite():
     suite.addTest(TestTetProps('test_tet_area'))
     suite.addTest(TestTetProps('test_triangle_area'))
     suite.addTest(TestTetProps('test_edges_to_area_ratio_squared'))
+
+    suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping1'))
+    suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping2'))
+    suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping3'))
 
     return suite
 
