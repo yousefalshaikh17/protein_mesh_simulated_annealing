@@ -1,6 +1,13 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+linear interpolater for data in an Medical Research Council (MRC) format
+file (https://www.ccpem.ac.uk/mrc_format/mrc2014.php). This provides subsampeling
+of voxel data allowing the construction of finer or coarser grids.
+
+--------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR

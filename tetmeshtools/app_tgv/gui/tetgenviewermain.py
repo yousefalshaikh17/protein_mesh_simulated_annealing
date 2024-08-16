@@ -1,9 +1,11 @@
 """
-Created on 22 Dec 2022
+main window of the tet viewer, subclasses QMainWindow
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+----------------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -36,7 +38,7 @@ import tetmeshtools.meshtools.tetmesh as tmes
 from tetmeshtools.app_tgv.gui.Ui_tetgenviewermain import Ui_TetgenViewerMain
 
 class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
-    """the viewers main window"""
+    """main window of the tet viewer, subclasses QMainWindow"""
 
     ## the title for the window
     window_title = "TetgenViewer"
@@ -62,13 +64,14 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         ## current source directory
         self._current_source = pathlib.Path.home()
 
-        if config_args.input is None:
+        if config_args is None or config_args.input is None:
             return
 
         if config_args.input.suffix == ".vol":
             self.load_ffea_file(config_args.input)
         else:
-            self.load_tetgen_files(config_args.input)
+            tetgen_root = self.make_tetgen_root(config_args.input)
+            self.load_tetgen_files(tetgen_root)
 
     def load_ffea_file(self, file_path):
         """
@@ -144,8 +147,8 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
             _, tets  = tr.read_tet_file(tet_files[2])
 
             tet_props = tp.get_tet_props(nodes, tets)
-
-            self._model = tm.TetModel(tris.TriSurface(nodes, faces),
+            surface = tris.TriSurface(nodes, faces)
+            self._model = tm.TetModel(surface,#tris.TriSurface(nodes, faces),
                                       tmes.TetMesh(nodes, tets))
 
             self.list_tets(tet_props)
@@ -363,18 +366,6 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         self._rotYSlider.setSliderPosition(0)
         self._rotYSlider.blockSignals(old_state)
 
-    @qc.pyqtSlot(bool)
-    def show_surface(self, flag):
-        """
-        callback for the show model surface widget
-        Args:
-            flag (bool): the new state
-        """
-        if self._model is None:
-            return
-
-        self._tetViewer.show_faces(flag)
-
     @qc.pyqtSlot()
     def save_setup(self):
         """
@@ -397,6 +388,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         file_path = pathlib.Path(name)
         self._tetViewer.save_setup(file_path)
+        qw.QMessageBox.information(self, "Save setup", f"Setup saved to {file_path}")
 
     @qc.pyqtSlot()
     def load_setup(self):
@@ -420,18 +412,7 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         file_path = pathlib.Path(name)
         self._tetViewer.load_setup(file_path)
-
-    @qc.pyqtSlot(bool)
-    def show_surface_lattice(self, flag):
-        """
-        callback for the show model surface edges widget
-        Args:
-            flag (bool): the new state
-        """
-        if self._model is None:
-            return
-
-        self._tetViewer.show_surface_lattice(flag)
+        qw.QMessageBox.information(self, "Load setup", f"Setup loaded from {file_path}")
 
     @qc.pyqtSlot(qw.QAbstractButton, bool)
     def background_change(self, button, flag):
@@ -477,3 +458,26 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
         responde to request for gray background
         """
         self._tetViewer.change_background("Gray")
+
+    @staticmethod
+    def make_tetgen_root(path):
+        """
+        ensures that a tetgen file name (suffix .1.<type>) is
+        converted to its root without the tetgen suffix
+        Args
+            path (pathlib.Path)
+        Returns
+            pathlib.Path
+        """
+        path_s = str(path)
+
+        if path_s.endswith('.1.node'):
+            return pathlib.Path(path_s.replace('.1.node', ''))
+
+        if path_s.endswith('.1.ele'):
+            return pathlib.Path(path_s.replace('.1.ele', ''))
+
+        if path_s.endswith('.1.face'):
+            return pathlib.Path(path_s.replace('.1.face', ''))
+
+        return path

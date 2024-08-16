@@ -1,9 +1,11 @@
 """
-Created on 24 March 2023
+container for the viewer's internal state
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+----------------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -31,19 +33,49 @@ class TetViewerState():
         Args:
             view_ctr_z (float): the start z value for the view
         """
+        ## geometric centre of surface
         self._surface_ctr = None
+
+        ## geometric centre of current tet
         self._current_tet_ctr = None
+
+        ## list of vertices of current tet
         self._current_tet_nodes = None
-        self._display_current_tet = True
+
+        ## the currently selected tet
         self._current_ctr = None
 
+        ## current rotation about x axis
         self._euler_x = 0.0
+
+        ## current rotation about y axis
         self._euler_y = 0.0
+
+        ## background colour
         self._clear_colour = None
+
+        ## current shift of view point
         self._shift = (0.0, 0.0, 0.0)
+
+        ## the z coordinate of the look from point
         self._look_from_z = -1.0
+
+        ## line width of lattice edges (when shown)
         self._edges_width = 1
+
+        ## if True use perspective projection, else orthogonal
         self._perspective = True
+
+        ## if True display current tet
+        self._display_current_tet = True
+
+        ## if true show surface lattice
+        self._show_lattice = False
+
+        ## if True show the surface faces
+        self._show_faces = False
+
+        ## current field of view
         self._field_of_view = 45.0
 
     def reset(self):
@@ -53,6 +85,38 @@ class TetViewerState():
         self._euler_x = 0.0
         self._euler_y = 0.0
         self._shift = (0.0, 0.0, 0.0)
+
+    def set_show_faces(self, flag):
+        """
+        setter fo the show faces flag
+        Args:
+            flga (bool): new value
+        """
+        self._show_faces = flag
+
+    def get_show_faces(self):
+        """
+        getter for the show faces flag
+        Reurns:
+            bool
+        """
+        return self._show_faces
+
+    def set_show_lattice(self, flag):
+        """
+        set a new value for the show lattice property
+        Args:
+            flag (bool): new value
+        """
+        self._show_lattice = flag
+
+    def get_show_lattice(self):
+        """
+        get current show lattice property
+        Returns:
+            bool
+        """
+        return self._show_lattice
 
     def set_edges_width(self, value):
         """
@@ -214,7 +278,6 @@ class TetViewerState():
         Args:
             z_coord: float
         """
-        print(f"set_shift_z({z_coord})")
         self._shift = (self._shift[0], self._shift[1], z_coord)
 
     def set_shift(self, x_coord, y_coord, z_coord):
@@ -257,7 +320,7 @@ class TetViewerState():
         Args:
             float
         """
-        if  not (0.0 < fov < 90.0):
+        if  not 0.0 < fov < 90.0:
             raise ValueError(f"Attempt to set field of view outside (0, 90) {fov} degrees")
 
         self._field_of_view = fov

@@ -1,6 +1,22 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+functions used to convert a voxel array to a tetrahedron mesh
+
+    Vertex Indices:
+         7+----------+6
+         /|         /|
+        / |        / |
+      4+----------+5 |
+       |  |       |  |         Axes:
+       | 3+-------|--+2        z  y
+       | /        | /          | /
+       |/         |/           |/
+      0+----------+1           +----x
+
+----------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -11,17 +27,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 
 @copyright 2020
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
-
-        Vertex Indices:
-         7+----------+6
-         /|         /|
-        / |        / |
-      4+----------+5 |
-       |  |       |  |         Axes:
-       | 3+-------|--+2        z  y
-       | /        | /          | /
-       |/         |/           |/
-      0+----------+1           +----x
 """
 # set up linting
 # pylint: disable = import-error
@@ -36,7 +41,7 @@ import vtk
 from vtkmodules.util import numpy_support
 from tetmeshtools import vtk_write
 import tetmeshtools.coord_utility as cu
-from tetmeshtools.tetgen_write import write_tetgen_output
+from tetmeshtools.meshtools.tetgenwrite import write_tetgen_output
 import tetmeshtools.vtk_utility as vtk_u
 
 class PruneLevel(enum.IntEnum):

@@ -1,6 +1,11 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+store for a tetgen surface triangle mesh
+
+------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -20,7 +25,7 @@ import tetmeshtools.tetprops as tp
 
 class TriSurface():
     """
-    container for a surface made of triangles
+    container for a surface made of triangles, defined by int reference to elements array
     """
 
     def __init__(self, nodes, faces):
@@ -182,6 +187,28 @@ class TriSurface():
             areas.append(tp.area_of_triangle(face_nodes, True))
 
         return areas
+
+    def get_model_limits(self):
+        """
+        get the min and max for the axis
+        Returns
+            (<min x>, <max x>, <min y>, <max y>, <min z>, <max z>)
+        """
+        nodes = self.get_surface_nodes().values()
+
+        x_values = [node.x for node in nodes]
+        min_x = min(x_values)
+        max_x = max(x_values)
+
+        y_values = [node.y for node in nodes]
+        min_y = min(y_values)
+        max_y = max(y_values)
+
+        z_values = [node.z for node in nodes]
+        min_z = min(z_values)
+        max_z = max(z_values)
+
+        return min_x, max_x, min_y, max_y, min_z, max_z
 
     def __str__(self):
         """to string"""

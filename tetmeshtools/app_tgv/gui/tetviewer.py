@@ -1,9 +1,11 @@
 """
-Created on 22 Dec 2022
+subclass of QOpenGLWidget (drawing area) provides all drawing methods
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+----------------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -26,14 +28,13 @@ import numpy as np
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
+import PyQt5.Qt as qt
 
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
 from tetmeshtools.app_tgv.gui.sphere import Sphere
 from tetmeshtools.app_tgv.gui.tetviewerstate import TetViewerState
-
-#TODO use call to parent in paint in place of checkbox linked variables
 
 class MouseStates(Enum):
     """
@@ -50,7 +51,7 @@ class MouseStates(Enum):
 
 class TetViewer(qw.QOpenGLWidget):
     """
-    the view on graphics context
+    subclass of QOpenGLWidget (drawing area / graphics context) provides all drawing methods
     """
 
     ## notify that rotation user input needs to be reset
@@ -70,14 +71,23 @@ class TetViewer(qw.QOpenGLWidget):
         ## storage for show surfaces
         self._model = None
 
-        ## show/hide surface faces
-        self._show_faces = False
-
-        ## show/hide surface lattice
-        self._show_lattice = False
-
+        ## storage for the mouse button states (used in dragging & zooming)
         self._mouse_state    = MouseStates.NONE
+
+        ## storae for the current mouse position (used in dragging & zooming)
         self._mouse_position = None
+
+        ## the minimum z value allowed in zooming
+        self._min_z = -2000.0
+
+        ## the maximum z value allowd in zooming
+        self._max_z = 2000.0
+
+        ## z coord of the near clipping plane
+        self._near_clip = 1.0
+
+        ## z coord of the far clipping plane
+        self._far_clip = 3000.0
 
         self.set_background()
 
@@ -109,8 +119,8 @@ class TetViewer(qw.QOpenGLWidget):
         if self._state.perspective_view():
             glu.gluPerspective(self._state.get_field_of_view(),
                                aspect,
-                               1.0,
-                               3000.0)
+                               self._near_clip,
+                               self._far_clip)
         else:
             gl.glOrtho(-500.0, 500.0, -500.0, 500.0, 15.0, 3000.0)
 
@@ -150,9 +160,9 @@ class TetViewer(qw.QOpenGLWidget):
 
         if self._state.display_current_tet():
             self.draw_selected_tet()
-        if self._show_lattice:
+        if self._state.get_show_lattice():
             self.draw_triangle_outline()
-        if self._show_faces:
+        if self._state.get_show_faces():
             self.draw_triangles()
 
         gl.glPopMatrix()    # restore the previous modelview matrix
@@ -304,22 +314,32 @@ class TetViewer(qw.QOpenGLWidget):
             self.set_projection(self.width(), self.height())
             self.update()
 
-    def show_faces(self, flag):
+    @qc.pyqtSlot(int)
+    def show_faces(self, check_state):
         """
         show the faces
         Args:
-            flag (bool)
+            check_state (Qt.CheckState)
         """
-        self._show_faces = flag
+        if check_state == qt.Qt.CheckState.Checked:
+            self._state.set_show_faces(True)
+        else:
+            self._state.set_show_faces(False)
+
         self.update()
 
-    def show_surface_lattice(self, flag):
+    @qc.pyqtSlot(int)
+    def show_surface_lattice(self, check_state):
         """
         show the faces edges
         Args:
-            flag (bool)
+            check_state (Qt.CheckState)
         """
-        self._show_lattice = flag
+        if check_state == qt.Qt.CheckState.Checked:
+            self._state.set_show_lattice(True)
+        else:
+            self._state.set_show_lattice(False)
+
         self.update()
 
     def reset_view(self):
@@ -371,12 +391,13 @@ class TetViewer(qw.QOpenGLWidget):
         del_y = mouse_position.y() - self._mouse_position.y()
 
         shift = self._state.get_shift()
-        new_z = shift[2] - float(del_y)
+        new_shift_z = shift[2] - float(del_y)
+        effective_z = self._state.get_look_from_z() + new_shift_z
 
         self._mouse_position = mouse_position
-        # TODO work out correct limit
-        if new_z > -2000.0:
-            self._state.set_shift_z(new_z)
+
+        if self._max_z > effective_z > self._min_z:
+            self._state.set_shift_z(new_shift_z)
 
         self.update()
 
@@ -427,7 +448,10 @@ class TetViewer(qw.QOpenGLWidget):
 
         view_distance = radius/np.tan(np.radians(self._state.get_field_of_view()/2.0))
 
-        self._state.set_look_from_z(-view_distance)
+        self._max_z = ctr[2] - radius
+        self._min_z = ctr[2] - self._far_clip
+
+        self._state.set_look_from_z(ctr[2]-view_distance)
         self._state.set_surface_ctr(ctr[0], ctr[1], ctr[2])
         self._state.centre_on_surface()
         self._state.clear_current_tet()
@@ -455,6 +479,17 @@ class TetViewer(qw.QOpenGLWidget):
         """
         self._state.set_euler_y(float(val))
         self.update()
+
+    @qc.pyqtSlot(float, float)
+    def set_min_max_z(self, min_z, max_z):
+        """
+        set the minimum and maximum limits on the z axis
+        Args:
+            min_z (float): minimum allowed z value
+            max_z (float): maximum allowed z value
+        """
+        self._max_z = min_z
+        self._max_z = max_z
 
     @qc.pyqtSlot(qg.QMouseEvent)
     def mouseMoveEvent(self, event):
@@ -510,19 +545,15 @@ class TetViewer(qw.QOpenGLWidget):
             self._state.centre_on_tet()
             self.update()
 
-    @qc.pyqtSlot(bool)
-    def show_current_tet(self, flag):
+    @qc.pyqtSlot(int)
+    def show_current_tet(self, check_state):
         """
-        stop displaying current tet
+        tobggle display of current tet
+        Args:
+            check_state (Qt.CheckState)
         """
-        self._state.set_display_current_tet(flag)
+        if check_state == qt.Qt.CheckState.Unchecked:
+            self._state.set_display_current_tet(False)
+        else:
+            self._state.set_display_current_tet(True)
         self.update()
-
-    @qc.pyqtSlot()
-    def centre_tet(self):
-        """
-        callback for click of ctr tet button
-        """
-        if self._model is not None and self._state.get_current_tet() is not None:
-            self._state.centre_on_tet()
-            self.update()

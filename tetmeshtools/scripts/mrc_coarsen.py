@@ -4,8 +4,9 @@
 
  ----------------------------
 
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -128,7 +129,6 @@ def make_data_array(image, voxel_counts, new_vox_size, new_origin):
                     raise ValueError(f"Point {coord} {index} outside image {distance}")
 
                 array[z_index, y_index, x_index] = density
-                #print(f"({x_coord:7.2f}, {y_coord:7.2f}, {z_coord:7.2f}) => {density}")
 
     return array
 

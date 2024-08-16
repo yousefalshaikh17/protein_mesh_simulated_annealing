@@ -1,6 +1,11 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+tests for the properties metrics of tetrahedra
+
+----------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -31,12 +36,6 @@ class TestTetProps(unittest.TestCase):
                       [1.0, 0.0, 0.0]]
 
         self.nodes = [NodePoint(0, x[0], x[1], x[2]) for x in self.verts]
-
-    def tearDown(self):
-        """
-        clean up
-        """
-        pass
 
     def test_tet_volume(self):
         """

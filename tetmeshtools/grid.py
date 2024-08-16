@@ -1,6 +1,11 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+a class that makes and stores a three dimensional grid.
+
+----------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -24,7 +29,7 @@ from tetmeshtools.voxelsize import VoxelSize
 
 class Grid():
     """
-    make and store a 3D grid
+    a class that makes and stores a three dimensional gri
     """
 
     def __init__(self, counts, start, end, image_counts):

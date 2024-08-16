@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>844</width>
-    <height>367</height>
+    <width>691</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -304,8 +304,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>844</width>
-     <height>22</height>
+     <width>691</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -533,9 +533,9 @@
   </connection>
   <connection>
    <sender>_surfaceButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>show_surface(bool)</slot>
+   <signal>stateChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>show_faces(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>105</x>
@@ -549,9 +549,9 @@
   </connection>
   <connection>
    <sender>_surfaceLatticeButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>TetgenViewerMain</receiver>
-   <slot>show_surface_lattice(bool)</slot>
+   <signal>stateChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>show_surface_lattice(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>245</x>
@@ -624,22 +624,6 @@
     <hint type="destinationlabel">
      <x>327</x>
      <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>_showTetBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>_tetViewer</receiver>
-   <slot>show_current_tet(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>198</x>
-     <y>122</y>
     </hint>
    </hints>
   </connection>
@@ -720,6 +704,22 @@
     <hint type="destinationlabel">
      <x>421</x>
      <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>_showTetBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>_tetViewer</receiver>
+   <slot>show_current_tet(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>215</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>114</y>
     </hint>
    </hints>
   </connection>

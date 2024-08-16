@@ -1,6 +1,11 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+tests for the properties metrics of tetrahedral meshes
+
+----------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -26,26 +31,14 @@ class TestMeshProps(unittest.TestCase):
     tests of Tetgen file reader
     """
 
-    def setUp(self):
-        """
-        build a full test class
-        """
-        pass
-
-    def tearDown(self):
-        """
-        clean up
-        """
-        pass
-
     def test_nodepoint_to_edge_array(self):
         """
         test NodePoint to_edge_arry
         """
-        p1 = tgs.NodePoint(0, 1.0, 1.0, 1.0)
-        p2 = tgs.NodePoint(0, 2.0, 2.0, 2.0)
+        point1 = tgs.NodePoint(0, 1.0, 1.0, 1.0)
+        point2 = tgs.NodePoint(0, 2.0, 2.0, 2.0)
 
-        result = p1.to_edge_array(p2)
+        result = point1.to_edge_array(point2)
         self.assertAlmostEqual(result,
                                [1.0, 1.0, 1.0],
                                msg="tetmeshtools.tetgenstructs.to_edge_array")

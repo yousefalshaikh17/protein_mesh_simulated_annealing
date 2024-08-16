@@ -1,6 +1,11 @@
 """
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+script running all unit tests
+
+--------------------------------------
+
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -12,12 +17,16 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 @copyright 2023
 @author: j.h.pickering@leeds.ac.uk and j.leng@leeds.ac.uk
 """
+# set up linting
+# pylint: disable = import-error
+
 import unittest
 
 from tetmeshtools.tests.testreadtetgen import TestReadTetgen
 from tetmeshtools.tests.testmeshprops import TestMeshProps
 from tetmeshtools.tests.testtetprops import TestTetProps
 from tetmeshtools.tests.testsimulatedannealing import TestSimulatedAnnealing
+from tetmeshtools.tests.testguicontrols import TestGuiControls
 
 def make_suite():
     """
@@ -37,6 +46,10 @@ def make_suite():
     suite.addTest(TestTetProps('test_tet_area'))
     suite.addTest(TestTetProps('test_triangle_area'))
     suite.addTest(TestTetProps('test_edges_to_area_ratio_squared'))
+    suite.addTest(TestGuiControls('test_initial_state'))
+    suite.addTest(TestGuiControls('test_sliders_limits'))
+    suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
+    suite.addTest(TestGuiControls('test_check_boxes'))
 
     suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping1'))
     suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping2'))

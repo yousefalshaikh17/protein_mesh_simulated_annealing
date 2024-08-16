@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 """
- five_tets.py
-
  A script that processes MRC files and produces a regular
  tetrahedral volumetric mesh, with five or six tetrahedra
  in each voxel, using the "marching tet" algorithm. This is
@@ -10,8 +8,9 @@
 
  ----------------------------
 
-You should have received a copy of the GNU General Public License.
-If not, see <http://www.gnu.org/licenses/>.
+Licensed under the GNU General Public License, Version 3.0 (the "License"); you
+may not use this file except in compliance with the License. You may obtain a
+copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -30,9 +29,6 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 import sys
 import argparse
 import pathlib
-# import cProfile
-# import pstats
-# import io
 from tetmeshtools.maketets import convert_mrc_to_tets
 
 def get_args():
@@ -43,7 +39,7 @@ def get_args():
     """
     description = ("process MRC files and produces a regular "
         "tetrahedral volumetric mesh using the \"marching tet\" algorithm. "
-        "This is written out in the tetgen .ele, .face, and .node file format, and .vtk for mesh analysis."
+        "Output in the tetgen .ele, .face, and .node file format, and .vtk for mesh analysis."
 
         "Coding:   Molly Gravett (bsmgr@leeds.ac.uk), "
         "Joanna Leng (J.Leng@leeds.ac.uk), "
