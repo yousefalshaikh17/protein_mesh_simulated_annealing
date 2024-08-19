@@ -3,8 +3,8 @@ import sys
 import mrcfile
 import pathlib
 import tetmeshtools.mrclininterpolate as mi
-from tetmeshtools.scripts.simulated_annealing.copy_mesh import read_tetgen_file, remove_suffix, write_tetgen_file
-from tetmeshtools.scripts.simulated_annealing.compute_densities import compute_node_densities, get_density_at_point
+from copy_mesh import read_tetgen_file, remove_suffix, write_tetgen_file
+from compute_densities import compute_node_densities, get_density_at_point
 from tetmeshtools.meshtools.tetgenstructs import NodePoint
 import tetmeshtools.tetprops as tp
 from tetmeshtools.meshtools.trisurface import TriSurface
