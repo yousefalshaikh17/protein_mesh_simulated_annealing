@@ -69,13 +69,6 @@ def print_mesh_data(nodes, faces, tet_props):
 
     print("\n\n")
 
-    # print("Elements:")
-    # print(f"{'Index':<10}{'Vertix0':<15}{'Vertix1':<15}{'Vertix2':<15}{'Vertix3':<15}{'RA':<15}")
-    # print('-' * 75)
-    # for i in tets:
-    #     tet = tets[i]
-    #     print(f"{tet.index:<10}{tet.vert0:<15.5f}{tet.vert1:<15.5f}{tet.vert2:<15.5f}{tet.vert3:<15.5f}" f"{f'(tet.ra:<15.5f)' if tet.ra is not None else 'N/A'}")
-
     print("Elements:")
     print(f"{'TetGenIndex':<13}{'Shortest Side':<15}{'Volume':<15}{'Surface Area':<15}{'Shape Factor':<15}")
     print('-' * 75)
@@ -110,7 +103,6 @@ def verify_surface_tetrahedron(surface_tets, tets, faces):
             return False
     return True
 
-import time # remove later. *****
 def main():
     args = get_args()
     # Verify arguments
@@ -124,21 +116,6 @@ def main():
 
     # Print mesh
     print_mesh_data(nodes, faces, tets)
-
-    # TODO: Process the mesh
-    # strt_time = time.time()
-    # surface_tets = get_surface_tets(tets, faces)
-    # print(time.time()-strt_time)
-    
-
-    # print(len(surface_tets))
-    # print(len(faces))
-
-    # Verify surface tets (*** remove)
-    # if verify_surface_tetrahedron(surface_tets, tets, faces):
-    #     print("Surface tetrahedrons verified.")
-    # else:
-    #      print("Surface tetrahedrons verification failed.")
 
     # Save mesh data as a file
     write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets)
