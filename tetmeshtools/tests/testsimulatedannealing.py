@@ -1,7 +1,13 @@
 import unittest
-from tetmeshtools.scripts.temp.simulated_annealing import compute_probability_of_keeping
+from tetmeshtools.scripts.simulated_annealing.simulated_annealing import compute_probability_of_keeping, mutate
+from tetmeshtools.meshtools.tetgenstructs import NodePoint
 
-#@TODO work on naming
+def is_within_threshold(original, mutated, threshold):
+    diff_x = abs(original.x - mutated.x)
+    diff_y = abs(original.y - mutated.y)
+    diff_z = abs(original.z - mutated.z)
+    return diff_x <= threshold and diff_y <= threshold and diff_z <= threshold
+
 class TestSimulatedAnnealing(unittest.TestCase):
     """
     tests for simulated annealing
@@ -57,3 +63,28 @@ class TestSimulatedAnnealing(unittest.TestCase):
 
         output = compute_probability_of_keeping(old_fitness, new_fitness, temperature, k=k)
         self.assertAlmostEqual(output, expected_result, delta=0.001, msg="simulated_annealing.compute_probability_of_keeping")
+
+
+    def test_mutate1(self):
+        temperature = 5
+        mutation_multiplier = 1
+        original_node = NodePoint(1, 34.2, 43.6, 13.1)
+        for _ in range(10):
+            mutated_node = mutate(original_node, temperature, mutation_multiplier=mutation_multiplier)
+            # If mutated node is identical, try once more.
+            if mutated_node == original_node:
+                mutated_node = mutate(original_node, temperature, mutation_multiplier=mutation_multiplier)
+                self.assertNotEqual(original_node, mutated_node, msg="simulated_annealing.test_mutate (Node was not mutated.)")
+            self.assertTrue(is_within_threshold(original_node, mutated_node, temperature * mutation_multiplier), msg="simulated_annealing.test_mutate (Mutation went over the limits)")
+
+    def test_mutate2(self):
+        temperature = 30
+        mutation_multiplier = 0.7
+        original_node = NodePoint(1, 662.2, -139.6, -439.1)
+        for _ in range(10):
+            mutated_node = mutate(original_node, temperature, mutation_multiplier=mutation_multiplier)
+            # If mutated node is identical, try once more.
+            if mutated_node == original_node:
+                mutated_node = mutate(original_node, temperature, mutation_multiplier=mutation_multiplier)
+                self.assertNotEqual(original_node, mutated_node, msg="simulated_annealing.test_mutate (Node was not mutated.)")
+            self.assertTrue(is_within_threshold(original_node, mutated_node, temperature * mutation_multiplier), msg="simulated_annealing.test_mutate (Mutation went over the limits)")

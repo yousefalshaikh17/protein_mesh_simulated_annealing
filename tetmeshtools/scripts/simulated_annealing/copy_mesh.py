@@ -3,7 +3,6 @@ import pathlib
 import sys
 import tetmeshtools.tetprops as tp
 import tetmeshtools.meshtools.tetgenread as tr
-# import tetmeshtools.tetgen_write as tw
 import tetmeshtools.meshtools.tetgenwrite as tw
 
 
@@ -45,7 +44,6 @@ def read_tetgen_file(root_name):
     return nodes, faces, tets, tet_props
     
 def write_tetgen_file(root_name, nodes, faces, tets, comment=None):
-    # tw.write_tetgen_output(root_name, tets, nodes, faces)
     tw.write_tetgen_faces(root_name, faces, comment)
     tw.write_tetgen_elements(root_name, tets, comment)
     tw.write_tetgen_nodes(root_name, nodes, comment)

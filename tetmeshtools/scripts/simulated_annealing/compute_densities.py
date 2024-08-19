@@ -3,7 +3,7 @@ import sys
 import mrcfile
 import pathlib
 import tetmeshtools.mrclininterpolate as mi
-from tetmeshtools.scripts.temp.copy_mesh import read_tetgen_file, remove_suffix
+from tetmeshtools.scripts.simulated_annealing.copy_mesh import read_tetgen_file, remove_suffix
 
 def get_args():
     description = "Calculates the density of each node and face given an MRC file and a tetmesh file."

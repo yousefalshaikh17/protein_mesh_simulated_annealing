@@ -25,8 +25,13 @@ import unittest
 from tetmeshtools.tests.testreadtetgen import TestReadTetgen
 from tetmeshtools.tests.testmeshprops import TestMeshProps
 from tetmeshtools.tests.testtetprops import TestTetProps
-from tetmeshtools.tests.testsimulatedannealing import TestSimulatedAnnealing
 from tetmeshtools.tests.testguicontrols import TestGuiControls
+
+
+from testsimulatedannealing import TestSimulatedAnnealing
+from testwritetetgen import TestWriteTetgen
+
+
 
 def make_suite():
     """
@@ -51,9 +56,15 @@ def make_suite():
     suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
     suite.addTest(TestGuiControls('test_check_boxes'))
 
+    suite.addTest(TestWriteTetgen('test_write_nodes'))
+    suite.addTest(TestWriteTetgen('test_write_faces'))
+    suite.addTest(TestWriteTetgen('test_write_tets'))
+
     suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping1'))
     suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping2'))
     suite.addTest(TestSimulatedAnnealing('test_probability_of_keeping3'))
+    suite.addTest(TestSimulatedAnnealing('test_mutate1'))
+    suite.addTest(TestSimulatedAnnealing('test_mutate2'))
 
     return suite
 
