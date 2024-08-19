@@ -20,11 +20,6 @@ def get_args():
                         type=pathlib.Path,
                         required=True,
                         help="input tetmesh file")
-    parser.add_argument("-o",
-                        "--output",
-                        type=pathlib.Path,
-                        required=True,
-                        help="output file name root, (no suffix)")
     # Maybe other arguments for mesh optimization later on.
     return parser.parse_args()
 
@@ -37,19 +32,13 @@ def command_validation(args):
         return f"Error: file {args.tetmeshfile} does not exist!"
     return None
 
-# def convert_to_grid(input_file):
-#     with mrcfile.mmap(input_file, mode='r+') as mrc:
-#         image = mi.MRCImage(mrc)
-#         # image.linear_interp(image.to_coords()))
-#         grid = mt.make_density_at_vertex_grid(image)
-#     return grid ***
-
-cache = {}
-
 def get_density_at_point(image, x,y,z):
     coords = image.to_coords(x,y,z)
     if not isinstance(coords, int):
-        return image.linear_interp(coords)
+        try:
+            return image.linear_interp(coords)
+        except Exception as E:
+            print(f"Error calculating density: {E}")
     return None
 
 def compute_node_densities(image, nodes):
@@ -78,6 +67,8 @@ def print_node_densities(nodes, node_densities):
     print(f"{'Index':<10}{'X':<15}{'Y':<15}{'Z':<15}{'Density':<15}")
     print('-' * 70)
     for i, node in nodes.items():
+        if i > 5:
+            break
         print(f"{node.index:<10}{node.x:<15.5f}{node.y:<15.5f}{node.z:<15.5f}{node_densities[i]:<15.8f}")
 
 def print_face_densities(faces, face_densities):
@@ -86,6 +77,8 @@ def print_face_densities(faces, face_densities):
     print(f"{'Index':<10}{'Vertix0':<10}{'Vertix1':<10}{'Vertix2':<10}{'Density':<15}")
     print('-' * 55)
     for i, face in faces.items():
+        if i > 5:
+            break
         print(f"{face.index:<10}{face.vert0:<10}{face.vert1:<10}{face.vert2:<10}{face_densities[i]:<15.8f}")
 
 def print_element_densities(tets, tet_densities):
@@ -94,6 +87,8 @@ def print_element_densities(tets, tet_densities):
     print(f"{'Index':<10}{'Vertix0':<10}{'Vertix1':<10}{'Vertix2':<10}{'Vertix3':<10}{'Density':<15}")
     print('-' * 65)
     for i, tet in tets.items():
+        if i > 5:
+            break
         print(f"{tet.index:<10}{tet.vert0:<10}{tet.vert1:<10}{tet.vert2:<10}{tet.vert3:<10}{tet_densities[i]:<15.8f}")
 
 def main():
@@ -112,7 +107,7 @@ def main():
         mrc_image = mi.MRCImage(mrc)
     
     # Iterate through all nodes and compute/print densities for them
-    node_densities = compute_node_densities(path, nodes)
+    node_densities = compute_node_densities(mrc_image, nodes)
     print_node_densities(nodes, node_densities)
 
     # Use previous node density dictionary to calculate face densities and print them.

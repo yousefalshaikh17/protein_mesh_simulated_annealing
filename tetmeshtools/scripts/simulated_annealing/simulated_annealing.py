@@ -11,7 +11,6 @@ import tetmeshtools.tetprops as tp
 from tetmeshtools.meshtools.trisurface import TriSurface
 import numpy as np
 import random
-from random import Random
 import time
 import math
 import pandas
@@ -24,18 +23,17 @@ def get_args():
                         "--mrcfile",
                         type=pathlib.Path,
                         required=True,
-                        help="input MRC file")
-    
+                        help="Input MRC file")
     parser.add_argument("-i",
                         "--tetmeshfile",
                         type=pathlib.Path,
                         required=True,
-                        help="input tetmesh file")
+                        help="Input tetmesh file")
     parser.add_argument("-o",
                         "--output",
                         type=pathlib.Path,
                         required=True,
-                        help="output file name root, (no suffix)")
+                        help="Output file name root, (no suffix)")
     parser.add_argument("--density_weight",
                         "-A",
                         type=float,
@@ -51,7 +49,7 @@ def get_args():
     parser.add_argument("--mutation_probability",
                         type=float,
                         required=True,
-                        help="Multiplier controls how large mutation changes can be.")
+                        help="Probability of mutating a node.")
     parser.add_argument("--mutation_multiplier",
                         type=float,
                         required=True,
@@ -59,13 +57,18 @@ def get_args():
     parser.add_argument("-t",
                         "--temperature",
                         "--initial_temperature",
-                        type=int,
+                        type=float,
                         required=True,
                         help="Controls the initial temperature.")
+    parser.add_argument("--temperature_decrement",
+                        type=float,
+                        required=False,
+                        default=1,
+                        help="Decrement of temperature.")
     parser.add_argument("--iterations_per_temperature",
                         type=int,
                         required=True,
-                        help="How many iterations are done at each temperature change.")
+                        help="Determines how many iterations are done at each temperature change.")
     parser.add_argument("-s",
                         "--seed",
                         type=int,
@@ -78,33 +81,100 @@ def get_args():
     parser.add_argument("-k",
                         type=float,
                         required=False,
-                        default=0.15,
+                        default=1,
                         help="Multiplier against T for checking probability of keeping worse fitness.")
-    
-    
-    # Maybe other arguments for mesh optimization later on.
+    parser.add_argument("-p",
+                        "--progress",
+                        action="store_true",
+                        help="Print optimization progress (may slow down optimization)")
+
     return parser.parse_args()
 
+def get_sum_of_density_error(node_densities, target_density):
+    """
+    This function returns the sum of density error given a list of values.
 
-def sum_error(target, new):
-    return abs(target - new)
-
-
-def fitness_function(node_densities, surface_area_values, target_density=1, A=1, B=1):
+    Parameters
+    ----------
+    node_densities : list
+        A list of all the node densities.
+    target_density : float
+        Density to be targeted
+    
+    Returns
+    -------
+    float
+        a number representing the sum of density error.
+    """
     sum_of_density_error = 0
-    for density in node_densities.values():
+    for density in node_densities:
         sum_of_density_error += abs(target_density - density)
+    return sum_of_density_error
 
-    # print(sum_of_density_error)
+def get_surface_area_variance(surface_area_values):
+    """
+    This function returns the surface area variance of the mesh.
 
-    variance = np.var(surface_area_values)
-    # print("Raw Density Error and Surface Area Variance: ",sum_of_density_error, variance)
-    # print("Weighted Density Error and Surface Area Variance: ",(A * sum_of_density_error),(B * variance))
-    # balance = (A * sum_of_density_error)/(B * variance)
-    return (A * sum_of_density_error) + (B * variance)#, sum_of_density_error, surface_area_values
+    Parameters
+    ----------
+    surface_area_values : list
+        A list of all face areas.
+    
+    Returns
+    -------
+    float
+        Surface area variance of the solution.
+    """
+    return np.var(surface_area_values)
+
+def fitness_function(node_densities, surface_area_values, target_density, A=1, B=1):
+    """
+    This function returns fitness score of the current solution.
+
+    @TODO Add more parameters in order to optimize tetrahedrons.
+
+    Parameters
+    ----------
+    node_densities : list
+        A list of all node densities.
+    surface_area_values : list
+        A list of all face areas.
+    target_density : float
+        Target density of nodes.
+    A : float, optional
+        Weighting for the sum of node density error. (Default is 1)
+    B : float, optional
+        Weighting for the surface area variance. (Default is 1)
+    
+    Returns
+    -------
+    float
+        Fitness score of the current solution.
+    """
+    sum_of_density_error = get_sum_of_density_error(node_densities, target_density=target_density)
+    surface_area_variance = get_surface_area_variance(surface_area_values)
+    return (A * sum_of_density_error) + (B * surface_area_variance)
         
 
 def mutate(node, temperature, mutation_multiplier=1):
+    """
+    This function takes a node and creates a mutated copy of it.
+
+    Parameters
+    ----------
+    node : NodePoint
+        A node to be mutated.
+    temperature : float
+        Current temperature.
+    mutation_multiplier : float, optional
+        Scale of mutation. (Default is 1)
+    
+    Returns
+    -------
+    NodePoint
+        New node that has been mutated.
+    """
+    
     mutation_max_value = mutation_multiplier * temperature
     new_node = NodePoint(node.index,
         node.x + random.uniform(-mutation_max_value, mutation_max_value),
@@ -113,28 +183,133 @@ def mutate(node, temperature, mutation_multiplier=1):
     )
     return new_node # Maybe also return how close it was to max value (might help with skipping temperature for faster processing)
 
-def compute_probability_of_keeping(old_fitness, new_fitness, temperature, k=0.15):
-    return math.exp((old_fitness - new_fitness)/ (temperature * k))
+def compute_probability_of_keeping(current_fitness, new_fitness, temperature, k=1):
+    """
+    This function returns the probability of accepting a worse solution
+    based on the delta fitness, temperature, and the value of k.
+
+    Parameters
+    ----------
+    current_fitness : float
+        Fitness of the current solution.
+    new_fitness : float
+        Fitness of the new solution.
+    temperature : float
+        Current temperature.
+    k : float, optional
+        Weight to adjust range of accepted probabilities. (Default is 1)
+    
+    Returns
+    -------
+    float
+        a number representing the probability of acceptance.
+    """
+    if new_fitness == current_fitness:
+        return 1
+    return math.exp((current_fitness - new_fitness)/ (temperature * k))
+
+def metropolis_algorithm(current_fitness, new_fitness, temperature, k=1):
+    """
+    This function returns whether the new solution should be accepted
+    using the metropolis algorithm.
+
+    Parameters
+    ----------
+    current_fitness : float
+        Fitness of the current solution.
+    new_fitness : float
+        Fitness of the new solution.
+    temperature : float
+        Current temperature.
+    k : float, optional
+        Weight to adjust range of accepted probabilities. (Default is 1)
+    
+    Returns
+    -------
+    tuple of bool
+        A tuple containing two booleans:
+            - First boolean represents whether the solution was accepted.
+            - Second boolean represents whether it is a worse solution that was accepted.
+    """
+
+    accept_change = current_fitness > new_fitness
+    worse_solution_accepted = False
+    if False and not accept_change:
+        keep_probability = compute_probability_of_keeping(current_fitness, new_fitness, temperature, k=k)
+        if random.random() <= keep_probability:
+            accept_change, worse_solution_accepted = True, True
+    return accept_change, worse_solution_accepted
+
+
 
 def simulated_annealing(
         mrc_image,
         nodes,
         faces,
+        target_density,
         A=1,
         B=1,
-        mutation_probability=0.6,
-        target_density=0.6,
-        mutation_multiplier = 0.6,
+        k = 1,
+        mutation_probability=1,
+        mutation_multiplier = 1,
         iterations_per_temp = 100,
         initial_temperature = 100,
-        seed = None,
-        k = 0.15
-    ): # Consider turning into an object
+        temperature_decrement = 1,
+        print_progress = False,
+        seed = None
+    ):
+    """
+    Performs simulated annealing on the nodes & faces of a mesh.
 
-    _early_terminate = 500
+    Parameters
+    ----------
+    mrc_image : MRCImage
+        The MRC image of the protein.
+    nodes : dict
+        Dictionary of all nodes.
+    faces : dict
+        Dictionary of all faces.
+    target_density : float
+        Target density of nodes.
+    A : float, optional
+        Weighting for the sum of node density error. (Default is 1)
+    B : float, optional
+        Weighting for the surface area variance. (Default is 1)
+    k : float, optional
+        Weight to adjust range of accepted probabilities. (Default is 1)
+    mutation_probability : float, optional
+        Probability of mutating a node. (Default is 1)
+    mutation_multiplier : float, optional
+        Scale of mutation. (Default is 1)
+    iterations_per_temp : int, optional
+        Iterations (Steps) per temperature. (Default is 100)
+    initial_temperature : float, optional
+        Initial temperature for the algorithm. (Default is 100)
+    temperature_decrement : float, optional
+        Temperature decrement for the algorithm. (Default is 1)
+    print_progress : boolean, optional
+        Print algorithm progress on the console. (Default is False)
+    seed : int?, optional
+        Seed for randomization. (Default is None)
+    
+    Returns
+    -------
+    tuple of (dict, pandas.DataFrame)
+        A tuple containing two elements:
+            - dict : A dictionary of all the new mutated nodes.
+            - pandas.DataFrame : Dataframe documenting algorithm progress over each temperature.
+    """
+    
+    # Initialize Seed
     random.seed(seed)
+
     # Compute initial density values
     node_densities = compute_node_densities(mrc_image, nodes)
+
+    # If one of the nodes does not have a density, terminate.
+    if None in node_densities.values():
+        print("One or more node(s) is not fitted to the MRC Image. The optimization cannot continue.")
+        exit()
 
     # Compute initial surface area values
     triangle_surface_areas = dict()
@@ -142,28 +317,42 @@ def simulated_annealing(
     for face_index in tri_surface.get_faces().keys():
         face_nodes = tri_surface.get_triangle_nodes(face_index)
         triangle_surface_areas[face_index] = (tp.area_of_triangle(face_nodes))
-    best_fitness = fitness_function(node_densities, list(triangle_surface_areas.values()), target_density, A=A, B=B) #fitness_function(mrc_image, nodes, faces, A=A, B=B, target_density=0.6, cache_densities=True, cache_areas=True)
 
+    surface_area_list = list(triangle_surface_areas.values())
+
+    current_fitness = fitness_function(node_densities.values(), surface_area_list, target_density, A=A, B=B)
     current_node = None
-    print("Initial Fitness: ", best_fitness)
-    # Start
+
+    # Print initial values.
+    if print_progress:
+        sum_of_density_error = get_sum_of_density_error(node_densities.values(), target_density=target_density)
+        surface_area_variance = get_surface_area_variance(surface_area_list)
+        print("Initial Raw Density Error and Surface Area Variance:      ", sum_of_density_error, surface_area_variance)
+        print("Initial Weighted Density Error and Surface Area Variance: ", (A * sum_of_density_error),(B * surface_area_variance))
+        print("Initial Fitness: ", current_fitness)
+
+    # Start logging
     df = pandas.DataFrame({
         "Temperature": [],
         "Avg Surface Area": [],
         "Surface Area Variance": [],
         "Avg Node Density": [],
         "Node Density Variance": [],
+        "Node Density Error": []
     })
+
+    # Start
     start_time = time.time()
     try:
-        for temperature in range(initial_temperature, 1, -1): # Change decrement method
-            temp_start_time = time.time()
-            print(f"New Temperature: {temperature}")
-            last_best_iteration = 0
+        temperature = initial_temperature
+        while temperature > 0:
+            if print_progress:
+                print(f"Current Temperature: {temperature}")
             for i in range(iterations_per_temp): # Maybe change it to not be a value
-                probabilities = []
                 successful_mutations = 0
-                old_fitness = best_fitness
+                worse_solutions_accepted = 0
+                worse_solutions_total = 0
+                old_fitness = current_fitness
                 for node in nodes.values():
                     if random.random() <= mutation_probability:
                         current_node = node
@@ -179,8 +368,6 @@ def simulated_annealing(
                         # Save node as replacement for original (Might be swapped back later)
                         nodes[node.index] = new_node
                         
-                        
-
                         old_triangle_areas = dict()
                         for face in faces.values():
                             # Check if a face is associated with a node
@@ -191,46 +378,52 @@ def simulated_annealing(
                                 old_triangle_areas[face.index] = triangle_surface_areas[face.index]
                                 # Apply new area
                                 triangle_surface_areas[face.index] = area
+
+                                # If inverted, something has gone wrong and the algorithm should terminate.
                                 if (np.sign(area) != np.sign(old_triangle_areas[face.index])):
                                     print("inverted.")
                                     exit()
 
                         # Cache old density
                         old_density = node_densities[node.index]
+
                         # Apply new density
                         node_densities[node.index] = new_density
 
+                        # Calculate fitness of the new solution
+                        new_fitness = fitness_function(node_densities.values(), list(triangle_surface_areas.values()), target_density, A=A, B=B)
 
-                        new_fitness = fitness_function(node_densities, list(triangle_surface_areas.values()), target_density, A=A, B=B)
-                        # delta_fitness = best_fitness - new_fitness 
-                        keep_probability = compute_probability_of_keeping(best_fitness, new_fitness, temperature, k=k)
-                        random_decimal = random.random()
-                        if best_fitness > new_fitness or random_decimal <= keep_probability:
-                            if best_fitness <= new_fitness and random_decimal <= keep_probability:
-                                probabilities.append(keep_probability)
-                            if node.index == 1:
-                                print(node)
-                                print(new_node)
+                        # Metropolis algorithm to determine acceptance
+                        accept_change, accepted_worse_solution = metropolis_algorithm(current_fitness, new_fitness, temperature, k=k)
+
+                        if accept_change:
+                            if accepted_worse_solution:
+                                worse_solutions_accepted += 1
+                                worse_solutions_total += 1
                             current_node = None
-                            best_fitness = new_fitness
+                            current_fitness = new_fitness
                             successful_mutations += 1
-                            # print(f"New Best Fitness: {best_fitness} at iteration {i} (temperature: {temperature}) (Time Since Start: {round(time.time() - start_time, 2)} seconds)")
-                            last_best_iteration = i
                         else:
+                            worse_solutions_total += 1
                             nodes[node.index] = node
                             # revert cached density and triangle area
                             node_densities[node.index] = old_density
                             for face_index, area in old_triangle_areas.items():
                                 triangle_surface_areas[face_index] = area
-                if len(probabilities) > 0:
-                    avg_probability = np.array(probabilities).mean()
-                    print(f"Average probability of accepting greater fitness: {avg_probability}")
-                if successful_mutations > 0:
-                    print(f"New Best Fitness: {best_fitness} (Improvement: {old_fitness-best_fitness}) at iteration {i} (temperature: {temperature}) (successful mutations: {successful_mutations}) (Time Since Start: {round(time.time() - start_time, 2)} seconds)")
-                if (i - last_best_iteration) > _early_terminate: # Maybe add some weighted randomness
-                    print(f"Early stop for temperature {temperature} at iteration {i}")
-                    break
-            # Log
+                if print_progress:
+                    if successful_mutations > 0:
+                        if worse_solutions_total > 0:
+                            percentage_worse_solutions_accepted = round(worse_solutions_accepted/worse_solutions_total*100,1)
+                        else:
+                            percentage_worse_solutions_accepted = 0
+                        print(f"New Best Fitness: {current_fitness} (Improvement: {old_fitness-current_fitness}) at iteration {i} (temperature: {temperature}) (successful mutations: {successful_mutations}) (worse solutions accepted: {worse_solutions_accepted} ({percentage_worse_solutions_accepted}%)) (Time Since Start: {round(time.time() - start_time, 2)} seconds)")
+                        sum_of_density_error = get_sum_of_density_error(node_densities.values(), target_density=target_density)
+                        surface_area_variance = get_surface_area_variance(list(triangle_surface_areas.values()))
+                        print("Raw Density Error and Surface Area Variance:      ", sum_of_density_error, surface_area_variance)
+                        print("Weighted Density Error and Surface Area Variance: ", (A * sum_of_density_error),(B * surface_area_variance))
+
+            
+            # Log results
             area_values = np.array(list(triangle_surface_areas.values()))
             density_values = np.array(list(node_densities.values()))
             df.loc[len(df.index)] = [
@@ -238,17 +431,36 @@ def simulated_annealing(
                 area_values.mean(),
                 np.var(area_values),
                 density_values.mean(),
-                np.var(density_values)
+                np.var(density_values),
+                get_sum_of_density_error(node_densities.values(), target_density=target_density)
             ]
+
+            # Decrement temperature
+            temperature -= temperature_decrement
     except KeyboardInterrupt:
         if current_node is not None:
             # Swap back for safety measures
             nodes[current_node.index] = current_node
         print(f"Early shutdown.")
-    print(f"Finished in {round(time.time() - start_time, 2)} seconds.")
+    except Exception as E:
+        print("An error has occured. Early Shutdown.")
+        # print(E)
+        import traceback
+        print(traceback.format_exc())
+    if print_progress:
+        print(f"Finished in {round(time.time() - start_time, 2)} seconds.")
+        sum_of_density_error = get_sum_of_density_error(node_densities.values(), target_density=target_density)
+        surface_area_variance = get_surface_area_variance(list(triangle_surface_areas.values()))
+        print("Final results:")
+        print("Raw Density Error and Surface Area Variance:      ", sum_of_density_error, surface_area_variance)
+        print("Weighted Density Error and Surface Area Variance: ", (A * sum_of_density_error),(B * surface_area_variance))
+        print(f"Fitness score: {current_fitness}")
     return nodes, df
 
 def command_validation(args):
+    """
+    Validates arguments provided through the commandline.
+    """
     # Verify that the inputs exist
     if not args.mrcfile.exists():
         return f"Error: file {args.mrcfile} does not exist!"
@@ -260,7 +472,7 @@ def command_validation(args):
         return f"Error: Mutation probability must be less than 1."
     if args.iterations_per_temperature < 1:
         return f"Error: Iterations per temperature must be greater than 0."
-    if args.temperature < 1:
+    if args.temperature <= 0:
         return f"Error: Initial temperature must be greater than 0."
     return None
 
@@ -287,8 +499,10 @@ def main():
     target_density=args.target_density_sum
     iterations_per_temp = args.iterations_per_temperature
     initial_temperature = args.temperature
+    temperature_decrement = args.temperature_decrement
     seed = args.seed
     k = args.k
+    print_progress = args.progress
     
     # Perform mesh optimization
     nodes, df = simulated_annealing(
@@ -303,13 +517,16 @@ def main():
         initial_temperature=initial_temperature,
         iterations_per_temp= iterations_per_temp,
         seed=seed,
-        k=k
+        k=k,
+        temperature_decrement=temperature_decrement,
+        print_progress=print_progress
     )
     # Save evolution file
     df.to_csv(str(args.output)+'_evolution.csv', index=False)
-
-    write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets)
-    print("Saved Model.")
+    comment = f"Simulated Annealing with: A={A}, B={B}, k={k}, mutation_probability={mutation_probability}, target_density={target_density} mutation_multiplier={mutation_multiplier}, iterations_per_temp={iterations_per_temp}, initial_temperature={initial_temperature}, temperature_decrement={temperature_decrement}"
+    write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets, comment=comment)
+    if print_progress:
+        print("Saved Model.")
 
 if __name__ == "__main__":
     main()

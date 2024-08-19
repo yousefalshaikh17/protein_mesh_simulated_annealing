@@ -44,36 +44,19 @@ def read_tetgen_file(root_name):
             return
     return nodes, faces, tets, tet_props
     
-def write_tetgen_file(root_name, nodes, faces, tets):
+def write_tetgen_file(root_name, nodes, faces, tets, comment=None):
     # tw.write_tetgen_output(root_name, tets, nodes, faces)
-    tw.write_tetgen_faces(root_name, faces)
-    tw.write_tetgen_elements(root_name, tets)
-    tw.write_tetgen_nodes(root_name, nodes)
-
-
-# Returns a dictionary where face is the key to value tetrahedron. 
-def get_surface_tets(tets, faces):
-    surface_tets = dict()
-
-    # Create dictionary of vertices for both structures
-    faces_vertices = {face.index: {face.vert0, face.vert1, face.vert2} for face in faces.values()}
-    tets_vertices = {tet.index: {tet.vert0, tet.vert1, tet.vert2, tet.vert3} for tet in tets.values()}
-
-    # Iterate to find matches
-    for face_index, face_vertices in faces_vertices.items():
-         for tet_index, tet_vertices in tets_vertices.items():
-              if face_vertices.issubset(tet_vertices):
-                   surface_tets[face_index] = tet_index
-                   break # A face only has one matching tetrahedron.
-    return surface_tets
-
-
+    tw.write_tetgen_faces(root_name, faces, comment)
+    tw.write_tetgen_elements(root_name, tets, comment)
+    tw.write_tetgen_nodes(root_name, nodes, comment)
 
 def print_mesh_data(nodes, faces, tet_props):
     print("Nodes:")
     print(f"{'Index':<10}{'X':<15}{'Y':<15}{'Z':<15}")
     print('-' * 50)
-    for node in nodes.values():
+    for i,node in nodes.items():
+        if i > 5:
+             break
         print(f"{node.index:<10}{node.x:<15.5f}{node.y:<15.5f}{node.z:<15.5f}")
 
     print("\n\n")
@@ -81,7 +64,9 @@ def print_mesh_data(nodes, faces, tet_props):
     print("Faces:")
     print(f"{'Index':<10}{'Vertix0':<15}{'Vertix1':<15}{'Vertix2':<15}{'Boundary Markers':<15}")
     print('-' * 75)
-    for face in faces.values():
+    for i,face in faces.items():
+        if i > 5:
+             break
         print(f"{face.index:<10}{face.vert0:<15}{face.vert1:<15}{face.vert2:<15}{face.bm:<15.5f}")
 
     print("\n\n")
@@ -94,10 +79,12 @@ def print_mesh_data(nodes, faces, tet_props):
     #     print(f"{tet.index:<10}{tet.vert0:<15.5f}{tet.vert1:<15.5f}{tet.vert2:<15.5f}{tet.vert3:<15.5f}" f"{f'(tet.ra:<15.5f)' if tet.ra is not None else 'N/A'}")
 
     print("Elements:")
-    print(f"{'TetGenIndex':<10}{'Shortest Side':<15}{'Volume':<15}{'Surface Area':<15}{'Shape Factor':<15}")
+    print(f"{'TetGenIndex':<13}{'Shortest Side':<15}{'Volume':<15}{'Surface Area':<15}{'Shape Factor':<15}")
     print('-' * 75)
     for i, tet_prop in tet_props.items():
-        print(f"{tet_prop[0]:<10}{tet_prop[1]:<15.5f}{tet_prop[2]:<15.5f}{tet_prop[3]:<15.5f}{tet_prop[4]:<15.5f}")
+        if i > 5:
+             break
+        print(f"{tet_prop[0]:<13}{tet_prop[1]:<15}{tet_prop[2]:<15.5f}{tet_prop[3]:<15.5f}{tet_prop[4]:<15.5f}")
 
 
 def command_validation(args):
@@ -142,7 +129,7 @@ def main():
 
     # TODO: Process the mesh
     # strt_time = time.time()
-    surface_tets = get_surface_tets(tets, faces)
+    # surface_tets = get_surface_tets(tets, faces)
     # print(time.time()-strt_time)
     
 
@@ -150,14 +137,14 @@ def main():
     # print(len(faces))
 
     # Verify surface tets (*** remove)
-    if verify_surface_tetrahedron(surface_tets, tets, faces):
-        print("Surface tetrahedrons verified.")
-    else:
-         print("Surface tetrahedrons verification failed.")
+    # if verify_surface_tetrahedron(surface_tets, tets, faces):
+    #     print("Surface tetrahedrons verified.")
+    # else:
+    #      print("Surface tetrahedrons verification failed.")
 
     # Save mesh data as a file
     write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets)
-    print("Saved mesh files.")
+    print("\n\nSaved mesh files.")
 
 
 if __name__ == "__main__":
