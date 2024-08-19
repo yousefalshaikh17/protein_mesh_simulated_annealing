@@ -66,6 +66,9 @@ class TestSimulatedAnnealing(unittest.TestCase):
 
 
     def test_mutate1(self):
+        """
+        test mutation of node at a low temperature
+        """
         temperature = 5
         mutation_multiplier = 1
         original_node = NodePoint(1, 34.2, 43.6, 13.1)
@@ -78,6 +81,9 @@ class TestSimulatedAnnealing(unittest.TestCase):
             self.assertTrue(is_within_threshold(original_node, mutated_node, temperature * mutation_multiplier), msg="simulated_annealing.test_mutate (Mutation went over the limits)")
 
     def test_mutate2(self):
+        """
+        test mutation of node at a higher temperature
+        """
         temperature = 30
         mutation_multiplier = 0.7
         original_node = NodePoint(1, 662.2, -139.6, -439.1)
