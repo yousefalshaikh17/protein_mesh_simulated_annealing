@@ -508,7 +508,17 @@ def main():
     seed = args.seed
     k = args.k
     print_progress = args.progress
+
+    comment = f"Simulated Annealing with: A={A}, B={B}, k={k}, mutation_probability={mutation_probability}, target_density={target_density} mutation_multiplier={mutation_multiplier}, iterations_per_temp={iterations_per_temp}, initial_temperature={initial_temperature}, temperature_decrement={temperature_decrement}"
     
+    # Initialize file to make sure it exists.
+    try:
+        write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets, comment=comment)
+    except Exception as E:
+        print(f"Failed to write to output file. Exception: {E}")
+        exit()
+
+
     # Perform mesh optimization
     nodes, df = simulated_annealing(
         mrc_image,
@@ -528,7 +538,6 @@ def main():
     )
     # Save evolution file
     df.to_csv(str(args.output)+'_evolution.csv', index=False)
-    comment = f"Simulated Annealing with: A={A}, B={B}, k={k}, mutation_probability={mutation_probability}, target_density={target_density} mutation_multiplier={mutation_multiplier}, iterations_per_temp={iterations_per_temp}, initial_temperature={initial_temperature}, temperature_decrement={temperature_decrement}"
     write_tetgen_file(pathlib.Path(str(args.output)), nodes, faces, tets, comment=comment)
     if print_progress:
         print("Saved Model.")
