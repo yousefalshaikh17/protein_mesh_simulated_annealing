@@ -5,7 +5,7 @@ channels:
 dependencies:
   - pip<24.0
   - vtk
-  - numpy<1.23.0
+  - numpy<1.24.0
   - scipy
   - mrcfile
   - doxygen
@@ -15,4 +15,4 @@ dependencies:
   - pyqt
   - pyrr
   - biopython
-  - pandas
+  - pandas<2.2.2

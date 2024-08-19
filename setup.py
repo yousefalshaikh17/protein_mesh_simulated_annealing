@@ -45,7 +45,11 @@ setup(
             'mrc_threshold = tetmeshtools.scripts.mrc_threshold:main',
             'mrc_voxel_size = tetmeshtools.scripts.mrc_voxel_size:main',
             'pdb_to_mrc = tetmeshtools.scripts.pdb_to_mrc:main',
-            'tgv = tetmeshtools.app_tgv.tgv:main'
+            'tgv = tetmeshtools.app_tgv.tgv:main',
+            # Added by Yousef for Protein Mesh
+            'simulated_annealing = tetmeshtools.scripts.simulated_annealing.simulated_annealing:main',
+            'compute_densities = tetmeshtools.scripts.simulated_annealing.compute_densities:main',
+            'copy_mesh = tetmeshtools.scripts.simulated_annealing.copy_mesh:main'
         ]
     }
     )
