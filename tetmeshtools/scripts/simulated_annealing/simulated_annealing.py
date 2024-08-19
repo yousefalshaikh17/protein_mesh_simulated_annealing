@@ -205,7 +205,13 @@ def compute_probability_of_keeping(current_fitness, new_fitness, temperature, k=
     """
     if new_fitness == current_fitness:
         return 1
-    return math.exp((current_fitness - new_fitness)/ (temperature * k))
+    try:
+        return math.exp((current_fitness - new_fitness)/ (temperature * k))
+    except ZeroDivisionError:
+        pass
+    except OverflowError:
+        pass
+    return 0
 
 def metropolis_algorithm(current_fitness, new_fitness, temperature, k=1):
     """
