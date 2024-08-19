@@ -53,8 +53,6 @@ def print_mesh_data(nodes, faces, tet_props):
     print(f"{'Index':<10}{'X':<15}{'Y':<15}{'Z':<15}")
     print('-' * 50)
     for i,node in nodes.items():
-        if i > 5:
-             break
         print(f"{node.index:<10}{node.x:<15.5f}{node.y:<15.5f}{node.z:<15.5f}")
 
     print("\n\n")
@@ -63,8 +61,6 @@ def print_mesh_data(nodes, faces, tet_props):
     print(f"{'Index':<10}{'Vertix0':<15}{'Vertix1':<15}{'Vertix2':<15}{'Boundary Markers':<15}")
     print('-' * 75)
     for i,face in faces.items():
-        if i > 5:
-             break
         print(f"{face.index:<10}{face.vert0:<15}{face.vert1:<15}{face.vert2:<15}{face.bm:<15.5f}")
 
     print("\n\n")
@@ -73,8 +69,6 @@ def print_mesh_data(nodes, faces, tet_props):
     print(f"{'TetGenIndex':<13}{'Shortest Side':<15}{'Volume':<15}{'Surface Area':<15}{'Shape Factor':<15}")
     print('-' * 75)
     for i, tet_prop in tet_props.items():
-        if i > 5:
-             break
         print(f"{tet_prop[0]:<13}{tet_prop[1]:<15}{tet_prop[2]:<15.5f}{tet_prop[3]:<15.5f}{tet_prop[4]:<15.5f}")
 
 
