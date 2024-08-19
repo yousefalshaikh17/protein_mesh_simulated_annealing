@@ -1,29 +1,29 @@
-Tetrahedral Meshing Tools
+Protein Mesh Optimization Tool Using Simulated Annealing
 =========================
 
-These Python tools were originally developed to support tetrahedral meshes for the Fluctuating Finite Element Analysis [FFEA](https://bitbucket.org/FFEA/ffea/downloads/) package, the authors gratefully acknowledge the help and support of the FFEA team.
-
-The purpose is to convert Medical Research Council (MRC) files to tetrahedral mesh files in Tetgen format, view and analyse the results. FFEA output meshes in their own (.vol) format are also viewable.
+This Python tool allows for a protein mesh to be optimized for use in simulation. Currently, the tool only optimizes the faces of the tetrahedron mesh and the fitness of each node.
 
 The main tools comprise:
 
-    * an converter from MRC files, which are used to store cryogenic electron microscope (cryo-em) data, to tetrahedral mesh files, in Tetgen or VTK formats.
+    * Read & Write functionality for tetrahedal meshes.
 
-    * a visualization tool that both allows the user to interactively explore the tetrahedral mesh and provides properties of the individual tetrahedra.
+    * Ability to compute densities of mesh nodes, faces, and elements using an MRC file.
 
-    * tools for extracting data from MRC files and thresholding the files.
+    * Perform Simulated Annealing on the mesh to improve its quality.
 
-This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
+This work was developed for the Advanced Computer Science Masters of Science Degree Project at the University of Leeds. It makes use of the tet_mesh_tools repository which could be found here: <https://github.com/jonathanHuwP/tet_mesh_tools>
 
-Project start in summer 2021.
+Project start in summer 2024.
 
 ## Version
 
-This is version 1.0
+This is version 1.0 which is what was provided for the project.
 
 ## Copyright and License
 
-The algorithm and software in this project were developed by Joanna Leng, Jonathan Pickering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
+Licenses of the forked repositories apply.
+
+The algorithm and software in the tet_mesh_tools repository were developed by Joanna Leng, Jonathan Pickering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
 Licensed under GNU General Public License v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. You may not use this file except in compliance with the License. You may obtain a copy of the License at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
@@ -31,18 +31,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ## Developed With
 
-The project was developed using Python 3.9 and Anaconda, Inc. on Windows 10 systems. PyQt5 was and pyopengl were used in the viewer.
-
-## Table of Contents
-
-**[Quick Start](#quick-start)**<br>
-**[Installation](#installation)**<br>
-**[Usage](#usage)**<br>
-**[Prerequisites](#prerequisites)**<br>
-**[Installation](#istallation)**<br>
-**[Unit Tests](#unit-tests)**<br>
-**[Worked Example](#example)**<br>
-**[Coding Converntions](#coding)**<br>
+The project was developed using Python 3.9 and Anaconda, Inc. on Windows 11 systems. tet_mesh_tools played a big role in the development of the software.
 
 ## Quick Start
 
@@ -100,15 +89,19 @@ To see what conda environments you have, run the command.
 
 Get a copy of the latest version from GitHub by running.
 
-`git clone https://github.com/jonathanHuwP/tet_mesh_tools`
+`git clone https://github.com/yousefalshaikh17/protein_mesh_simulated_annealing`
 
 or, if you alreay have cloned
 
 `git pull`
 
-If you have an old conda environment remove it.
+If you have an old conda environment (or the tet_mesh_tools environment) remove it.
 
 `conda env remove --name tetmesht`
+
+CD into the repository.
+
+`cd protein_mesh_simulated_annealing`
 
 Create a new environment.
 
@@ -144,93 +137,65 @@ The documentation is build using doxygen,and can be built by running the command
 
 The following scrips are available, all will provide instructions if run from the command line with either '-h' or '--help' options:
 
-### MRC Data
+### Mesh Management
 
-   * **mrc_header_info.py** - print the header from an MRC file
+   * **copy_mesh.py** - Makes an unmodified copy of the input mesh file.
 
-   * **mrc_image_stats.py** - reads an MRC file and prints out its image intensity stats
+### MRC-Mesh Tools
 
-   * **mrc_voxel_size.py** - print an MRC file's voxel size
+   * **compute_densities.py** - Prints density values of mesh nodes, faces, and tetrahedron given MRC Image and mesh.
 
-   * **pdb_to_mrc.py** - simulate a cryo-em MRC file from a protein data base (PDB) using Van der Walls spheres.
+### Optimization
 
-### Filter
-
-   * **mrc_crop.py** - crops 3D MRC image file data
-
-   * **mrc_threshold.py** - reads an MRC file and set all voxels less than the threshold to zero, then outputs to a new file
-
-   * **mrc_coarsen.py** - Coarsens MRC files to a user-defined resolution and outputs them as a new MRC file.
-
-### Meshing
-
-   * **mrc_to_tets.py** - process MRC files and produces a regular tetrahedral volumetric meshes using the "marching tetrahedra" algorithm. Decomposition of the image voxels into 5 or 6 tetrahedra each is available. Output can be in the Tetgen .ele, .face, and .node file format and/or the .vtk format.
-
-### Viewing
-
-   * **tgv.py** - run a viewer capable of rendering a three dimensional images of a mesh. Both Tetgen format files (.node, .ele, .face) and FFEA format files (.vol) can be read. Properties of the tetrahedra and overall mesh are also displayed. View modes are: the whole mesh; the outer surface as a wire frame; and any individual tetrahedron.
-
-### Make Example Mesh Files
-
-   * **make_tet_mesh_examples.py** - Make a pair of voxels decomposed into tetrahedra and output in VTK format. 5 and 6 tetrahedra decompositions are available.
+   * **simulated_annealing.py** - Optimizes a mesh given an MRC Image and mesh.
 
 ## Usage
 
-### mrc_to_tets
+### simulated_annealing
 
-five_tets & six_tets input MRC files and processes them to produce volumetric mesh
- files. VTK files can also be produced for mesh analysis, using vtk based tools such as ParaView.
+This script performs simulated annealing on a mesh given the MRC image, the tetrahedral mesh, and other crucial parameters.
 
 To get started quickly, the usage message can be viewed with the following command:
 
-      python mrc_to_tets.py -h
+      python simulated_annealing.py -h
 
 In order to run five or six_tets there are three required flags:
 
    * -h, --help            show this help message and exit
 
-   * `-i`, `--input` input file
-   * `-o`, `--output` output file name root, (no suffix)
+   * `-m`, `--mrcfile` input MRC file (required)
 
-   * `-v`, `--vtk`     output files in vtk format.
+   * `-i`, `--tetmeshfile` input tetmesh file (required)
 
-   * `-f`, `--ftetg`    output files in Tetgen format.
+   * `-o`, `--output` output file name root, (no suffix) (required)
 
-   * `-t` THRESHOLD, `--threshold` lower filter for voxels, default zero
+   * `-A`, `--density_weight` sum of density weights, default 1
 
-   * `-w`, `--overwrite` overwrite preexisting output files of same name
+   * `-B`, `--surface_area_weights` weights for variance of triangle surface area, default 1
 
-   * `-V`, `--verbose`         write verbose output
+   * `--mutation_probability` probability of mutating a node (required)
 
-   * `-p`, `--progress`        print progress during operation (may slow package)
+   * `--mutation_multiplier` multiplier controlling how large mutation changes can be (required)
 
-   * `-6`, `--use_six_tets`    decompose into six tets, default 5
+   * `-t`, `--temperature`, `--initial_temperature` initial temperature for the annealing process (required)
 
-   * `-m {1,2,3,4}`, `--low_vertices {1,2,3,4}`
-               number vertices above isovalue for tet to be included in mesh (default: 2)
+   * `--temperature_decrement` decrement of temperature, default 1
 
-   * `-n VOX_COUNTS X Y Z`, `--vox_counts VOX_COUNTS X Y Z`
-               voxel size for tets, if not used same as image, enter x y & z in Angstroms
+   * `--iterations_per_temperature` number of iterations per temperature change (required)
 
-The `-n` option allows the coarseness of the mesh to be specified, so `-n 5 10 15` will produce a mesh with five voxels on the x axis, ten on the y and fifteen on the z axis.
+   * `-s`, `--seed` seed to control randomness
 
-The `-m` option specifies the maximum number of vertices that can be below the isovalue on a tetrahedron that is included in the mesh, specified by the PruneLevel enumeration. For example, if prune level is set to 2 then tetrahedra with 0, 1 or 2 vertices below the isovalue are includes in the mesh, while tets with 3 or 4 vertices below the isovalue are culled.
+   * `--target_density_sum` target density sum during annealing (required)
 
-||0|1|2|3|4|
-|----|---|---|---|---|---|
-|**PruneLevel.1**|In|In|**Out**|**Out**|**Out**|
-|**PruneLevel.2**|In|In|In|**Out**|**Out**|
-|**PruneLevel.3**|In|In|In|In|**Out**|
-|**PruneLevel.4**|In|In|In|In|In|
+   * `-k` multiplier against temperature for checking probability of keeping worse fitness, default 1
 
-**Table 1.** The rows specify the possible prune levels the user can choose. For each level the in the mesh, out of the mesh choice is specified for the five possible numbers of vertices a tetrahedron can have below the isovlue, from none to all four.
+   * `-p`, `--progress` print optimization progress (may slow down optimization)
 
-In the output directory defined by `-o` or `--output`, the following files will be found after running tet_from_pix successfully, where [outputname] is the user-defined name of the output files:
+In the output directory defined by `-o` or `--output`, the optimized mesh can be found after running the script successfully, where [outputname] is the user-defined name of the output files:
 
    * [outputname].1.ele
    * [outputname].1.face
    * [outputname].1.node
-   * [outputname].vtk
 
 ## Prerequisites
 
@@ -241,6 +206,9 @@ In the output directory defined by `-o` or `--output`, the following files will 
      Required Python library.
 
    * [SciPy](https://scipy.org/).
+     Required Python library.
+     
+   * [pandas](https://pandas.pydata.org/).
      Required Python library.
 
    * [VTK for Python](https://pypi.org/project/vtk/).
@@ -261,20 +229,8 @@ The directory `tests` contain unit tests for developers working on tet_mesh_tool
 
 `python tetmeshtools/tests/unit_tests.py`
 
-## Worked Example
+### Unit Tests Added
 
-Because publicly available PDB files are more common than cryo-em MRC files, in this example a MRC is simulated from a PDB. The example uses the small plant protein crambin (3nir.pdb) a available from [https://www.rcsb.org/structure/3NIR](https://www.rcsb.org/structure/3NIR).
-
-1. Make a simulated MRC file by running `pdb_to_mrc -i <path>\3nir.pdb -o <path>\3nir.mrc -n 15 15 15 -w soft`
-
-2. To see the information in the file's header run `mrc_header_info -i <path>\3nir.mrc`
-
-3. To see the statistics of the data in the image run `mrc_image_stats -i <path>\3nir.mrc`
-
-4. To convert to a mesh in Tetgen format using five tetrahedra per voxel, run: `mrc_to_tets -i <path>\3nir.mrc -o 3nir -v -f -t 1.5 -w -V -p -m2 -n 10 10 10`
-
-5. View the mesh run `tgv -i <path>\3nir`
-
-## Coding Converntions
-
-The main convention we observe it that all code should have a pylint score above 7.5.
+   * Test to ensure that exported mesh is identical to the original mesh.
+   * Test to ensure that a node is mutated within the limits of the mutation.
+   * Test to ensure that the probability of acceptance works as intended for the Metropolis Algorithm.
