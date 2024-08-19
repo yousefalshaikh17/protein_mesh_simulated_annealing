@@ -3,7 +3,7 @@ import sys
 import mrcfile
 import pathlib
 import tetmeshtools.mrclininterpolate as mi
-from tetmeshtools.scripts.simulated_annealing.copy_mesh import read_tetgen_file, remove_suffix
+from copy_mesh import read_tetgen_file, remove_suffix
 
 def get_args():
     description = "Calculates the density of each node and face given an MRC file and a tetmesh file."
@@ -33,6 +33,9 @@ def command_validation(args):
     return None
 
 def get_density_at_point(image, x,y,z):
+    """
+    Returns the density at the point given the MRC file.
+    """
     coords = image.to_coords(x,y,z)
     if not isinstance(coords, int):
         try:
@@ -67,8 +70,6 @@ def print_node_densities(nodes, node_densities):
     print(f"{'Index':<10}{'X':<15}{'Y':<15}{'Z':<15}{'Density':<15}")
     print('-' * 70)
     for i, node in nodes.items():
-        if i > 5:
-            break
         print(f"{node.index:<10}{node.x:<15.5f}{node.y:<15.5f}{node.z:<15.5f}{node_densities[i]:<15.8f}")
 
 def print_face_densities(faces, face_densities):
@@ -77,8 +78,6 @@ def print_face_densities(faces, face_densities):
     print(f"{'Index':<10}{'Vertix0':<10}{'Vertix1':<10}{'Vertix2':<10}{'Density':<15}")
     print('-' * 55)
     for i, face in faces.items():
-        if i > 5:
-            break
         print(f"{face.index:<10}{face.vert0:<10}{face.vert1:<10}{face.vert2:<10}{face_densities[i]:<15.8f}")
 
 def print_element_densities(tets, tet_densities):
@@ -87,8 +86,6 @@ def print_element_densities(tets, tet_densities):
     print(f"{'Index':<10}{'Vertix0':<10}{'Vertix1':<10}{'Vertix2':<10}{'Vertix3':<10}{'Density':<15}")
     print('-' * 65)
     for i, tet in tets.items():
-        if i > 5:
-            break
         print(f"{tet.index:<10}{tet.vert0:<10}{tet.vert1:<10}{tet.vert2:<10}{tet.vert3:<10}{tet_densities[i]:<15.8f}")
 
 def main():
