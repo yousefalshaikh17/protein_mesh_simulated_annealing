@@ -233,7 +233,7 @@ def metropolis_algorithm(current_fitness, new_fitness, temperature, k=1):
 
     accept_change = current_fitness > new_fitness
     worse_solution_accepted = False
-    if False and not accept_change:
+    if not accept_change:
         keep_probability = compute_probability_of_keeping(current_fitness, new_fitness, temperature, k=k)
         if random.random() <= keep_probability:
             accept_change, worse_solution_accepted = True, True
