@@ -21,7 +21,7 @@ This is version 1.0 which is what was provided for the project.
 
 ## Copyright and License
 
-Licenses of the forked repositories apply.
+Licenses of the forked repositories apply:
 
 The algorithm and software in the tet_mesh_tools repository were developed by Joanna Leng, Jonathan Pickering and J Rogers together with the FFEA team at the University of Leeds. The main funding for this was Joanna Leng's Research Software Engineering Fellowship (EP/R025819/1).
 
@@ -158,6 +158,10 @@ This script performs simulated annealing on a mesh given the MRC image, the tetr
 To get started quickly, the usage message can be viewed with the following command:
 
       python simulated_annealing.py -h
+
+OR
+
+      simulated_annealing -h
 
 In order to run five or six_tets there are three required flags:
 
