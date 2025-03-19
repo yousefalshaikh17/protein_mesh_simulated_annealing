@@ -54,7 +54,9 @@ def make_suite():
     suite.addTest(TestGuiControls('test_initial_state'))
     suite.addTest(TestGuiControls('test_sliders_limits'))
     suite.addTest(TestGuiControls('test_check_boxes_initial_states'))
-    suite.addTest(TestGuiControls('test_check_boxes'))
+    suite.addTest(TestGuiControls('test_showTetBox'))
+    suite.addTest(TestGuiControls('test_surfaceButton'))
+    suite.addTest(TestGuiControls('test_surfaceButton'))
 
     suite.addTest(TestWriteTetgen('test_write_nodes'))
     suite.addTest(TestWriteTetgen('test_write_faces'))

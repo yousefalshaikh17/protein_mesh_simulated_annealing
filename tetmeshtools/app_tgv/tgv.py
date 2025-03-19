@@ -24,8 +24,8 @@ import argparse
 import pathlib
 import sys
 
-import PyQt5.QtCore as qc
-import PyQt5.QtWidgets as qw
+import PyQt6.QtCore as qc
+import PyQt6.QtWidgets as qw
 
 from tetmeshtools.app_tgv.tgvapp import TGVApp
 

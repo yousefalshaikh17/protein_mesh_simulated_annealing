@@ -1,5 +1,5 @@
 """
-the application fthat runs the tetviewer
+the application that runs the tetviewer
 
 -------------------------------------
 
@@ -21,7 +21,7 @@ This work was funded by Joanna Leng's EPSRC funded RSE Fellowship (EP/R025819/1)
 # pylint: disable = import-error
 # pylint: disable = c-extension-no-member
 
-import PyQt5.QtWidgets as qw
+import PyQt6.QtWidgets as qw
 
 from tetmeshtools.app_tgv.gui.tetgenviewermain import TetgenViewerMain
 
@@ -47,4 +47,4 @@ class TGVApp(qw.QApplication):
         window.resize(500, 300)
         window.show()
 
-        self.exec_()
+        self.exec()

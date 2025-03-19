@@ -24,8 +24,8 @@ import pathlib
 import csv
 import numpy as np
 
-import PyQt5.QtWidgets as qw
-import PyQt5.QtCore as qc
+import PyQt6.QtWidgets as qw
+import PyQt6.QtCore as qc
 
 import tetmeshtools.meshtools.tetgenread as tr
 import tetmeshtools.meshtools.tetgenstructs as ts
@@ -236,20 +236,20 @@ class TetgenViewerMain(qw.QMainWindow, Ui_TetgenViewerMain):
 
         for row, key_value in enumerate(tet_props.items()):
             item = qw.QTableWidgetItem()
-            item.setData(qc.Qt.DisplayRole, key_value[0])
+            item.setData(qc.Qt.ItemDataRole.DisplayRole, key_value[0])
             self._tetsTableWidget.setItem(row, 0, item)
             item = qw.QTableWidgetItem()
-            item.setData(qc.Qt.DisplayRole, float(round(key_value[1][0], 2)))
+            item.setData(qc.Qt.ItemDataRole.DisplayRole, float(round(key_value[1][0], 2)))
             self._tetsTableWidget.setItem(row, 1, item)
             item = qw.QTableWidgetItem()
-            item.setData(qc.Qt.DisplayRole, float(round(key_value[1][1], 2)))
+            item.setData(qc.Qt.ItemDataRole.DisplayRole, float(round(key_value[1][1], 2)))
             self._tetsTableWidget.setItem(row, 2, item)
             item = qw.QTableWidgetItem()
-            item.setData(qc.Qt.DisplayRole, float(round(key_value[1][2], 2)))
+            item.setData(qc.Qt.ItemDataRole.DisplayRole, float(round(key_value[1][2], 2)))
             self._tetsTableWidget.setItem(row, 3, item)
             item = qw.QTableWidgetItem()
             tmp = key_value[1][2]/np.power(key_value[1][1], (2.0/3.0))
-            item.setData(qc.Qt.DisplayRole, float(round(tmp, 2)))
+            item.setData(qc.Qt.ItemDataRole.DisplayRole, float(round(tmp, 2)))
             self._tetsTableWidget.setItem(row, 4, item)
 
         self._tetsTableWidget.blockSignals(old_state)

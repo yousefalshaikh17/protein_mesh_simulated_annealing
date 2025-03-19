@@ -31,6 +31,7 @@ nppBackup/
 
 # files generated with pip install
 tetmeshtools.egg-info/
+build/
 
 # Unit test reports
 TEST*.xml
@@ -71,3 +72,4 @@ tmp/*
 *.mrc
 
 tmp/*
+info.md
