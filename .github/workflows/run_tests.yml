@@ -20,7 +20,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: tetmesht
-        environment-file: environment_tetmesht.yml
+        environment-file: tetmesh_conda_env.yml
         auto-activate-base: true
         python-version: 3.9
 

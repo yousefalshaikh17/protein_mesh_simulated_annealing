@@ -37,7 +37,7 @@ The project was developed using Python 3.9 and Anaconda, Inc. on Windows 11 syst
 
 This software runs in a Python 3.9 environment within Anaconda, so you will need to install and open an Anaconda shell. Once that is open, move to the top directory of tet_mesh_tools (the directory with the file README.md in it) and type the following the FIRST time you run the tet_mesh_tools software. Not all the instructions are required for later runs:
 
-`conda env create -f environment_tetmesht.yml`
+`conda env create -f tetmesh_conda_env.yml`
 
 Next, activate the cpt Anaconda environment using the following command:
 
